@@ -1,0 +1,40 @@
+---
+description: Rules for React Components
+globs: **/*.tsx
+alwaysApply: false
+---
+[frontend.mdc](mdc:rules/frontend.mdc)
+[frontend-react-react_coding_standards.mdc](mdc:fitness-engine/.cursor/rules/frontend-react-react_coding_standards.mdc)
+
+Key Principles
+- Use functional, declarative programming. Avoid classes.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Favor named exports for components.
+- Use TypeScript for all code. Prefer interfaces over types.
+- File structure: imports, types, main component, subcomponents, helpers, static content.
+
+React Conventions
+- Use functional components and TypeScript interfaces.
+- Use declarative JSX.
+- Use function, not const, for components.
+- Use Shadcn UI, Radix, and Tailwind CSS for components and styling.
+- Implement responsive design with Tailwind CSS.
+- Use mobile-first approach for responsive design.
+- Place static content and interfaces at file end.
+- Use content variables for static content outside render functions.
+- Use Zod for form validation.
+- Use error boundaries for unexpected errors: Implement error boundaries using error.tsx and global-error.tsx files.
+- Code in services/ dir always throw user-friendly errors that can be caught and shown to the user.
+- Handle errors gracefully and return appropriate error messages.
+
+Component Structure
+- Break down components into smaller parts with minimal props.
+- Use composition to build complex components.
+
+Data Fetching and State Management
+- Use TanStack Query for data fetching when possible.
+- Use nanostores/react for global state management.
+- Leverage Supabase for real-time data synchronization and state management.
+
+Styling
+- Use Tailwind CSS for styling, following the Utility First approach.

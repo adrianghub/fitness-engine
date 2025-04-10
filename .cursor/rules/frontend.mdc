@@ -1,0 +1,45 @@
+---
+description: Shared rules across all frontend-related files
+globs: **/*.tsx
+alwaysApply: false
+---
+[coding_practices-support_level-support_beginner.mdc](mdc:fitness-engine/.cursor/rules/coding_practices-support_level-support_beginner.mdc)
+[devops-cloud-gcp.mdc](mdc:fitness-engine/.cursor/rules/devops-cloud-gcp.mdc)
+[devops-ci_cd-github_actions.mdc](mdc:fitness-engine/.cursor/rules/devops-ci_cd-github_actions.mdc)
+[coding_practices-architecture-adr.mdc](mdc:fitness-engine/.cursor/rules/coding_practices-architecture-adr.mdc)
+[coding_practices-documentation-doc_updates.mdc](mdc:fitness-engine/.cursor/rules/coding_practices-documentation-doc_updates.mdc)
+
+Key Principles
+- Use firebase SDK to comunicate with backend services
+- Use ReactQuery [frontend-react-react_query.mdc](mdc:fitness-engine/.cursor/rules/frontend-react-react_query.mdc)
+- Organize files using modules
+
+Component Development
+- Create .tsx files for React components
+- Implement proper component composition and reusability.
+- Use component props for data passing.
+
+Routing and Pages
+- Use https://tanstack.com/router/latest
+- Directory src/routes
+
+Styling
+- Prefer Tailwind CSS for styling components
+- Leverage global styles when necessary, importing them in layouts. [frontend-styling-tailwind.mdc](mdc:fitness-engine/.cursor/rules/frontend-styling-tailwind.mdc)
+
+Tailwind CSS Best Practices
+- Use Tailwind utility classes in components.
+- Leverage Tailwind's responsive design utilities (sm:, md:, lg:, etc.).
+- Utilize Tailwind's color palette and spacing scale for consistency.
+- Avoid using the @apply directive
+
+Performance Optimization
+- Implement proper lazy loading for images and other assets.
+- Utilize built-in asset optimization features.
+
+Accessibility
+- Ensure proper semantic HTML structure in all components.
+- Implement ARIA attributes where necessary.
+- Implement proper ARIA labels and roles for components.
+- Ensure keyboard navigation support for interactive elements.
+- Ensure color contrast ratios meet WCAG standards for readability.

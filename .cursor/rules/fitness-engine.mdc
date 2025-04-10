@@ -1,0 +1,18 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# AI Rules for FitnessEngine
+
+FitnessEngine is a progressive web application (PWA) designed to boost motivation and promote consistency in fitness training. The app offers users personalized workout challenges tailored to their experience level, opportunities to compete against fictional opponents, and clear progress tracking. It addresses common issues such as the lack of personalized training plans, insufficient competitive elements, and unclear progress monitoring.
+
+[shared.mdc](mdc:shared.mdc)
+[backend.mdc](mdc:backend.mdc)
+[backend-node-express.mdc](mdc:backend-node-express.mdc)
+[frontend-react-react_query.mdc](mdc:frontend-react-react_query.mdc)
+[frontend.mdc](mdc:frontend.mdc)
+[frontend-styling-tailwind.mdc](mdc:frontend-styling-tailwind.mdc)
+[frontend-react-react_coding_standards.mdc](mdc:frontend-react-react_coding_standards.mdc)
+[devops-ci_cd-github_actions.mdc](mdc:devops-ci_cd-github_actions.mdc)
+[coding_practices-architecture-clean_architecture.mdc](mdc:coding_practices-architecture-clean_architecture.mdc)

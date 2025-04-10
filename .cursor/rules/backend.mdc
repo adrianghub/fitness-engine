@@ -1,0 +1,71 @@
+---
+description: Rules for backend development with AI integration
+globs: *.tsx,*.ts
+alwaysApply: false
+---
+[shared.mdc](mdc:rules/shared.mdc)
+[backend-node-express.mdc](mdc:fitness-engine/.cursor/rules/backend-node-express.mdc)
+[coding_practices-support_level-support_beginner.mdc](mdc:fitness-engine/.cursor/rules/coding_practices-support_level-support_beginner.mdc)
+
+Key Principles for AI in Backend
+- Prioritize explainability and transparency in AI systems
+- Implement proper monitoring and logging for AI components
+- Design for graceful degradation when AI services are unavailable
+- Maintain clear separation between AI and core business logic
+- Follow ethical AI principles and ensure compliance with regulations
+
+Architecture and Design
+- Use microservices architecture to isolate AI components when appropriate
+- Implement feature flags for AI features to enable quick disabling if issues arise
+- Design clear interfaces between AI and non-AI components
+- Use dependency injection to make AI services replaceable
+- Implement circuit breakers for AI service calls to prevent cascading failures
+- Consider using the Mediator pattern for complex AI workflows
+
+Data Management
+- Implement proper data validation before sending to AI services
+- Use data versioning for AI training datasets
+- Implement data lineage tracking for AI model inputs
+- Design efficient data pipelines for AI model training and inference
+- Use appropriate data structures for efficient AI processing
+- Implement proper data anonymization for sensitive information
+
+AI Model Management
+- Use model versioning and tracking
+- Implement A/B testing infrastructure for AI models
+- Design for model retraining and updates without service disruption
+- Implement model monitoring for drift detection
+- Use feature stores for consistent feature engineering
+- Implement proper model validation before deployment
+
+Security and Privacy
+- Implement proper authentication and authorization for AI endpoints
+- Use encryption for sensitive AI model data
+- Implement rate limiting for AI services to prevent abuse
+- Follow the principle of least privilege for AI service accounts
+- Implement proper audit logging for AI decisions
+- Design for compliance with privacy regulations (GDPR, CCPA, etc.)
+
+Performance and Scalability
+- Implement caching strategies for AI inference results
+- Use asynchronous processing for non-real-time AI tasks
+- Design for horizontal scaling of AI inference services
+- Implement proper load balancing for AI services
+- Use message queues for handling high-volume AI requests
+- Optimize database queries for AI-related operations
+
+Testing and Quality Assurance
+- Implement comprehensive unit tests for AI integration points
+- Use integration tests for AI service interactions
+- Implement performance testing for AI components
+- Design test data that covers edge cases for AI models
+- Use chaos engineering to test resilience of AI systems
+- Implement continuous monitoring for AI model quality
+
+Deployment and Operations
+- Use CI/CD pipelines for AI model deployment
+- Implement blue-green deployments for AI model updates
+- Use containerization for AI services
+- Implement proper health checks for AI components
+- Design for observability with metrics, logs, and traces
+- Use infrastructure as code for AI infrastructure

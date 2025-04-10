@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+## DEVOPS
+
+### Guidelines for CLOUD
+
+#### GCP
+
+- Use Terraform or Deployment Manager for infrastructure as code
+- Implement VPC Service Controls for network security around {{sensitive_services}}
+- Use workload identity for service-to-service authentication
+

@@ -1,54 +1,76 @@
-# React + TypeScript + Vite
+# FitnessEngine
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Table of Contents
+- [Project Description](#project-description)
+- [Tech Stack](#tech-stack)
+- [Getting Started Locally](#getting-started-locally)
+- [Available Scripts](#available-scripts)
+- [Project Scope](#project-scope)
+- [Project Status](#project-status)
+- [License](#license)
 
-Currently, two official plugins are available:
+## Project Description
+FitnessEngine is a progressive web application (PWA) designed to boost motivation and promote consistency in fitness training. The app offers users personalized workout challenges tailored to their experience level, opportunities to compete against fictional opponents, and clear progress tracking. It addresses common issues such as the lack of personalized training plans, insufficient competitive elements, and unclear progress monitoring.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech Stack
+- **Frontend:** Vite, React 19, TypeScript 5, Tailwind CSS, Shadcn/ui
+- **Backend:** Firebase (Auth, Firestore, Functions)
+  - Authentication via Google Auth using Firebase Auth
+  - Data storage with Firestore for user profiles, challenges, and leaderboards
+  - Serverless functions (Firebase Functions) for API endpoints and scheduled tasks
+- **Hosting:** Firebase Hosting
+- **CI/CD:** GitHub Actions
+- **Optional Integrations:** GenkitAI for personalized challenges and enhanced PWA capabilities - https://firebase.google.com/docs/genkit
 
-## Expanding the ESLint configuration
+## Getting Started Locally
+1. **Clone the repository:**
+   ```sh
+   git clone <repository-url>
+   cd fitness-engine
+   ```
+2. **Set the Node.js version:**
+   Use the Node.js version specified in the `.nvmrc` file:
+   ```sh
+   nvm use
+   ```
+3. **Install dependencies:**
+   Using pnpm (preferred):
+   ```sh
+   pnpm install
+   ```
+4. **Run the development server:**
+   Using pnpm:
+   ```sh
+   pnpm run dev
+   ```
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Available Scripts
+- `dev`: Starts the Vite development server.
+- `build`: Builds the project for production (runs TypeScript compilation and bundles with Vite).
+- `lint`: Runs ESLint for code quality checks.
+- `preview`: Previews the production build.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Project Scope
+### In Scope (MVP)
+- **User Authentication:** Google authentication via Firebase and initial data collection (experience level, fitness goals, equipment availability, workout frequency).
+- **Personalization:** Customized workout challenges based on the user's chosen level (beginner, intermediate, advanced).
+- **Workout Challenges:**
+  - 25 pre-defined challenges per level.
+  - Daily refreshed challenge with a designated "Challenge of the Day".
+  - Challenge status management (not started, in progress, completed).
+- **Progress Tracking:** Recording progress and awarding points for completed challenges.
+- **Competition:** Simulated competitive element with fictional opponents and dynamic leaderboard updates.
+- **Daily Refresh:** Scheduled daily updates for challenges and leaderboard to maintain engagement.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Out of Scope (for MVP)
+- Advanced social features or community interactions.
+- User-created custom challenges.
+- Integration with external fitness applications.
+- Detailed statistics and advanced analytics.
+- Push notifications and an administrative panel.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Status
+This project is currently in the MVP stage with core functionalities implemented.
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## License
+This project is licensed under the MIT License.
