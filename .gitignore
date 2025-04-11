@@ -26,5 +26,6 @@ dist-ssr
 .ai
 .garbage
 .vscode
-.env.*
-node_modules
+.env
+.firebase
+firebase-data

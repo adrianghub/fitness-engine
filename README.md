@@ -52,7 +52,7 @@ FitnessEngine is a progressive web application (PWA) designed to boost motivatio
 
 ## Project Scope
 ### In Scope (MVP)
-- **User Authentication:** Google authentication via Firebase and initial data collection (experience level, fitness goals, equipment availability, workout frequency).
+- **User Authentication:** Google authentication via Firebase and initial data collection (experience level, fitness goals, availability, workout frequency).
 - **Personalization:** Customized workout challenges based on the user's chosen level (beginner, intermediate, advanced).
 - **Workout Challenges:**
   - 25 pre-defined challenges per level.
