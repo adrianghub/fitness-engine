@@ -21,7 +21,8 @@
     }
   ],
   "hosting": {
-    "public": "public",
+    "site": "fitness-engine-a3383",
+    "public": "dist",
     "ignore": [
       "firebase.json",
       "**/.*",
