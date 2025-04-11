@@ -1,4 +1,42 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "email", "mode": "ASCENDING" },
+        { "fieldPath": "totalPoints", "mode": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "challengeTemplates",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "level", "mode": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "userChallenges",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId", "mode": "ASCENDING" },
+        { "fieldPath": "assignedDate", "mode": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "opponents",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "currentPoints", "mode": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "leaderboard",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "points", "mode": "DESCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
