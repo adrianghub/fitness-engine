@@ -4,8 +4,14 @@
  */
 
 import * as admin from "firebase-admin";
+import type { DocumentSnapshot, QuerySnapshot } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import type { UserLevel } from "../types";
+import type {
+  Leaderboard,
+  Opponent,
+  User,
+  UserLevel,
+} from "../../src/types/models";
 import { generateUserChallenges } from "./generateChallenges";
 import { generateUserOpponents } from "./generateOpponents";
 
@@ -41,7 +47,10 @@ export async function checkUserPromotionEligibility(
     const db = admin.firestore();
 
     // Get the user data
-    const userDoc = await db.collection("users").doc(userId).get();
+    const userDoc = (await db
+      .collection("users")
+      .doc(userId)
+      .get()) as DocumentSnapshot<User>;
     if (!userDoc.exists) {
       logger.error(`User ${userId} not found`);
       return false;
@@ -65,12 +74,12 @@ export async function checkUserPromotionEligibility(
     }
 
     // Check if user is at the top of their level's leaderboard
-    const leaderboardSnapshot = await db
+    const leaderboardSnapshot = (await db
       .collection("leaderboard")
       .where("entityType", "==", "user")
       .orderBy("points", "desc")
       .limit(1)
-      .get();
+      .get()) as QuerySnapshot<Leaderboard>;
 
     if (leaderboardSnapshot.empty) {
       return false;
@@ -99,7 +108,10 @@ export async function promoteUser(userId: string): Promise<void> {
     const db = admin.firestore();
 
     // Get the user data
-    const userDoc = await db.collection("users").doc(userId).get();
+    const userDoc = (await db
+      .collection("users")
+      .doc(userId)
+      .get()) as DocumentSnapshot<User>;
     if (!userDoc.exists) {
       logger.error(`User ${userId} not found`);
       return;
@@ -128,10 +140,10 @@ export async function promoteUser(userId: string): Promise<void> {
     logger.info(`User ${userId} promoted from ${currentLevel} to ${nextLevel}`);
 
     // Delete existing opponents
-    const opponentsSnapshot = await db
+    const opponentsSnapshot = (await db
       .collection("opponents")
       .where("userId", "==", userId)
-      .get();
+      .get()) as QuerySnapshot<Opponent>;
 
     if (!opponentsSnapshot.empty) {
       const batch = db.batch();
@@ -143,10 +155,10 @@ export async function promoteUser(userId: string): Promise<void> {
     }
 
     // Delete existing leaderboard entries
-    const leaderboardSnapshot = await db
+    const leaderboardSnapshot = (await db
       .collection("leaderboard")
       .where("entityId", "==", userId)
-      .get();
+      .get()) as QuerySnapshot<Leaderboard>;
 
     if (!leaderboardSnapshot.empty) {
       const batch = db.batch();

@@ -4,9 +4,13 @@
  */
 
 import * as admin from "firebase-admin";
+import type {
+  DocumentReference,
+  QuerySnapshot,
+} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
+import type { Leaderboard, Opponent, UserLevel } from "../../src/types/models";
 import { FIRST_NAMES, LAST_NAMES, USERNAME_PREFIXES } from "../data/opponents";
-import type { UserLevel } from "../types";
 
 // Point ranges for different levels to ensure opponents have appropriate scores
 export const LEVEL_POINT_RANGES: Record<
@@ -85,11 +89,11 @@ async function updateLeaderboardRanks(
 ): Promise<void> {
   try {
     // Get all leaderboard entries for this user, sorted by points descending
-    const leaderboardSnapshot = await db
+    const leaderboardSnapshot = (await db
       .collection("leaderboard")
       .where("userId", "==", userId)
       .orderBy("points", "desc")
-      .get();
+      .get()) as QuerySnapshot<Leaderboard>;
 
     if (leaderboardSnapshot.empty) {
       return;
@@ -130,10 +134,10 @@ export async function generateUserOpponents(
   const db = admin.firestore();
 
   // Delete any existing opponents for this user
-  const existingOpponentsSnapshot = await db
+  const existingOpponentsSnapshot = (await db
     .collection("opponents")
     .where("userId", "==", userId)
-    .get();
+    .get()) as QuerySnapshot<Opponent>;
 
   if (!existingOpponentsSnapshot.empty) {
     const batch = db.batch();
@@ -154,7 +158,9 @@ export async function generateUserOpponents(
     try {
       // Generate a unique opponent ID
       const opponentId = db.collection("opponents").doc().id;
-      const opponentRef = db.collection("opponents").doc(opponentId);
+      const opponentRef = db
+        .collection("opponents")
+        .doc(opponentId) as DocumentReference<Opponent>;
 
       // Calculate points and generate username
       const points = calculateOpponentPoints(level);
@@ -168,6 +174,7 @@ export async function generateUserOpponents(
         userId: userId,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
       };
 
       batch.set(opponentRef, opponentData);

@@ -115,9 +115,8 @@ export const onUserProfileComplete = onDocumentUpdated(
           trainingFrequency: newData.trainingFrequency,
         };
 
-        const [isValid, errorMessage] = await validatePersonalizationData(
-          personalizationData
-        );
+        const [isValid, errorMessage] =
+          await validatePersonalizationData(personalizationData);
         if (!isValid) {
           logger.error(`Invalid personalization data: ${errorMessage}`);
           return;

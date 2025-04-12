@@ -13,6 +13,7 @@ The code is organized as follows:
     - `generateOpponents.ts` - Opponent generation logic
     - `promoteUser.ts` - User level progression logic
   - `/types` - TypeScript type definitions
+    - `models.ts` - Generated Firestore models (Admin SDK)
     - `challenge-template.ts` - Types for challenge templates
     - `user.ts` - Types for user-related data
   - `/data` - Static data files
@@ -20,6 +21,24 @@ The code is organized as follows:
   - `/seed` - Data seeding functions
   - `/shared` - Shared utilities
   - `index.ts` - Main entry point for all functions
+
+## Type Safety
+
+This project uses [TypeSync](https://github.com/kafkas/typesync) to generate type-safe Firestore models. The types are generated from a shared schema definition and are automatically kept in sync between the frontend and backend.
+
+### Type Definitions
+
+- `src/types/models.ts` contains the generated TypeScript types for use with the Firebase Admin SDK
+- These types match the frontend types but use the Admin SDK's Firestore types
+- The types are generated from the schema in `../schema-definitions/models.yml`
+
+### Regenerating Types
+
+To regenerate the types after schema changes:
+
+```bash
+npm run generate:types
+```
 
 ## Cloud Functions
 

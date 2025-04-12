@@ -4,13 +4,22 @@
  */
 
 import * as admin from "firebase-admin";
+import type {
+  DocumentReference,
+  QuerySnapshot,
+} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import type { FitnessGoals, TrainingFrequency, UserLevel } from "../types";
+import type {
+  FitnessGoal,
+  TrainingFrequency,
+  User,
+  UserLevel,
+} from "../../src/types/models";
 
 interface PersonalizationData {
   displayName: string;
   level: UserLevel;
-  fitnessGoals: FitnessGoals;
+  fitnessGoals: FitnessGoal[];
   trainingFrequency: TrainingFrequency;
 }
 
@@ -29,11 +38,11 @@ export async function validatePersonalizationData(
 
   // Check if display name is unique
   const db = admin.firestore();
-  const existingUserSnapshot = await db
+  const existingUserSnapshot = (await db
     .collection("users")
     .where("displayName", "==", data.displayName)
     .limit(1)
-    .get();
+    .get()) as QuerySnapshot<User>;
 
   if (!existingUserSnapshot.empty) {
     return [false, "This display name is already taken"];
@@ -82,7 +91,9 @@ export async function applyPersonalization(
 
   try {
     const db = admin.firestore();
-    const userRef = db.collection("users").doc(userId);
+    const userRef = db
+      .collection("users")
+      .doc(userId) as DocumentReference<User>;
 
     // Update user profile with personalization data
     await userRef.update({

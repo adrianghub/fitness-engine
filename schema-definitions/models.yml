@@ -1,0 +1,227 @@
+# yaml-language-server: $schema=https://schema.typesync.org/v0.13.json
+
+# Enums
+UserLevel:
+  model: alias
+  docs: Represents user's fitness level
+  type:
+    type: enum
+    members:
+      - label: Beginner
+        value: beginner
+      - label: Intermediate
+        value: intermediate
+      - label: Advanced
+        value: advanced
+
+ChallengeLevel:
+  model: alias
+  docs: Represents the level of a challenge
+  type:
+    type: enum
+    members:
+      - label: Beginner
+        value: beginner
+      - label: Intermediate
+        value: intermediate
+      - label: Advanced
+        value: advanced
+      - label: Apply to all levels
+        value: all
+
+ChallengeStatus:
+  model: alias
+  docs: Represents the status of a user's challenge
+  type:
+    type: enum
+    members:
+      - label: Not Started
+        value: not-started
+      - label: In Progress
+        value: in-progress
+      - label: Completed
+        value: completed
+
+EntityType:
+  model: alias
+  docs: Represents the type of entity in the leaderboard
+  type:
+    type: enum
+    members:
+      - label: User
+        value: user
+      - label: Opponent
+        value: opponent
+
+TrainingFrequency:
+  model: alias
+  docs: Represents how many times per week the user trains
+  type:
+    type: enum
+    members:
+      - label: Once a week
+        value: "1"
+      - label: Twice a week
+        value: "2"
+      - label: Three times a week
+        value: "3"
+      - label: Four times a week
+        value: "4"
+      - label: Five times a week
+        value: "5"
+      - label: Six times a week
+        value: "6"
+      - label: Every day
+        value: "7"
+
+FitnessGoal:
+  model: alias
+  docs: Represents a fitness goal that a user can have
+  type: string
+
+# Document Models
+User:
+  model: document
+  path: users/{userId}
+  docs: Represents a user in the fitness application
+  type:
+    type: object
+    fields:
+      email:
+        type: string
+        docs: User's email address (unique)
+      displayName:
+        type: string
+        optional: true
+        docs: User's display name
+      level:
+        type: UserLevel
+        docs: User's fitness level
+      fitnessGoals:
+        optional: true
+        docs: Array of user's fitness goals
+        type:
+          type: list
+          elementType: FitnessGoal
+      trainingFrequency:
+        type: TrainingFrequency
+        optional: true
+        docs: How often the user trains
+      totalPoints:
+        type: double
+        docs: Total points accumulated by the user
+      createdAt:
+        type: timestamp
+        docs: When the user account was created
+      updatedAt:
+        type: timestamp
+        docs: When the user account was last updated
+
+ChallengeTemplate:
+  model: document
+  path: challengeTemplates/{challengeId}
+  docs: Represents a challenge template that can be assigned to users
+  type:
+    type: object
+    fields:
+      title:
+        type: string
+        docs: Title of the challenge
+      description:
+        type: string
+        docs: Detailed description of the challenge
+      level:
+        type: ChallengeLevel
+        docs: Required fitness level for the challenge
+      points:
+        type: double
+        docs: Points awarded for completing the challenge
+      expectedTime:
+        type: string
+        docs: Expected time to complete the challenge
+      createdAt:
+        type: timestamp
+        docs: When the challenge template was created
+      updatedAt:
+        type: timestamp
+        docs: When the challenge template was last updated
+
+UserChallenge:
+  model: document
+  path: userChallenges/{userChallengeId}
+  docs: Represents an assigned challenge to a user
+  type:
+    type: object
+    fields:
+      userId:
+        type: string
+        docs: Reference to the user document
+      challengeId:
+        type: string
+        docs: Reference to the challenge template document
+      status:
+        type: ChallengeStatus
+        docs: Current status of the challenge
+      assignedDate:
+        type: timestamp
+        docs: When the challenge was assigned
+      startedAt:
+        type: timestamp
+        optional: true
+        docs: When the challenge was started
+      finishedAt:
+        type: timestamp
+        optional: true
+        docs: When the challenge was completed
+      pointsAwarded:
+        type: double
+        optional: true
+        docs: Points awarded for completing the challenge
+
+Opponent:
+  model: document
+  path: opponents/{opponentId}
+  docs: Represents a fictional opponent for competition
+  type:
+    type: object
+    fields:
+      name:
+        type: string
+        docs: Name of the opponent
+      currentPoints:
+        type: double
+        docs: Current points of the opponent
+      ranking:
+        type: double
+        optional: true
+        docs: Current ranking position
+      lastUpdated:
+        type: timestamp
+        docs: When the opponent was last updated
+      level:
+        type: UserLevel
+        docs: Opponent's fitness level
+
+Leaderboard:
+  model: document
+  path: leaderboard/{leaderboardId}
+  docs: Represents an entry in the leaderboard
+  type:
+    type: object
+    fields:
+      entityType:
+        type: EntityType
+        docs: Type of the entity (user or opponent)
+      entityId:
+        type: string
+        docs: Reference to user or opponent ID
+      points:
+        type: double
+        docs: Total points
+      rank:
+        type: double
+        optional: true
+        docs: Current ranking position
+      lastUpdated:
+        type: timestamp
+        docs: When the leaderboard entry was last updated

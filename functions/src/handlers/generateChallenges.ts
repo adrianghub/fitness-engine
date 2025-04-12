@@ -4,8 +4,16 @@
  */
 
 import * as admin from "firebase-admin";
+import type {
+  DocumentReference,
+  QuerySnapshot,
+} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import type { ChallengeLevel } from "../types/challenge-template";
+import type {
+  ChallengeLevel,
+  ChallengeTemplate,
+  UserChallenge,
+} from "../types/models";
 
 /**
  * Generates challenges for a user based on their level
@@ -24,10 +32,10 @@ export async function generateUserChallenges(
     const db = admin.firestore();
 
     // Get challenge templates matching the user's level and universal challenges
-    const challengeTemplatesSnapshot = await db
+    const challengeTemplatesSnapshot = (await db
       .collection("challengeTemplates")
       .where("level", "in", [level, "all"])
-      .get();
+      .get()) as QuerySnapshot<ChallengeTemplate>;
 
     if (challengeTemplatesSnapshot.empty) {
       logger.error(
@@ -45,12 +53,12 @@ export async function generateUserChallenges(
     );
 
     // Query the user's most recent challenges to avoid repeating specific challenges consecutively
-    const lastChallengeSnapshot = await db
+    const lastChallengeSnapshot = (await db
       .collection("userChallenges")
       .where("userId", "==", userId)
       .orderBy("assignedDate", "desc")
       .limit(1)
-      .get();
+      .get()) as QuerySnapshot<UserChallenge>;
 
     let previousChallengeIds: string[] = [];
     if (!lastChallengeSnapshot.empty) {
@@ -84,11 +92,11 @@ export async function generateUserChallenges(
     ];
 
     // Delete any existing unfinished challenges for this user to avoid duplicates
-    const existingChallengesSnapshot = await db
+    const existingChallengesSnapshot = (await db
       .collection("userChallenges")
       .where("userId", "==", userId)
       .where("status", "in", ["not-started", "in-progress"])
-      .get();
+      .get()) as QuerySnapshot<UserChallenge>;
 
     // Delete existing unfinished challenges in a batch
     if (!existingChallengesSnapshot.empty) {
@@ -108,17 +116,14 @@ export async function generateUserChallenges(
     // Create user challenges
     const batch = db.batch();
     for (const challengeId of selectedChallengeIds) {
-      const challengeRef = db.collection("userChallenges").doc();
+      const challengeRef = db
+        .collection("userChallenges")
+        .doc() as DocumentReference<UserChallenge>;
       batch.set(challengeRef, {
         userId: userId,
         challengeId: challengeId,
         status: "not-started",
         assignedDate: now,
-        startedAt: null,
-        finishedAt: null,
-        pointsAwarded: null,
-        createdAt: now,
-        updatedAt: now,
       });
     }
 
