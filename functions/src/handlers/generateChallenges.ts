@@ -14,6 +14,11 @@ import type {
   ChallengeTemplate,
   UserChallenge,
 } from "../types/models";
+import {
+  filterRecentChallenges,
+  selectRandomChallenges,
+  separateChallengesByLevel,
+} from "../utils/challenges";
 
 /**
  * Generates challenges for a user based on their level
@@ -44,13 +49,14 @@ export async function generateUserChallenges(
       return;
     }
 
-    // Separate universal challenges (level "all") and level-specific challenges
-    const universalDocs = challengeTemplatesSnapshot.docs.filter(
-      (doc) => doc.data().level === "all"
-    );
-    const specificDocs = challengeTemplatesSnapshot.docs.filter(
-      (doc) => doc.data().level !== "all"
-    );
+    // Separate universal and level-specific challenges
+    const { universal: universalDocs, levelSpecific: specificDocs } =
+      separateChallengesByLevel(
+        challengeTemplatesSnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }))
+      );
 
     // Query the user's most recent challenges to avoid repeating specific challenges consecutively
     const lastChallengeSnapshot = (await db
@@ -67,28 +73,19 @@ export async function generateUserChallenges(
       );
     }
 
-    // Filter specific challenges to exclude those from the previous challenge set
-    const filteredSpecificDocs = specificDocs.filter(
-      (doc) => !previousChallengeIds.includes(doc.id)
+    // Filter out recent challenges and select new ones
+    const availableSpecificIds = filterRecentChallenges(
+      specificDocs.map((doc) => doc.id),
+      previousChallengeIds
     );
 
-    // Fallback: if filtering removes all candidates, use the original specificDocs
-    const candidateSpecificDocs =
-      filteredSpecificDocs.length > 0 ? filteredSpecificDocs : specificDocs;
+    // Select up to 5 specific challenges
+    const selectedSpecificIds = selectRandomChallenges(availableSpecificIds, 5);
 
-    // Shuffle candidate specific challenges and select up to 5
-    const shuffledSpecific = [...candidateSpecificDocs].sort(
-      () => Math.random() - 0.5
-    );
-    const selectedSpecificDocs = shuffledSpecific.slice(
-      0,
-      Math.min(5, shuffledSpecific.length)
-    );
-
-    // Combine universal challenges (always included) with the selected specific challenges
+    // Combine universal challenges with selected specific challenges
     const selectedChallengeIds = [
       ...universalDocs.map((doc) => doc.id),
-      ...selectedSpecificDocs.map((doc) => doc.id),
+      ...selectedSpecificIds,
     ];
 
     // Delete any existing unfinished challenges for this user to avoid duplicates

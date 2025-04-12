@@ -20,7 +20,7 @@ import {
   updateOpponentsOnSchedule,
   validatePersonalizationData,
 } from "./handlers";
-import { seedChallengeTemplatesFunction } from "./seed/seedChallengeTemplates";
+import { seedChallengeTemplatesFunction } from "./handlers/seedChallengeTemplates";
 
 try {
   admin.initializeApp();

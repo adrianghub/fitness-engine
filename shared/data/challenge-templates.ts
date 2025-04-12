@@ -6,7 +6,7 @@
  * when running the seedChallengeTemplates function.
  */
 
-import type { ChallengeTemplate } from "../types/challenge-template";
+import type { ChallengeTemplate } from "../../functions/src/types/models";
 
 const UNIVERSAL_CHALLENGES = [
   {
@@ -41,7 +41,7 @@ const UNIVERSAL_CHALLENGES = [
     points: 80,
     expectedTime: "10 min",
   },
-] as const;
+];
 
 const BEGINNER_CHALLENGES = [
   {
@@ -245,7 +245,7 @@ const BEGINNER_CHALLENGES = [
     points: 70,
     expectedTime: "3 min",
   },
-] as const;
+];
 
 const ADVANCED_CHALLENGES = [
   {
@@ -449,7 +449,7 @@ const ADVANCED_CHALLENGES = [
     points: 70,
     expectedTime: "3 min",
   },
-] as const;
+];
 
 const INTERMEDIATE_CHALLENGES = [
   {
@@ -653,11 +653,11 @@ const INTERMEDIATE_CHALLENGES = [
     points: 70,
     expectedTime: "3 min",
   },
-] as const;
+];
 
 export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
-  ...UNIVERSAL_CHALLENGES,
-  ...BEGINNER_CHALLENGES,
-  ...ADVANCED_CHALLENGES,
-  ...INTERMEDIATE_CHALLENGES,
+  ...(UNIVERSAL_CHALLENGES as ChallengeTemplate[]),
+  ...(BEGINNER_CHALLENGES as ChallengeTemplate[]),
+  ...(ADVANCED_CHALLENGES as ChallengeTemplate[]),
+  ...(INTERMEDIATE_CHALLENGES as ChallengeTemplate[]),
 ];

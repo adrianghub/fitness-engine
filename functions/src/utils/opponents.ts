@@ -1,10 +1,26 @@
-import { LEVEL_POINT_RANGES } from "@/scripts/seed-emulator/constants";
 import {
   FIRST_NAMES,
   LAST_NAMES,
   USERNAME_PREFIXES,
-} from "../../../../shared/data/opponents";
+} from "../../../shared/data/opponents";
 import type { UserLevel } from "../../../types/models";
+
+// Point ranges for different levels to ensure opponents have appropriate scores
+export const LEVEL_POINT_RANGES: Record<
+  UserLevel,
+  { min: number; max: number }
+> = {
+  beginner: { min: 1000, max: 15000 },
+  intermediate: { min: 16000, max: 30000 },
+  advanced: { min: 31000, max: 100000 },
+};
+
+// Base points for each level
+export const LEVEL_BASE_POINTS: Record<UserLevel, number> = {
+  beginner: 50,
+  intermediate: 150,
+  advanced: 300,
+};
 
 /**
  * Generates a random username for an opponent using predefined name parts

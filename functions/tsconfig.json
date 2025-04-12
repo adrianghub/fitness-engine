@@ -13,5 +13,5 @@
   "compileOnSave": true,
   "include": [
     "src"
-, "../src/types/models.admin.ts"  ]
+, "../src/types/models.admin.ts", "../shared/data/challenge-templates.ts", "../shared/data/opponents.ts"  ]
 }

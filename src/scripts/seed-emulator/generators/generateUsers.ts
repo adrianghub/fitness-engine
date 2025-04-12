@@ -5,9 +5,8 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, Timestamp } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
-import { ADMIN_USER, TEST_USER, TEST_USER_2 } from "../data/constants";
+import { ADMIN_USER, TEST_USER, TEST_USER_2 } from "../constants";
 
-// Create a test user
 export async function createTestUser(): Promise<string> {
   console.log("Creating test user...");
 
@@ -41,7 +40,6 @@ export async function createTestUser(): Promise<string> {
   }
 }
 
-// Create a second test user
 export async function createTestUser2(): Promise<string> {
   console.log("Creating test user 2...");
 

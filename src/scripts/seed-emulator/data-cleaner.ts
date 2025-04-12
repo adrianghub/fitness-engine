@@ -1,6 +1,6 @@
 import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
-import { db } from "../../../lib/firebase";
-import { COLLECTIONS } from "../data/constants";
+import { db } from "../../lib/firebase";
+import { COLLECTIONS } from "./constants";
 
 // Clear existing data from the database
 export async function clearExistingData(): Promise<void> {

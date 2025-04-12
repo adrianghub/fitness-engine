@@ -5,7 +5,7 @@
 
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
-import { CHALLENGE_TEMPLATES } from "../data/challenge-templates";
+import { CHALLENGE_TEMPLATES } from "../../../shared/data/challenge-templates";
 
 export async function seedChallengeTemplatesFunction(): Promise<void> {
   logger.info("Starting seedChallengeTemplates function");

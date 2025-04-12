@@ -1,18 +1,18 @@
 import { logger } from "../../lib/logger";
-import { ADMIN_USER, TEST_USER, TEST_USER_2 } from "./data/constants";
+import { ADMIN_USER, TEST_USER, TEST_USER_2 } from "./constants";
+import { clearExistingData } from "./data-cleaner";
 import {
   createChallengeTemplates,
   createUserChallenges,
-} from "./utils/challenges";
-import { clearExistingData } from "./utils/data-cleaner";
-import { updateLeaderboard } from "./utils/leaderboard";
-import { generateOpponentsForUser } from "./utils/opponents";
+} from "./generators/generateChallenges";
+import { updateLeaderboard } from "./generators/generateLeaderboard";
+import { generateOpponentsForUser } from "./generators/generateOpponents";
 import {
   createAdminUser,
   createTestUser,
   createTestUser2,
   signInAsUser,
-} from "./utils/users";
+} from "./generators/generateUsers";
 
 /**
  * Main seed function that populates the emulator database with test data
