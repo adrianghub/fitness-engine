@@ -1,4 +1,4 @@
-import type { UserLevel } from "functions/src/types/models";
+import type { UserLevel } from "@/types/models";
 
 export const TEST_USER = {
   email: "user1@example.com",

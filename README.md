@@ -3,6 +3,7 @@
 ## Table of Contents
 - [Project Description](#project-description)
 - [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
 - [Project Scope](#project-scope)
@@ -18,9 +19,27 @@ FitnessEngine is a progressive web application (PWA) designed to boost motivatio
   - Authentication via Google Auth using Firebase Auth
   - Data storage with Firestore for user profiles, challenges, and leaderboards
   - Serverless functions (Firebase Functions) for API endpoints and scheduled tasks
+- **Type Safety:** TypeSync for generating type-safe Firestore models
 - **Hosting:** Firebase Hosting
 - **CI/CD:** GitHub Actions
 - **Optional Integrations:** GenkitAI for personalized challenges and enhanced PWA capabilities - https://firebase.google.com/docs/genkit
+
+## Project Structure
+```
+fitness-engine/
+├── src/                    # Frontend application code
+│   ├── types/             # TypeScript type definitions
+│   │   └── models.ts      # Generated Firestore models for client SDK
+│   ├── components/        # React components
+│   ├── routes/           # Application routes
+│   └── ...
+├── functions/             # Firebase Cloud Functions
+│   ├── src/
+│   │   ├── types/        # TypeScript type definitions
+│   │   │   └── models.ts # Generated Firestore models for Admin SDK
+│   │   └── ...
+└── ...
+```
 
 ## Getting Started Locally
 1. **Clone the repository:**
@@ -49,6 +68,7 @@ FitnessEngine is a progressive web application (PWA) designed to boost motivatio
 - `build`: Builds the project for production (runs TypeScript compilation and bundles with Vite).
 - `lint`: Runs ESLint for code quality checks.
 - `preview`: Previews the production build.
+- `generate:types`: Regenerates TypeScript types for Firestore models using [TypeSync](https://github.com/kafkas/typesync).
 
 ## Project Scope
 ### In Scope (MVP)

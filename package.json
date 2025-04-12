@@ -8,15 +8,19 @@
     "dev:emulators": "firebase emulators:start --import=./firebase-data --export-on-exit=./firebase-data",
     "dev:all": "concurrently \"npm run dev\" \"npm run dev:emulators\" \"npm run dev:functions\"",
     "dev:functions": "cd functions && npm run build -- --watch",
+    "prebuild": "npm run generate:types",
     "build": "tsc -b && vite build",
     "deploy": "node scripts/deploy-firebase",
     "lint": "eslint .",
     "preview": "vite preview",
-    "seed:emulator": "vite-node src/scripts/seed-emulator/index.ts"
+    "seed:emulator": "vite-node src/scripts/seed-emulator/index.ts",
+    "generate:types": "typesync generate-ts --definition 'schema-definitions/**/*.yml' --target firebase@11 --outFile src/types/models.ts",
+    "generate:db-schema-graph": "typesync generate-graph --definition 'schema-definitions/**/*.yml' --outFile src/types/db-schema-graph.md"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.0",
     "@tailwindcss/vite": "^4.1.3",
+    "@tanstack/react-router": "^1.115.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^11.6.0",
@@ -29,6 +33,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@tanstack/react-router-devtools": "^1.115.3",
+    "@tanstack/router-plugin": "^1.115.3",
     "@types/node": "^22.14.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
@@ -38,8 +44,10 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^15.15.0",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
+    "typesync-cli": "^0.13.0",
     "vite": "^6.2.0",
     "vite-node": "^3.1.1"
   }

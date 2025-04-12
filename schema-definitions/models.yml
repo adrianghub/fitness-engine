@@ -112,9 +112,11 @@ User:
         docs: Total points accumulated by the user
       createdAt:
         type: timestamp
+        optional: true
         docs: When the user account was created
       updatedAt:
         type: timestamp
+        optional: true
         docs: When the user account was last updated
 
 ChallengeTemplate:
@@ -124,6 +126,9 @@ ChallengeTemplate:
   type:
     type: object
     fields:
+      id:
+        type: string
+        docs: ID of the challenge template
       title:
         type: string
         docs: Title of the challenge

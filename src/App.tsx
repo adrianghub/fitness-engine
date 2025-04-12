@@ -1,12 +1,17 @@
-import { Button } from "@/components/ui/button";
-import "./App.css";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen";
+
+// Register the router instance for type safety
+declare module "@tanstack/react-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+const router = createRouter({ routeTree });
 
 function App() {
-  return (
-    <div className='flex flex-col items-center justify-center h-screen'>
-      <Button>Click me</Button>
-    </div>
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
