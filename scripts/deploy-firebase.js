@@ -32,6 +32,16 @@ function runCommand(command, errorMessage) {
   }
 }
 
+// Check if pnpm is installed
+try {
+  execSync('pnpm --version', { stdio: 'ignore' });
+} catch (error) {
+  console.error(`${colors.red}pnpm is not installed. Please install it with:${colors.reset}`);
+  console.error(`${colors.yellow}npm install -g pnpm${colors.reset}`);
+  console.error(`${colors.yellow}or use: corepack enable${colors.reset}`);
+  process.exit(1);
+}
+
 try {
   execSync('firebase --version', { stdio: 'ignore' });
 } catch (error) {
@@ -49,7 +59,7 @@ try {
 }
 
 console.log(`${colors.magenta}Building the application...${colors.reset}`);
-if (!runCommand('npm run build', 'Failed to build the application')) {
+if (!runCommand('pnpm run build', 'Failed to build the application')) {
   process.exit(1);
 }
 
