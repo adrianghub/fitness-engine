@@ -14,7 +14,12 @@ import {
   calculatePointChange,
   generateRandomUsername,
 } from "../../../src/scripts/seed-emulator/utils/opponents";
-import type { Leaderboard, Opponent, UserLevel } from "../../src/types/models";
+import type {
+  Leaderboard,
+  Opponent,
+  User,
+  UserLevel,
+} from "../../src/types/models";
 
 /**
  * Updates the leaderboard rankings for a user and their opponents
@@ -151,35 +156,6 @@ export async function generateUserOpponents(
 }
 
 /**
- * Determines if opponent regeneration is due based on training frequency
- * @param lastRegeneration The timestamp of the last regeneration
- * @param trainingFrequency The user's training frequency (1-7)
- * @returns Boolean indicating if regeneration is due
- */
-export function isRegenerationDue(
-  lastRegeneration: FirebaseFirestore.Timestamp | null,
-  trainingFrequency: string
-): boolean {
-  if (!lastRegeneration) {
-    return true; // No previous regeneration, so regeneration is due
-  }
-
-  const frequencyDays = parseInt(trainingFrequency, 10);
-  if (isNaN(frequencyDays) || frequencyDays < 1 || frequencyDays > 7) {
-    return false;
-  }
-
-  const lastRegenerationDate = lastRegeneration.toDate();
-  const currentDate = new Date();
-
-  // Calculate difference in days
-  const diffTime = currentDate.getTime() - lastRegenerationDate.getTime();
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  return diffDays >= frequencyDays;
-}
-
-/**
  * Updates opponents for all users due for an update
  * This should be called by a scheduled function
  */
@@ -190,7 +166,9 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
 
   try {
     // Get all users
-    const usersSnapshot = await db.collection("users").get();
+    const usersSnapshot = (await db
+      .collection("users")
+      .get()) as QuerySnapshot<User>;
     const updatePromisesList: Promise<void>[] = [];
     let updatedCount = 0;
 
@@ -199,95 +177,85 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
       const userId = userDoc.id;
 
       // Skip users without required fields
-      if (!userData.trainingFrequency || !userData.level) {
+      if (!userData.level) {
         continue;
       }
 
-      if (
-        isRegenerationDue(
-          userData.lastOpponentRegeneration || null,
-          userData.trainingFrequency
-        )
-      ) {
-        logger.info(
-          `Updating opponent scores for user ${userId} with frequency ${userData.trainingFrequency}`
-        );
+      logger.info(`Updating opponent scores for user ${userId}`);
 
-        // Update existing opponents' scores
-        try {
-          const existingOpponentsSnapshot = await db
-            .collection("opponents")
-            .where("userId", "==", userId)
-            .get();
+      // Update existing opponents' scores
+      try {
+        const existingOpponentsSnapshot = await db
+          .collection("opponents")
+          .where("userId", "==", userId)
+          .get();
 
-          if (!existingOpponentsSnapshot.empty) {
-            logger.info(
-              `Updating scores for ${existingOpponentsSnapshot.size} opponents`
+        if (!existingOpponentsSnapshot.empty) {
+          logger.info(
+            `Updating scores for ${existingOpponentsSnapshot.size} opponents`
+          );
+
+          // Process in batches
+          let updateBatch = db.batch();
+          let updateCount = 0;
+          const opponentUpdatePromises = [];
+
+          existingOpponentsSnapshot.forEach((doc) => {
+            const opponent = doc.data();
+            const opponentLevel = opponent.level;
+
+            // Calculate new points
+            const newPoints = calculatePointChange(
+              opponent.currentPoints,
+              opponentLevel
             );
 
-            // Process in batches
-            let updateBatch = db.batch();
-            let updateCount = 0;
-            const opponentUpdatePromises = [];
-
-            existingOpponentsSnapshot.forEach((doc) => {
-              const opponent = doc.data();
-              // Cast level as Exclude<Level, 'all'> since opponents don't use 'all' level
-              const opponentLevel = opponent.level;
-
-              // Calculate new points
-              const newPoints = calculatePointChange(
-                opponent.currentPoints,
-                opponentLevel
-              );
-
-              // Update the opponent
-              updateBatch.update(doc.ref, {
-                currentPoints: newPoints,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-              });
-
-              updateCount++;
-
-              if (updateCount >= 450) {
-                opponentUpdatePromises.push(updateBatch.commit());
-                updateBatch = db.batch();
-                updateCount = 0;
-              }
+            // Update the opponent
+            updateBatch.update(doc.ref, {
+              currentPoints: newPoints,
+              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
             });
 
-            if (updateCount > 0) {
+            updateCount++;
+
+            if (updateCount >= 450) {
               opponentUpdatePromises.push(updateBatch.commit());
+              updateBatch = db.batch();
+              updateCount = 0;
             }
+          });
 
-            // After updating scores, update the leaderboard
-            const updatePromise = Promise.all(opponentUpdatePromises).then(
-              async () => {
-                // Update leaderboard with new scores
-                await updateLeaderboardRanks(db, userId);
-
-                // Update the last regeneration timestamp
-                await db.collection("users").doc(userId).update({
-                  lastOpponentRegeneration:
-                    admin.firestore.FieldValue.serverTimestamp(),
-                  updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-                });
-              }
-            );
-
-            updatePromisesList.push(updatePromise);
-            updatedCount++;
-
-            logger.info(
-              `Successfully updated scores for opponents of user ${userId}`
-            );
+          if (updateCount > 0) {
+            opponentUpdatePromises.push(updateBatch.commit());
           }
-        } catch (error) {
-          logger.error(
-            `Error updating opponent scores for user ${userId}:`,
-            error
+
+          // After updating scores, update the leaderboard
+          const updatePromise = Promise.all(opponentUpdatePromises).then(
+            async () => {
+              // Update leaderboard with new scores
+              await updateLeaderboardRanks(db, userId);
+
+              // Update the last regeneration timestamp
+              await db.collection("users").doc(userId).update({
+                lastOpponentRegeneration:
+                  admin.firestore.FieldValue.serverTimestamp(),
+                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              });
+            }
+          );
+
+          updatePromisesList.push(updatePromise);
+          updatedCount++;
+
+          logger.info(
+            `Successfully updated scores for opponents of user ${userId}`
           );
         }
+      } catch (error) {
+        logger.error(
+          `Error updating opponent scores for user ${userId}:`,
+          error
+        );
       }
     }
 

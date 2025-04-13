@@ -12,9 +12,6 @@ export type EntityType = 'user' | 'opponent';
 /** Represents a fitness goal that a user can have */
 export type FitnessGoal = string;
 
-/** Represents how many times per week the user trains */
-export type TrainingFrequency = '1' | '2' | '3' | '4' | '5' | '6' | '7';
-
 /** Represents user's fitness level */
 export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
 
@@ -76,8 +73,6 @@ export interface User {
   level: UserLevel;
   /** Array of user's fitness goals */
   fitnessGoals?: FitnessGoal[];
-  /** How often the user trains */
-  trainingFrequency?: TrainingFrequency;
   /** Total points accumulated by the user */
   totalPoints: number;
   /** When the user account was created */

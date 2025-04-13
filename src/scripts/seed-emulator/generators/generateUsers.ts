@@ -1,11 +1,21 @@
+import type { User } from "@/types/models";
 import {
   createUserWithEmailAndPassword,
   getAuth,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { doc, setDoc, Timestamp } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  Timestamp,
+  type DocumentReference,
+} from "firebase/firestore";
 import { db } from "../../../lib/firebase";
-import { ADMIN_USER, TEST_USER, TEST_USER_2 } from "../constants";
+import {
+  BEGINNER_USER,
+  INTERMEDIATE_USER,
+  UBER_DUPER_USER,
+} from "../constants";
 
 export async function createTestUser(): Promise<string> {
   console.log("Creating test user...");
@@ -14,20 +24,18 @@ export async function createTestUser(): Promise<string> {
     const auth = getAuth();
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      TEST_USER.email,
-      TEST_USER.password
+      BEGINNER_USER.email,
+      BEGINNER_USER.password
     );
 
     const userId = userCredential.user.uid;
-    const userRef = doc(db, "users", userId);
+    const userRef = doc(db, "users", userId) as DocumentReference<User>;
     await setDoc(userRef, {
-      email: TEST_USER.email,
-      displayName: "Test User",
-      level: TEST_USER.level,
+      email: BEGINNER_USER.email,
+      displayName: "Beginner User",
+      level: BEGINNER_USER.level,
       fitnessGoals: ["lose weight", "improve endurance"],
-      trainingFrequency: "3",
       totalPoints: 10,
-      role: TEST_USER.role,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     });
@@ -40,80 +48,71 @@ export async function createTestUser(): Promise<string> {
   }
 }
 
-export async function createTestUser2(): Promise<string> {
-  console.log("Creating test user 2...");
+export async function createIntermediateUser(): Promise<string> {
+  console.log("Creating intermediate user...");
 
   try {
     const auth = getAuth();
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      TEST_USER_2.email,
-      TEST_USER_2.password
+      INTERMEDIATE_USER.email,
+      INTERMEDIATE_USER.password
     );
 
     const userId = userCredential.user.uid;
-    const userRef = doc(db, "users", userId);
+    const userRef = doc(db, "users", userId) as DocumentReference<User>;
     await setDoc(userRef, {
-      email: TEST_USER_2.email,
+      email: INTERMEDIATE_USER.email,
       displayName: "Intermediate User",
-      level: TEST_USER_2.level,
+      level: INTERMEDIATE_USER.level,
       fitnessGoals: ["gain muscle", "improve strength"],
-      trainingFrequency: "4",
       totalPoints: 75,
-      role: TEST_USER_2.role,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     });
 
-    console.log("Test user 2 created with ID:", userId);
+    console.log("Intermediate user created with ID:", userId);
     return userId;
   } catch (error) {
-    console.error("Error creating test user 2:", error);
+    console.error("Error creating intermediate user:", error);
     throw error;
   }
 }
 
-// Create an admin user
-export async function createAdminUser(): Promise<string> {
-  console.log("Creating admin user...");
+export async function createUberDuperUser(): Promise<string> {
+  console.log("Creating uber-duper user...");
 
   try {
     const auth = getAuth();
     const userCredential = await createUserWithEmailAndPassword(
       auth,
-      ADMIN_USER.email,
-      ADMIN_USER.password
+      UBER_DUPER_USER.email,
+      UBER_DUPER_USER.password
     );
 
     const userId = userCredential.user.uid;
 
-    const userRef = doc(db, "users", userId);
+    const userRef = doc(db, "users", userId) as DocumentReference<User>;
     await setDoc(userRef, {
-      email: ADMIN_USER.email,
-      displayName: "Admin User",
-      level: ADMIN_USER.level,
+      email: UBER_DUPER_USER.email,
+      displayName: "Uber-Duper User",
+      level: UBER_DUPER_USER.level,
       fitnessGoals: ["maintain fitness", "improve strength"],
-      trainingFrequency: "5",
       totalPoints: 250,
-      role: ADMIN_USER.role,
-      isAdmin: true,
       createdAt: Timestamp.now(),
       updatedAt: Timestamp.now(),
     });
 
-    console.log("Admin user created with ID:", userId);
+    console.log("Uber-duper user created with ID:", userId);
     return userId;
   } catch (error) {
-    console.error("Error creating admin user:", error);
+    console.error("Error creating uber-duper user:", error);
     throw error;
   }
 }
 
 // Sign in as a user
-export async function signInAsUser(
-  email: string,
-  password: string
-): Promise<string> {
+export async function signIn(email: string, password: string): Promise<string> {
   try {
     const auth = getAuth();
     const userCredential = await signInWithEmailAndPassword(

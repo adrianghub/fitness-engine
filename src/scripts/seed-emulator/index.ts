@@ -1,5 +1,9 @@
+import {
+  BEGINNER_USER,
+  INTERMEDIATE_USER,
+  UBER_DUPER_USER,
+} from "@/scripts/seed-emulator/constants";
 import { logger } from "../../lib/logger";
-import { ADMIN_USER, TEST_USER, TEST_USER_2 } from "./constants";
 import { clearExistingData } from "./data-cleaner";
 import {
   createChallengeTemplates,
@@ -8,10 +12,10 @@ import {
 import { updateLeaderboard } from "./generators/generateLeaderboard";
 import { generateOpponentsForUser } from "./generators/generateOpponents";
 import {
-  createAdminUser,
+  createIntermediateUser,
   createTestUser,
-  createTestUser2,
-  signInAsUser,
+  createUberDuperUser,
+  signIn,
 } from "./generators/generateUsers";
 
 /**
@@ -22,15 +26,17 @@ async function seedEmulator() {
 
   await clearExistingData();
 
-  // Create and sign in as admin user
-  let adminUserId = "";
+  let duperUserId = "";
   try {
     try {
-      adminUserId = await signInAsUser(ADMIN_USER.email, ADMIN_USER.password);
+      duperUserId = await signIn(
+        UBER_DUPER_USER.email,
+        UBER_DUPER_USER.password
+      );
       logger.info("Admin user already exists, signed in as admin");
     } catch {
-      adminUserId = await createAdminUser();
-      await signInAsUser(ADMIN_USER.email, ADMIN_USER.password);
+      duperUserId = await createUberDuperUser();
+      await signIn(UBER_DUPER_USER.email, UBER_DUPER_USER.password);
       logger.info("Created admin user and signed in");
     }
   } catch (error) {
@@ -38,82 +44,80 @@ async function seedEmulator() {
     throw new Error("Failed to sign in as admin, cannot proceed with seeding");
   }
 
-  // Create and sign in as test user
-  let testUserId = "";
+  let beginnerUserId = "";
   try {
     try {
-      testUserId = await signInAsUser(TEST_USER.email, TEST_USER.password);
-      logger.info("Test user already exists, reusing it");
+      beginnerUserId = await signIn(
+        BEGINNER_USER.email,
+        BEGINNER_USER.password
+      );
+      logger.info("Beginner user already exists, reusing it");
     } catch {
-      testUserId = await createTestUser();
+      beginnerUserId = await createTestUser();
     }
   } catch (error) {
-    logger.error("Error with test user:", error);
-    throw new Error("Failed to create or retrieve test user");
+    logger.error("Error with beginner user:", error);
+    throw new Error("Failed to create or retrieve beginner user");
   }
 
-  // Create and sign in as second test user
-  let testUser2Id = "";
+  let intermediateUserId = "";
   try {
     try {
-      testUser2Id = await signInAsUser(TEST_USER_2.email, TEST_USER_2.password);
-      logger.info("Test user 2 already exists, reusing it");
+      intermediateUserId = await signIn(
+        INTERMEDIATE_USER.email,
+        INTERMEDIATE_USER.password
+      );
+      logger.info("Intermediate user already exists, reusing it");
     } catch {
-      testUser2Id = await createTestUser2();
+      intermediateUserId = await createIntermediateUser();
     }
   } catch (error) {
-    logger.error("Error with test user 2:", error);
-    throw new Error("Failed to create or retrieve test user 2");
+    logger.error("Error with intermediate user:", error);
+    throw new Error("Failed to create or retrieve intermediate user");
   }
 
-  // Sign back in as admin
   try {
-    await signInAsUser(ADMIN_USER.email, ADMIN_USER.password);
+    await signIn(UBER_DUPER_USER.email, UBER_DUPER_USER.password);
   } catch (error) {
-    logger.error("Error signing back in as admin:", error);
-    throw new Error("Failed to sign back in as admin");
+    logger.error("Error signing back in as Uber user:", error);
+    throw new Error("Failed to sign back in as Uber user");
   }
 
-  // Create challenge templates
   const challengeTemplateIds = await createChallengeTemplates();
+  const beginnerOpponentIds = await generateOpponentsForUser(beginnerUserId);
+  const intermediateOpponentIds =
+    await generateOpponentsForUser(intermediateUserId);
+  const adminOpponentIds = await generateOpponentsForUser(duperUserId);
 
-  // Generate opponents for each user
-  const testUserOpponentIds = await generateOpponentsForUser(testUserId);
-  const testUser2OpponentIds = await generateOpponentsForUser(testUser2Id);
-  const adminOpponentIds = await generateOpponentsForUser(adminUserId);
-
-  // Create challenges for test user 1
   try {
-    await signInAsUser(TEST_USER.email, TEST_USER.password);
+    await signIn(BEGINNER_USER.email, BEGINNER_USER.password);
   } catch (error) {
-    logger.error("Error signing in as test user:", error);
-    throw new Error("Failed to sign in as test user");
+    logger.error("Error signing in as beginner user:", error);
+    throw new Error("Failed to sign in as beginner user");
   }
 
-  await createUserChallenges(testUserId, challengeTemplateIds);
-  await updateLeaderboard(testUserId, testUserOpponentIds);
+  await createUserChallenges(beginnerUserId, challengeTemplateIds);
+  await updateLeaderboard(beginnerUserId, beginnerOpponentIds);
 
-  // Create challenges for test user 2
   try {
-    await signInAsUser(TEST_USER_2.email, TEST_USER_2.password);
+    await signIn(INTERMEDIATE_USER.email, INTERMEDIATE_USER.password);
   } catch (error) {
-    logger.error("Error signing in as test user 2:", error);
-    throw new Error("Failed to sign in as test user 2");
+    logger.error("Error signing in as intermediate user:", error);
+    throw new Error("Failed to sign in as intermediate user");
   }
 
-  await createUserChallenges(testUser2Id, challengeTemplateIds);
-  await updateLeaderboard(testUser2Id, testUser2OpponentIds);
+  await createUserChallenges(intermediateUserId, challengeTemplateIds);
+  await updateLeaderboard(intermediateUserId, intermediateOpponentIds);
 
-  // Create challenges for admin
   try {
-    await signInAsUser(ADMIN_USER.email, ADMIN_USER.password);
+    await signIn(UBER_DUPER_USER.email, UBER_DUPER_USER.password);
   } catch (error) {
-    logger.error("Error signing in as admin:", error);
-    throw new Error("Failed to sign in as admin");
+    logger.error("Error signing in as Uber user:", error);
+    throw new Error("Failed to sign in as Uber user");
   }
 
-  await createUserChallenges(adminUserId, challengeTemplateIds);
-  await updateLeaderboard(adminUserId, adminOpponentIds);
+  await createUserChallenges(duperUserId, challengeTemplateIds);
+  await updateLeaderboard(duperUserId, adminOpponentIds);
 
   logger.info("Emulator seeding completed successfully!");
   printCredentials();
@@ -126,15 +130,15 @@ function printCredentials(): void {
   logger.info("\n======================================================");
   logger.info("🎉 FitnessEngine emulator seed script completed successfully!");
   logger.info("======================================================");
-  logger.info("\n📝 Test user credentials:");
-  logger.info(`   Email: ${TEST_USER.email}`);
-  logger.info(`   Password: ${TEST_USER.password}`);
-  logger.info("\n📝 Test user 2 credentials:");
-  logger.info(`   Email: ${TEST_USER_2.email}`);
-  logger.info(`   Password: ${TEST_USER_2.password}`);
-  logger.info("\n👑 Admin user credentials:");
-  logger.info(`   Email: ${ADMIN_USER.email}`);
-  logger.info(`   Password: ${ADMIN_USER.password}`);
+  logger.info("\n📝 Beginner user credentials:");
+  logger.info(`   Email: ${BEGINNER_USER.email}`);
+  logger.info(`   Password: ${BEGINNER_USER.password}`);
+  logger.info("\n📝 Intermediate user credentials:");
+  logger.info(`   Email: ${INTERMEDIATE_USER.email}`);
+  logger.info(`   Password: ${INTERMEDIATE_USER.password}`);
+  logger.info("\n👑 Uber user credentials:");
+  logger.info(`   Email: ${UBER_DUPER_USER.email}`);
+  logger.info(`   Password: ${UBER_DUPER_USER.password}`);
   logger.info("\n▶️ To start the emulators and app:");
   logger.info("   npm run dev:all");
   logger.info("\n🔑 Login with the credentials above");

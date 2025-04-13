@@ -1,24 +1,21 @@
 import type { UserLevel } from "@/types/models";
 
-export const TEST_USER = {
-  email: "user1@example.com",
-  password: "test123",
-  role: "user",
+export const BEGINNER_USER = {
+  email: "beginner@example.com",
+  password: "beginner123",
   level: "beginner",
 } as const;
 
-export const ADMIN_USER = {
-  email: "admin@example.com",
-  password: "admin123",
-  role: "admin",
-  level: "advanced",
+export const INTERMEDIATE_USER = {
+  email: "intermediate@example.com",
+  password: "intermediate123",
+  level: "intermediate",
 } as const;
 
-export const TEST_USER_2 = {
-  email: "user2@example.com",
-  password: "test456",
-  role: "user",
-  level: "intermediate",
+export const UBER_DUPER_USER = {
+  email: "uber-duper@example.com",
+  password: "uber-duper123",
+  level: "advanced",
 } as const;
 
 export const USER_LEVELS = ["beginner", "intermediate", "advanced"] as const;

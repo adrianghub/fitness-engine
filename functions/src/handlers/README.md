@@ -32,8 +32,7 @@ The challenge generation handler is responsible for:
 The opponent generation handler is responsible for:
 - Creating opponents with appropriate difficulty based on user level
 - Managing the leaderboard rankings
-- Updating opponent scores based on training frequency
-- Determining when opponents should be regenerated
+- Updating opponent scores daily based on the user's level
 
 ### User Promotion
 
@@ -42,17 +41,3 @@ The user promotion handler is responsible for:
 - Promoting users to higher levels upon qualification
 - Resetting user points after promotion
 - Regenerating challenges and opponents for the new level
-
-## Usage
-
-All handlers are exported from the `index.ts` file and can be imported as follows:
-
-```typescript
-import {
-  applyPersonalization,
-  generateUserChallenges,
-  generateUserOpponents,
-  promoteUser,
-  // etc.
-} from "./handlers";
-```

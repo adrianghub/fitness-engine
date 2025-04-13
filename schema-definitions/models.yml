@@ -53,27 +53,6 @@ EntityType:
       - label: Opponent
         value: opponent
 
-TrainingFrequency:
-  model: alias
-  docs: Represents how many times per week the user trains
-  type:
-    type: enum
-    members:
-      - label: Once a week
-        value: "1"
-      - label: Twice a week
-        value: "2"
-      - label: Three times a week
-        value: "3"
-      - label: Four times a week
-        value: "4"
-      - label: Five times a week
-        value: "5"
-      - label: Six times a week
-        value: "6"
-      - label: Every day
-        value: "7"
-
 FitnessGoal:
   model: alias
   docs: Represents a fitness goal that a user can have
@@ -103,10 +82,6 @@ User:
         type:
           type: list
           elementType: FitnessGoal
-      trainingFrequency:
-        type: TrainingFrequency
-        optional: true
-        docs: How often the user trains
       totalPoints:
         type: double
         docs: Total points accumulated by the user

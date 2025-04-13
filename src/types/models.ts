@@ -1,22 +1,19 @@
-import type * as firestore from "firebase/firestore";
+import type * as firestore from 'firebase/firestore';
 
 /** Represents the level of a challenge */
-export type ChallengeLevel = "beginner" | "intermediate" | "advanced" | "all";
+export type ChallengeLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
 
 /** Represents the status of a user's challenge */
-export type ChallengeStatus = "not-started" | "in-progress" | "completed";
+export type ChallengeStatus = 'not-started' | 'in-progress' | 'completed';
 
 /** Represents the type of entity in the leaderboard */
-export type EntityType = "user" | "opponent";
+export type EntityType = 'user' | 'opponent';
 
 /** Represents a fitness goal that a user can have */
 export type FitnessGoal = string;
 
-/** Represents how many times per week the user trains */
-export type TrainingFrequency = "1" | "2" | "3" | "4" | "5" | "6" | "7";
-
 /** Represents user's fitness level */
-export type UserLevel = "beginner" | "intermediate" | "advanced";
+export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
 
 /** Represents a challenge template that can be assigned to users */
 export interface ChallengeTemplate {
@@ -33,9 +30,9 @@ export interface ChallengeTemplate {
   /** Expected time to complete the challenge */
   expectedTime: string;
   /** When the challenge template was created */
-  createdAt?: firestore.Timestamp;
+  createdAt: firestore.Timestamp;
   /** When the challenge template was last updated */
-  updatedAt?: firestore.Timestamp;
+  updatedAt: firestore.Timestamp;
 }
 
 /** Represents an entry in the leaderboard */
@@ -76,14 +73,12 @@ export interface User {
   level: UserLevel;
   /** Array of user's fitness goals */
   fitnessGoals?: FitnessGoal[];
-  /** How often the user trains */
-  trainingFrequency?: TrainingFrequency;
   /** Total points accumulated by the user */
   totalPoints: number;
   /** When the user account was created */
-  createdAt: firestore.Timestamp;
+  createdAt?: firestore.Timestamp;
   /** When the user account was last updated */
-  updatedAt: firestore.Timestamp;
+  updatedAt?: firestore.Timestamp;
 }
 
 /** Represents an assigned challenge to a user */

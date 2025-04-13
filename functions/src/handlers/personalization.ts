@@ -9,18 +9,12 @@ import type {
   QuerySnapshot,
 } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import type {
-  FitnessGoal,
-  TrainingFrequency,
-  User,
-  UserLevel,
-} from "../../src/types/models";
+import type { FitnessGoal, User, UserLevel } from "../../src/types/models";
 
 interface PersonalizationData {
   displayName: string;
   level: UserLevel;
   fitnessGoals: FitnessGoal[];
-  trainingFrequency: TrainingFrequency;
 }
 
 /**
@@ -65,15 +59,6 @@ export async function validatePersonalizationData(
     return [false, "At least one fitness goal is required"];
   }
 
-  // Validate training frequency
-  const validFrequencies = ["1", "2", "3", "4", "5", "6", "7"];
-  if (
-    !data.trainingFrequency ||
-    !validFrequencies.includes(data.trainingFrequency)
-  ) {
-    return [false, "Training frequency must be between 1 and 7"];
-  }
-
   return [true];
 }
 
@@ -100,7 +85,6 @@ export async function applyPersonalization(
       displayName: data.displayName,
       level: data.level,
       fitnessGoals: data.fitnessGoals,
-      trainingFrequency: data.trainingFrequency,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
