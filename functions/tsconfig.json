@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*", "../shared/*", "../src/*"]
+      "@/*": ["src/*", "../shared/*"]
     }
   },
   "compileOnSave": true,

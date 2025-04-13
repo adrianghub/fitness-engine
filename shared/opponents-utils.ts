@@ -1,4 +1,4 @@
-import { UserLevel } from "@/types/models";
+import type { UserLevel } from "../src/types/models";
 import { FIRST_NAMES, LAST_NAMES, USERNAME_PREFIXES } from "./data/opponents";
 
 // Point ranges for different levels to ensure opponents have appropriate scores

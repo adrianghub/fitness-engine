@@ -1,10 +1,10 @@
-import { LEVEL_POINT_RANGES } from "@/scripts/seed-emulator/constants";
 import {
   FIRST_NAMES,
   LAST_NAMES,
   USERNAME_PREFIXES,
 } from "../../../../shared/data/opponents";
 import type { UserLevel } from "../../../types/models";
+import { LEVEL_POINT_RANGES } from "../constants";
 
 /**
  * Generates a random username for an opponent using predefined name parts

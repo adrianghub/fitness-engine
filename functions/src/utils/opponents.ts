@@ -1,9 +1,9 @@
-import type { UserLevel } from "@/types/models";
 import {
   FIRST_NAMES,
   LAST_NAMES,
   USERNAME_PREFIXES,
 } from "../../../shared/data/opponents";
+import type { UserLevel } from "../../../src/types/models";
 
 // Point ranges for different levels to ensure opponents have appropriate scores
 export const LEVEL_POINT_RANGES: Record<
