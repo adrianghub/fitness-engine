@@ -5,9 +5,9 @@ import {
   Timestamp,
   writeBatch,
 } from "firebase/firestore";
-import { CHALLENGE_TEMPLATES } from "../../../../shared/data/challenge-templates";
 import { db } from "../../../lib/firebase";
 import type { ChallengeLevel } from "../../../types/models";
+import { CHALLENGE_TEMPLATES } from "../data/challenge-templates";
 import {
   calculateChallengePoints,
   generateChallengeTimestamps,

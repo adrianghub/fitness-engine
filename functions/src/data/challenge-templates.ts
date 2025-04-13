@@ -6,7 +6,7 @@
  * when running the seedChallengeTemplates function.
  */
 
-import type { ChallengeTemplate } from "../../src/types/models";
+import type { ChallengeTemplate } from "@/types/models";
 
 const UNIVERSAL_CHALLENGES = [
   {

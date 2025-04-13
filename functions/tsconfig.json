@@ -11,12 +11,12 @@
     "esModuleInterop": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*", "../shared/*"]
-    }
+      "@/*": ["src/*"]
+    },
+    "rootDir": "src"
   },
   "compileOnSave": true,
   "include": [
-    "src",
-    "../shared/**/*"
+    "src"
   ]
 }

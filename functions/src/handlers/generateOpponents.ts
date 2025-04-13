@@ -9,17 +9,17 @@ import type {
   QuerySnapshot,
 } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import {
-  calculateOpponentPoints,
-  calculatePointChange,
-  generateRandomUsername,
-} from "../../../src/scripts/seed-emulator/utils/opponents";
 import type {
   Leaderboard,
   Opponent,
   User,
   UserLevel,
 } from "../../src/types/models";
+import {
+  calculateOpponentPoints,
+  calculatePointChange,
+  generateRandomUsername,
+} from "../utils/opponents";
 
 /**
  * Updates the leaderboard rankings for a user and their opponents
