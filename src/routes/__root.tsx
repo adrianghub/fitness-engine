@@ -1,3 +1,5 @@
+import { Header } from "@/components/Header";
+import { Loader } from "@/components/Loader";
 import { useAuth } from "@/useAuth";
 import {
   createRootRoute,
@@ -41,31 +43,24 @@ function RootLayout() {
     }
   }, [userData, navigate, isLoading, currentUser]);
 
-  if (isLoading) {
-    return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
-      </div>
-    );
-  }
-
   return (
-    <div className='min-h-screen flex flex-col'>
-      <main className='flex-grow'>
-        <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
-          <Suspense
-            fallback={
-              <div className='flex items-center justify-center'>
-                <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
-              </div>
-            }
-          >
-            <Outlet />
-          </Suspense>
-        </div>
-      </main>
-      {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
-    </div>
+    <>
+      <Header />
+      <div className='h-full flex flex-col'>
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <main className='flex-grow'>
+            <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
+              <Suspense fallback={<Loader />}>
+                <Outlet />
+              </Suspense>
+            </div>
+          </main>
+        )}
+        {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
+      </div>
+    </>
   );
 }
 
