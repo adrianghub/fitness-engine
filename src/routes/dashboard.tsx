@@ -1,5 +1,5 @@
 import { auth, db } from "@/lib/firebase";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import {
   collection,
   doc,
@@ -25,15 +25,16 @@ export const Route = createFileRoute("/dashboard")({
       throw new Error("Unauthorized access to dashboard");
     }
 
-    // Get user data
     const userDoc = await getDoc(doc(db, "users", currentUser.uid));
     const userData = userDoc.data();
 
     if (!userData?.isProfileComplete) {
-      throw new Error("Profile not complete");
+      throw redirect({
+        to: "/personalization",
+        replace: true,
+      });
     }
 
-    // Fetch user's active challenges
     const challengesQuery = query(
       collection(db, "userChallenges"),
       where("userId", "==", currentUser.uid),

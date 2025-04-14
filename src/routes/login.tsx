@@ -26,7 +26,7 @@ export const Route = createFileRoute("/login")({
       const currentUser = await getCurrentUser();
 
       if (currentUser) {
-        throw redirect({
+        return redirect({
           to: search.redirect || "/dashboard",
           replace: true,
         });
@@ -34,9 +34,6 @@ export const Route = createFileRoute("/login")({
 
       return {};
     } catch (error) {
-      if (error instanceof Error && error.name === "RedirectError") {
-        throw error;
-      }
       logger.warn("Login", "Error checking current user:", error);
       return {};
     }

@@ -5,6 +5,7 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { Suspense, useEffect } from "react";
 
 function RootLayout() {
@@ -63,11 +64,7 @@ function RootLayout() {
           </Suspense>
         </div>
       </main>
-      {process.env.NODE_ENV === "development" && (
-        <div className='fixed bottom-4 right-4 p-2 bg-black bg-opacity-50 text-white text-xs rounded'>
-          Dev Mode
-        </div>
-      )}
+      {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
     </div>
   );
 }
