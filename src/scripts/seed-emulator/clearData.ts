@@ -1,3 +1,4 @@
+import { deleteUser, getAuth } from "firebase/auth";
 import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "../../lib/firebase";
 import { COLLECTIONS } from "./constants";
@@ -47,7 +48,17 @@ export async function clearExistingData(): Promise<void> {
     }
   }
 
-  // Delete corresponding auth accounts
+  for (const userId of userIds) {
+    try {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        await deleteUser(user);
+      }
+    } catch (error) {
+      console.error(`Error deleting user ${userId}:`, error);
+    }
+  }
   console.log(
     `Found ${userIds.length} user accounts that need to be removed from authentication`
   );

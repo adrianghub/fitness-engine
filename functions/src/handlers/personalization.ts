@@ -105,35 +105,38 @@ export interface PersonalizationData {
 /**
  * HTTP callable function to complete user profile and apply personalization
  */
-export const completeUserProfile = onCall({ cors: true }, async (request) => {
-  try {
-    const uid = request.auth?.uid;
-    if (!uid) {
-      logger.error("Unauthorized access to completeUserProfile");
-      throw new Error("Unauthorized");
+export const completeUserProfile = onCall(
+  { cors: true, region: "europe-central2" },
+  async (request) => {
+    try {
+      const uid = request.auth?.uid;
+      if (!uid) {
+        logger.error("Unauthorized access to completeUserProfile");
+        throw new Error("Unauthorized");
+      }
+
+      const personalizationData = request.data as PersonalizationData;
+
+      const [isValid, errorMessage] = await validatePersonalizationData(
+        personalizationData,
+        uid
+      );
+      if (!isValid) {
+        logger.error(`Invalid personalization data: ${errorMessage}`);
+        throw new Error(`Invalid personalization data: ${errorMessage}`);
+      }
+
+      await applyPersonalization(uid, personalizationData);
+
+      await generateUserChallenges(uid, personalizationData.level);
+      await generateUserOpponents(uid, personalizationData.level);
+
+      logger.info(`Successfully completed profile setup for user ${uid}`);
+
+      return { success: true };
+    } catch (error) {
+      logger.error("Error in completeUserProfile function:", error);
+      throw new Error("Failed to complete profile setup");
     }
-
-    const personalizationData = request.data as PersonalizationData;
-
-    const [isValid, errorMessage] = await validatePersonalizationData(
-      personalizationData,
-      uid
-    );
-    if (!isValid) {
-      logger.error(`Invalid personalization data: ${errorMessage}`);
-      throw new Error(`Invalid personalization data: ${errorMessage}`);
-    }
-
-    await applyPersonalization(uid, personalizationData);
-
-    await generateUserChallenges(uid, personalizationData.level);
-    await generateUserOpponents(uid, personalizationData.level);
-
-    logger.info(`Successfully completed profile setup for user ${uid}`);
-
-    return { success: true };
-  } catch (error) {
-    logger.error("Error in completeUserProfile function:", error);
-    throw new Error("Failed to complete profile setup");
   }
-});
+);
