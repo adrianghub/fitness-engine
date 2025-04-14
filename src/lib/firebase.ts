@@ -66,7 +66,7 @@ try {
 }
 export { db };
 
-export const functions = getFunctions(app);
+export const functions = getFunctions(app, "europe-central2");
 
 // Connect to emulators in development mode
 const isDevelopment = import.meta.env.DEV;

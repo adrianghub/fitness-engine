@@ -37,6 +37,7 @@ export function usePersonalizationForm() {
           functions,
           "completeUserProfile"
         );
+
         await completeUserProfile({
           displayName,
           level,
