@@ -10,7 +10,6 @@ import type { ChallengeTemplate } from "@/types/models";
 
 const UNIVERSAL_CHALLENGES = [
   {
-    id: "challenge-all-1",
     title: "Wypij 8 Szklanek Wody",
     description: "Wypij co najmniej 8 szklanek wody w ciągu dnia",
     level: "all",
@@ -18,7 +17,6 @@ const UNIVERSAL_CHALLENGES = [
     expectedTime: "Cały dzień",
   },
   {
-    id: "challenge-all-2",
     title: "5 Minut Głębokiego Oddychania",
     description: "Ćwicz głębokie oddychanie przez 5 minut",
     level: "all",
@@ -26,7 +24,6 @@ const UNIVERSAL_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-all-3",
     title: "Zrób 8,000 Kroków",
     description: "Przejdź co najmniej 8,000 kroków w ciągu dnia",
     level: "all",
@@ -34,7 +31,6 @@ const UNIVERSAL_CHALLENGES = [
     expectedTime: "Cały dzień",
   },
   {
-    id: "challenge-all-4",
     title: "Stretching",
     description: "Wykonaj 10 minut stretchingu",
     level: "all",
@@ -45,7 +41,6 @@ const UNIVERSAL_CHALLENGES = [
 
 const BEGINNER_CHALLENGES = [
   {
-    id: "challenge-beginner-1",
     title: "Wyzwanie: 25 Podciągnięć (bądź 50 pompek)",
     description: "Wykonaj 25 podciągnięć (bądź 50 pompek)",
     level: "beginner",
@@ -53,23 +48,20 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-2",
     title: "Wyzwanie: 50 Pompki Klasyczne",
-    description: "Wykonaj 50 klasycznych pompek z prawidłową techniką",
+    description: "Wykonaj 50 klasycznych pompek z prawej strony",
     level: "beginner",
     points: 50,
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-3",
     title: "Wyzwanie: 20 Przysiadów Standardowych",
-    description: "Wykonaj 20 standardowych przysiadów z prawidłową techniką",
+    description: "Wykonaj 20 standardowych przysiadów z prawej strony",
     level: "beginner",
     points: 80,
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-4",
     title: "Wyzwanie: 30 Sekund Deski",
     description: "Utrzymaj pozycję deski (plank) przez 30 sekund",
     level: "beginner",
@@ -77,7 +69,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-beginner-5",
     title: "Wyzwanie: 10 Pajacyków Tradycyjnych",
     description: "Wykonaj 10 tradycyjnych pajacyków z dobrą techniką",
     level: "beginner",
@@ -85,7 +76,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-beginner-6",
     title: "5-Minutowa Rozgrzewka Marszem",
     description: "Maszeruj w szybkim tempie przez 5 minut, aby się rozgrzać",
     level: "beginner",
@@ -93,7 +83,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-7",
     title: "Wyzwanie: 10 Unoszeń Nóg w Leżeniu",
     description: "Wykonaj 10 unoszeń nóg w leżeniu na plecach",
     level: "beginner",
@@ -101,7 +90,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-8",
     title: "Wyzwanie: Ściana 20 Sekund",
     description: "Utrzymaj pozycję siedzenia przy ścianie przez 20 sekund",
     level: "beginner",
@@ -109,7 +97,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-beginner-9",
     title: "Wyzwanie: 10 Wyciskań Tricepsowych z Podporą",
     description:
       "Wykonaj 10 wyciskań tricepsowych używając krzesła lub ławki jako podpory",
@@ -118,7 +105,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-beginner-10",
     title: "Wyzwanie: 15 Brzuszków Klasycznych",
     description: "Wykonaj 15 klasycznych brzuszków z dobrą techniką",
     level: "beginner",
@@ -126,7 +112,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-11",
     title: "5-Minutowy Stretching Podstawowy",
     description: "Wykonaj podstawowy zestaw ćwiczeń rozciągających całe ciało",
     level: "beginner",
@@ -134,7 +119,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-12",
     title: "Wyzwanie: 10 Dotknięć Ramion w Desce",
     description: "Wykonaj 10 dotknięć ramion w pozycji deski (plank)",
     level: "beginner",
@@ -142,7 +126,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-beginner-13",
     title: "Wejdź na 2 Piętra Schodów",
     description: "Wejdź co najmniej na 2 piętra schodów, aby poprawić kondycję",
     level: "beginner",
@@ -150,7 +133,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-beginner-14",
     title: "Wyzwanie: 10 Krążeń Ramion w Przód i Tył",
     description: "Wykonaj 10 krążeń ramion w przód i w tył w celu rozgrzewki",
     level: "beginner",
@@ -158,7 +140,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-beginner-15",
     title: "3 Minuty Marszu w Miejscu",
     description: "Maszeruj w miejscu przez 3 minuty, podnosząc kolana",
     level: "beginner",
@@ -166,7 +147,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-16",
     title: "Wyzwanie: 2 Minuty Przysiadów",
     description: "Wytrzymaj 2 minuty w pozycji przysiadu",
     level: "beginner",
@@ -174,7 +154,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-beginner-17",
     title: "Rozciąganie Karku na Krześle",
     description: "Siedząc na krześle delikatnie rozciągnij kark w przód",
     level: "beginner",
@@ -182,7 +161,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-18",
     title: "Bieg w Miejscu - Beginner",
     description: "Wykonaj serie biegu w miejscu",
     level: "beginner",
@@ -190,7 +168,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-beginner-19",
     title: "Mocne Unoszenie kolan - Beginner",
     description: "Wykonaj serię unoszenia kolan w miejscu",
     level: "beginner",
@@ -198,7 +175,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-20",
     title: "20 pompek wąskich",
     description: "Wykonaj 20 pompek wąskich",
     level: "beginner",
@@ -206,7 +182,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-21",
     title: "Dynamiczny most - początkujący",
     description: "Wykonaj dynamiczny most, dla początkujących",
     level: "beginner",
@@ -214,7 +189,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-22",
     title: "Niski burpee - początkujący",
     description: "Zrób serię burpee w wersji uproszczonej",
     level: "beginner",
@@ -222,7 +196,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-23",
     title: "Skłony japońskie - początkujący",
     description: "Wykonaj japońskie skłony",
     level: "beginner",
@@ -230,7 +203,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-24",
     title: "Masaż nogi - początkujący",
     description: "Wykonaj automasaż nogi",
     level: "beginner",
@@ -238,7 +210,6 @@ const BEGINNER_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-beginner-25",
     title: "Kocie grzbiety - początkujący",
     description: "Wykonuj kocie grzbiety na macie",
     level: "beginner",
@@ -249,7 +220,6 @@ const BEGINNER_CHALLENGES = [
 
 const ADVANCED_CHALLENGES = [
   {
-    id: "challenge-advanced-1",
     title: "Wyzwanie: 25 Podciągnięć (bądź 50 pompek)",
     description: "Wykonaj 25 podciągnięć (bądź 50 pompek)",
     level: "advanced",
@@ -257,23 +227,20 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-2",
     title: "Wyzwanie: 50 Pompki Klasyczne",
-    description: "Wykonaj 50 klasycznych pompek z prawidłową techniką",
+    description: "Wykonaj 50 klasycznych pompek z prawej strony",
     level: "advanced",
     points: 50,
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-3",
     title: "Wyzwanie: 20 Przysiadów Standardowych",
-    description: "Wykonaj 20 standardowych przysiadów z prawidłową techniką",
+    description: "Wykonaj 20 standardowych przysiadów z prawej strony",
     level: "advanced",
     points: 80,
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-4",
     title: "Wyzwanie: 30 Sekund Deski",
     description: "Utrzymaj pozycję deski (plank) przez 30 sekund",
     level: "advanced",
@@ -281,7 +248,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-advanced-5",
     title: "Wyzwanie: 10 Pajacyków Tradycyjnych",
     description: "Wykonaj 10 tradycyjnych pajacyków z dobrą techniką",
     level: "advanced",
@@ -289,7 +255,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-advanced-6",
     title: "5-Minutowa Rozgrzewka Marszem",
     description: "Maszeruj w szybkim tempie przez 5 minut, aby się rozgrzać",
     level: "advanced",
@@ -297,7 +262,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-7",
     title: "Wyzwanie: 10 Unoszeń Nóg w Leżeniu",
     description: "Wykonaj 10 unoszeń nóg w leżeniu na plecach",
     level: "advanced",
@@ -305,7 +269,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-8",
     title: "Wyzwanie: Ściana 20 Sekund",
     description: "Utrzymaj pozycję siedzenia przy ścianie przez 20 sekund",
     level: "advanced",
@@ -313,7 +276,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-advanced-9",
     title: "Wyzwanie: 10 Wyciskań Tricepsowych z Podporą",
     description:
       "Wykonaj 10 wyciskań tricepsowych używając krzesła lub ławki jako podpory",
@@ -322,7 +284,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-advanced-10",
     title: "Wyzwanie: 15 Brzuszków Klasycznych",
     description: "Wykonaj 15 klasycznych brzuszków z dobrą techniką",
     level: "advanced",
@@ -330,7 +291,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-11",
     title: "5-Minutowy Stretching Podstawowy",
     description: "Wykonaj podstawowy zestaw ćwiczeń rozciągających całe ciało",
     level: "advanced",
@@ -338,7 +298,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-12",
     title: "Wyzwanie: 10 Dotknięć Ramion w Desce",
     description: "Wykonaj 10 dotknięć ramion w pozycji deski (plank)",
     level: "advanced",
@@ -346,7 +305,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-advanced-13",
     title: "Wejdź na 2 Piętra Schodów",
     description: "Wejdź co najmniej na 2 piętra schodów, aby poprawić kondycję",
     level: "advanced",
@@ -354,7 +312,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-advanced-14",
     title: "Wyzwanie: 10 Krążeń Ramion w Przód i Tył",
     description: "Wykonaj 10 krążeń ramion w przód i w tył w celu rozgrzewki",
     level: "advanced",
@@ -362,7 +319,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-advanced-15",
     title: "3 Minuty Marszu w Miejscu",
     description: "Maszeruj w miejscu przez 3 minuty, podnosząc kolana",
     level: "advanced",
@@ -370,7 +326,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-16",
     title: "Wyzwanie: 2 Minuty Przysiadów",
     description: "Wytrzymaj 2 minuty w pozycji przysiadu",
     level: "advanced",
@@ -378,7 +333,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-advanced-17",
     title: "Rozciąganie Karku na Krześle",
     description: "Siedząc na krześle delikatnie rozciągnij kark w przód",
     level: "advanced",
@@ -386,7 +340,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-18",
     title: "Bieg w Miejscu - advanced",
     description: "Wykonaj serie biegu w miejscu",
     level: "advanced",
@@ -394,7 +347,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-advanced-19",
     title: "Mocne Unoszenie kolan - advanced",
     description: "Wykonaj serię unoszenia kolan w miejscu",
     level: "advanced",
@@ -402,7 +354,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-20",
     title: "20 pompek wąskich",
     description: "Wykonaj 20 pompek wąskich",
     level: "advanced",
@@ -410,7 +361,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-21",
     title: "Dynamiczny most - początkujący",
     description: "Wykonaj dynamiczny most, dla początkujących",
     level: "advanced",
@@ -418,7 +368,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-22",
     title: "Niski burpee - początkujący",
     description: "Zrób serię burpee w wersji uproszczonej",
     level: "advanced",
@@ -426,7 +375,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-23",
     title: "Skłony japońskie - początkujący",
     description: "Wykonaj japońskie skłony",
     level: "advanced",
@@ -434,7 +382,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-24",
     title: "Masaż nogi - początkujący",
     description: "Wykonaj automasaż nogi",
     level: "advanced",
@@ -442,7 +389,6 @@ const ADVANCED_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-advanced-25",
     title: "Kocie grzbiety - początkujący",
     description: "Wykonuj kocie grzbiety na macie",
     level: "advanced",
@@ -453,7 +399,6 @@ const ADVANCED_CHALLENGES = [
 
 const INTERMEDIATE_CHALLENGES = [
   {
-    id: "challenge-intermediate-1",
     title: "Wyzwanie: 25 Podciągnięć (bądź 50 pompek)",
     description: "Wykonaj 25 podciągnięć (bądź 50 pompek)",
     level: "intermediate",
@@ -461,23 +406,20 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-2",
     title: "Wyzwanie: 50 Pompki Klasyczne",
-    description: "Wykonaj 50 klasycznych pompek z prawidłową techniką",
+    description: "Wykonaj 50 klasycznych pompek z prawej strony",
     level: "intermediate",
     points: 50,
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-3",
     title: "Wyzwanie: 20 Przysiadów Standardowych",
-    description: "Wykonaj 20 standardowych przysiadów z prawidłową techniką",
+    description: "Wykonaj 20 standardowych przysiadów z prawej strony",
     level: "intermediate",
     points: 80,
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-4",
     title: "Wyzwanie: 30 Sekund Deski",
     description: "Utrzymaj pozycję deski (plank) przez 30 sekund",
     level: "intermediate",
@@ -485,7 +427,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-intermediate-5",
     title: "Wyzwanie: 10 Pajacyków Tradycyjnych",
     description: "Wykonaj 10 tradycyjnych pajacyków z dobrą techniką",
     level: "intermediate",
@@ -493,7 +434,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-intermediate-6",
     title: "5-Minutowa Rozgrzewka Marszem",
     description: "Maszeruj w szybkim tempie przez 5 minut, aby się rozgrzać",
     level: "intermediate",
@@ -501,7 +441,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-7",
     title: "Wyzwanie: 10 Unoszeń Nóg w Leżeniu",
     description: "Wykonaj 10 unoszeń nóg w leżeniu na plecach",
     level: "intermediate",
@@ -509,7 +448,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-8",
     title: "Wyzwanie: Ściana 20 Sekund",
     description: "Utrzymaj pozycję siedzenia przy ścianie przez 20 sekund",
     level: "intermediate",
@@ -517,7 +455,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-intermediate-9",
     title: "Wyzwanie: 10 Wyciskań Tricepsowych z Podporą",
     description:
       "Wykonaj 10 wyciskań tricepsowych używając krzesła lub ławki jako podpory",
@@ -526,7 +463,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-intermediate-10",
     title: "Wyzwanie: 15 Brzuszków Klasycznych",
     description: "Wykonaj 15 klasycznych brzuszków z dobrą techniką",
     level: "intermediate",
@@ -534,7 +470,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-11",
     title: "5-Minutowy Stretching Podstawowy",
     description: "Wykonaj podstawowy zestaw ćwiczeń rozciągających całe ciało",
     level: "intermediate",
@@ -542,7 +477,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-12",
     title: "Wyzwanie: 10 Dotknięć Ramion w Desce",
     description: "Wykonaj 10 dotknięć ramion w pozycji deski (plank)",
     level: "intermediate",
@@ -550,7 +484,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-intermediate-13",
     title: "Wejdź na 2 Piętra Schodów",
     description: "Wejdź co najmniej na 2 piętra schodów, aby poprawić kondycję",
     level: "intermediate",
@@ -558,7 +491,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-intermediate-14",
     title: "Wyzwanie: 10 Krążeń Ramion w Przód i Tył",
     description: "Wykonaj 10 krążeń ramion w przód i w tył w celu rozgrzewki",
     level: "intermediate",
@@ -566,7 +498,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "1 min",
   },
   {
-    id: "challenge-intermediate-15",
     title: "3 Minuty Marszu w Miejscu",
     description: "Maszeruj w miejscu przez 3 minuty, podnosząc kolana",
     level: "intermediate",
@@ -574,7 +505,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-16",
     title: "Wyzwanie: 2 Minuty Przysiadów",
     description: "Wytrzymaj 2 minuty w pozycji przysiadu",
     level: "intermediate",
@@ -582,7 +512,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "2 min",
   },
   {
-    id: "challenge-intermediate-17",
     title: "Rozciąganie Karku na Krześle",
     description: "Siedząc na krześle delikatnie rozciągnij kark w przód",
     level: "intermediate",
@@ -590,7 +519,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-18",
     title: "Bieg w Miejscu - Beginner",
     description: "Wykonaj serie biegu w miejscu",
     level: "intermediate",
@@ -598,7 +526,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "5 min",
   },
   {
-    id: "challenge-intermediate-19",
     title: "Mocne Unoszenie kolan - Beginner",
     description: "Wykonaj serię unoszenia kolan w miejscu",
     level: "intermediate",
@@ -606,7 +533,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-20",
     title: "20 pompek wąskich",
     description: "Wykonaj 20 pompek wąskich",
     level: "intermediate",
@@ -614,7 +540,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-21",
     title: "Dynamiczny most - początkujący",
     description: "Wykonaj dynamiczny most, dla początkujących",
     level: "intermediate",
@@ -622,7 +547,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-22",
     title: "Niski burpee - początkujący",
     description: "Zrób serię burpee w wersji uproszczonej",
     level: "intermediate",
@@ -630,7 +554,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-23",
     title: "Skłony japońskie - początkujący",
     description: "Wykonaj japońskie skłony",
     level: "intermediate",
@@ -638,7 +561,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-24",
     title: "Masaż nogi - początkujący",
     description: "Wykonaj automasaż nogi",
     level: "intermediate",
@@ -646,7 +568,6 @@ const INTERMEDIATE_CHALLENGES = [
     expectedTime: "3 min",
   },
   {
-    id: "challenge-intermediate-25",
     title: "Kocie grzbiety - początkujący",
     description: "Wykonuj kocie grzbiety na macie",
     level: "intermediate",

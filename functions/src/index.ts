@@ -9,18 +9,8 @@
 
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
-import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import { onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
-import {
-  applyPersonalization,
-  generateUserChallenges,
-  generateUserOpponents,
-  promoteUser,
-  updateOpponentsOnSchedule,
-  validatePersonalizationData,
-} from "./handlers";
-import { seedChallengeTemplatesFunction } from "./handlers/seedChallengeTemplates";
 
 try {
   admin.initializeApp();
@@ -28,6 +18,10 @@ try {
   logger.error("Error initializing Firebase Admin:", error);
   throw error;
 }
+
+import { promoteUser, updateOpponentsOnSchedule } from "./handlers";
+import { completeUserProfile } from "./handlers/personalization";
+import { seedChallengeTemplatesFunction } from "./handlers/seedChallengeTemplates";
 
 const defaultProperties = {
   timeZone: "Europe/Warsaw",
@@ -73,72 +67,6 @@ export const seedChallengeTemplates = onRequest(
         error:
           error instanceof Error ? error.message : "Unknown error occurred",
       });
-    }
-  }
-);
-
-/**
- * Trigger function that runs when a user completes their profile
- * This watches for updates to user documents that include level/goal settings
- */
-export const onUserProfileComplete = onDocumentUpdated(
-  {
-    document: "users/{userId}",
-    ...defaultProperties,
-  },
-  async (event) => {
-    try {
-      const previousData = event.data?.before.data();
-      const newData = event.data?.after.data();
-
-      if (!newData) {
-        logger.warn("User document was deleted or missing data");
-        return;
-      }
-
-      const isProfileUpdate =
-        previousData &&
-        (!previousData.level ||
-          !previousData.fitnessGoals ||
-          !previousData.trainingFrequency) &&
-        newData.level &&
-        newData.fitnessGoals &&
-        newData.trainingFrequency;
-
-      if (isProfileUpdate) {
-        logger.info(`User ${event.params.userId} completed their profile`);
-
-        const personalizationData = {
-          displayName: newData.displayName,
-          level: newData.level,
-          fitnessGoals: newData.fitnessGoals,
-          trainingFrequency: newData.trainingFrequency,
-        };
-
-        const [isValid, errorMessage] =
-          await validatePersonalizationData(personalizationData);
-        if (!isValid) {
-          logger.error(`Invalid personalization data: ${errorMessage}`);
-          return;
-        }
-
-        await applyPersonalization(event.params.userId, personalizationData);
-
-        await generateUserChallenges(
-          event.params.userId,
-          personalizationData.level
-        );
-        await generateUserOpponents(
-          event.params.userId,
-          personalizationData.level
-        );
-
-        logger.info(
-          `Successfully completed profile setup for user ${event.params.userId}`
-        );
-      }
-    } catch (error) {
-      logger.error(`Error in onUserProfileComplete function:`, error);
     }
   }
 );
@@ -209,3 +137,5 @@ export const dailyOpponentsUpdate = onSchedule(
     }
   }
 );
+
+export { completeUserProfile };

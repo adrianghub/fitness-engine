@@ -4,9 +4,10 @@
  */
 
 import * as admin from "firebase-admin";
-import type {
+import {
   DocumentReference,
   QuerySnapshot,
+  Timestamp,
 } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import type {
@@ -19,6 +20,8 @@ import {
   selectRandomChallenges,
   separateChallengesByLevel,
 } from "../utils/challenges";
+
+// Import the Firestore module to ensure Timestamp is available
 
 /**
  * Generates challenges for a user based on their level
@@ -108,7 +111,7 @@ export async function generateUserChallenges(
     }
 
     // Get the current timestamp
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = Timestamp.now();
 
     // Create user challenges
     const batch = db.batch();

@@ -5,6 +5,7 @@
 
 import * as admin from "firebase-admin";
 import type { DocumentSnapshot, QuerySnapshot } from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import type {
   Leaderboard,
@@ -134,7 +135,7 @@ export async function promoteUser(userId: string): Promise<void> {
     await userDoc.ref.update({
       level: nextLevel,
       totalPoints: 0,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: Timestamp.now(),
     });
 
     logger.info(`User ${userId} promoted from ${currentLevel} to ${nextLevel}`);

@@ -4,9 +4,10 @@
  */
 
 import * as admin from "firebase-admin";
-import type {
+import {
   DocumentReference,
   QuerySnapshot,
+  Timestamp,
 } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import type {
@@ -48,7 +49,6 @@ async function updateLeaderboardRanks(
     leaderboardSnapshot.forEach((doc) => {
       updateBatch.update(doc.ref, {
         rank: currentRank,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
       currentRank++;
     });
@@ -115,9 +115,9 @@ export async function generateUserOpponents(
         currentPoints: points,
         level: level,
         userId: userId,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        lastUpdated: Timestamp.now(),
       };
 
       batch.set(opponentRef, opponentData);
@@ -148,8 +148,8 @@ export async function generateUserOpponents(
 
   // Update the user's last opponent regeneration timestamp
   await db.collection("users").doc(userId).update({
-    lastOpponentRegeneration: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    lastOpponentRegeneration: Timestamp.now(),
+    updatedAt: Timestamp.now(),
   });
 
   return opponentIds;
@@ -213,7 +213,7 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
             // Update the opponent
             updateBatch.update(doc.ref, {
               currentPoints: newPoints,
-              updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+              updatedAt: Timestamp.now(),
             });
 
             updateCount++;
@@ -237,9 +237,8 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
 
               // Update the last regeneration timestamp
               await db.collection("users").doc(userId).update({
-                lastOpponentRegeneration:
-                  admin.firestore.FieldValue.serverTimestamp(),
-                updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+                lastOpponentRegeneration: Timestamp.now(),
+                updatedAt: Timestamp.now(),
               });
             }
           );

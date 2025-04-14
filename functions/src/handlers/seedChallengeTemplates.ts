@@ -4,6 +4,7 @@
  */
 
 import * as admin from "firebase-admin";
+import { Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { CHALLENGE_TEMPLATES } from "../data/challenge-templates";
 
@@ -33,10 +34,10 @@ export async function seedChallengeTemplatesFunction(): Promise<void> {
     let count = 0;
     let totalAdded = 0;
 
-    const now = admin.firestore.Timestamp.now();
+    const now = Timestamp.now();
 
     for (const template of CHALLENGE_TEMPLATES) {
-      const docRef = db.collection("challengeTemplates").doc(template.id);
+      const docRef = db.collection("challengeTemplates").doc();
 
       batch.set(docRef, {
         ...template,
