@@ -49,7 +49,7 @@ export const convertDoc = <T>(doc: DocumentData): T => {
   } as T;
 };
 
-export class FirestoreService<T extends { id?: string }> {
+export class FirestoreService<T> {
   collectionName: string;
   private isProcessingQueue: boolean = false;
   private offlineQueue: Map<string, () => Promise<T | void>> = new Map();

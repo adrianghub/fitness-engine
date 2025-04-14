@@ -1,7 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy } from "react";
-import { createPersonalizedLoader } from "../lib/protected-route";
-
+import { createProtectedLoader } from "../lib/protected-route";
 const LeaderboardView = lazy(() =>
   import("../components/Leaderboard").then((module) => ({
     default: module.Leaderboard,
@@ -10,7 +9,7 @@ const LeaderboardView = lazy(() =>
 
 export const Route = createFileRoute("/leaderboard")({
   component: LeaderboardView,
-  loader: createPersonalizedLoader(async () => {
+  loader: createProtectedLoader(async () => {
     // TODO: Fetch leaderboard data
     return {
       rankings: [

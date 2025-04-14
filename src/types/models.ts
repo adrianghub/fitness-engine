@@ -17,8 +17,6 @@ export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
 
 /** Represents a challenge template that can be assigned to users */
 export interface ChallengeTemplate {
-  /** ID of the challenge template */
-  id: string;
   /** Title of the challenge */
   title: string;
   /** Detailed description of the challenge */
@@ -75,6 +73,8 @@ export interface User {
   fitnessGoals?: FitnessGoal[];
   /** Total points accumulated by the user */
   totalPoints: number;
+  /** Whether the user's profile is complete */
+  isProfileComplete: boolean;
   /** When the user account was created */
   createdAt?: firestore.Timestamp;
   /** When the user account was last updated */

@@ -1,6 +1,15 @@
+import { auth, db } from "@/lib/firebase";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import { lazy } from "react";
-import { createPersonalizedLoader } from "../lib/protected-route";
+import { createProtectedLoader } from "../lib/protected-route";
 
 const DashboardView = lazy(() =>
   import("../components/Dashboard").then((module) => ({
@@ -10,18 +19,36 @@ const DashboardView = lazy(() =>
 
 export const Route = createFileRoute("/dashboard")({
   component: DashboardView,
-  loader: createPersonalizedLoader(async () => {
-    // TODO: Fetch user data, challenges, etc.
+  loader: createProtectedLoader(async () => {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error("Unauthorized access to dashboard");
+    }
+
+    // Get user data
+    const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+    const userData = userDoc.data();
+
+    if (!userData?.isProfileComplete) {
+      throw new Error("Profile not complete");
+    }
+
+    // Fetch user's active challenges
+    const challengesQuery = query(
+      collection(db, "userChallenges"),
+      where("userId", "==", currentUser.uid),
+      where("status", "in", ["not-started", "in-progress"])
+    );
+
+    const challengesSnapshot = await getDocs(challengesQuery);
+    const userChallenges = challengesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
     return {
-      user: {
-        displayName: "John Doe",
-        level: "intermediate",
-        fitnessGoals: ["Strength", "Weight Loss"],
-      },
-      userChallenges: [
-        { id: "1", title: "Burpees", progress: 0.3 },
-        { id: "2", title: "Push-ups", progress: 0.7 },
-      ],
+      user: userData,
+      userChallenges,
     };
   }),
 });

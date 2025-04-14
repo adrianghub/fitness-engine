@@ -18,8 +18,12 @@
     "generate:db-schema-graph": "typesync generate-graph --definition 'schema-definitions/**/*.yml' --outFile src/types/db-schema-graph.md"
   },
   "dependencies": {
+    "@radix-ui/react-label": "^2.1.3",
+    "@radix-ui/react-select": "^2.1.7",
+    "@radix-ui/react-separator": "^1.1.3",
     "@radix-ui/react-slot": "^1.2.0",
     "@tailwindcss/vite": "^4.1.3",
+    "@tanstack/react-form": "^1.3.3",
     "@tanstack/react-router": "^1.115.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -1,16 +1,64 @@
+import { useAuth } from "@/useAuth";
 import {
   createRootRoute,
   ErrorComponent,
   Outlet,
+  useNavigate,
 } from "@tanstack/react-router";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 
 function RootLayout() {
+  const navigate = useNavigate();
+  const { userData, isLoading, currentUser } = useAuth();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const currentPath = window.location.pathname;
+    const isPersonalizationPage = currentPath === "/personalization";
+    const isLoginPage = currentPath === "/login";
+    const isRootPage = currentPath === "/";
+
+    if (!currentUser) {
+      if (!isLoginPage) {
+        navigate({ to: "/login", search: { redirect: "/dashboard" } });
+      }
+      return;
+    }
+
+    if (userData === null) return;
+
+    if (!userData.isProfileComplete) {
+      if (!isPersonalizationPage) {
+        navigate({ to: "/personalization", search: {} });
+      }
+      return;
+    }
+
+    if (isRootPage || isPersonalizationPage) {
+      navigate({ to: "/dashboard", search: {} });
+    }
+  }, [userData, navigate, isLoading, currentUser]);
+
+  if (isLoading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
+      </div>
+    );
+  }
+
   return (
     <div className='min-h-screen flex flex-col'>
       <main className='flex-grow'>
         <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
-          <Suspense fallback={<div>Ładowanie...</div>}>
+          <Suspense
+            fallback={
+              <div className='flex items-center justify-center'>
+                <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary'></div>
+              </div>
+            }
+          >
             <Outlet />
           </Suspense>
         </div>

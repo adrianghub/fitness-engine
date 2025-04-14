@@ -1,4 +1,7 @@
-import { Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { signOut } from "@/lib/firebase";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { LogOut } from "lucide-react";
 
 interface Challenge {
   id: string;
@@ -35,24 +38,28 @@ export function Dashboard() {
     ],
   };
 
+  const navigate = useNavigate();
+
   const { user, userChallenges } = mockData;
 
-  const handleLogout = () => {
-    localStorage.removeItem("auth");
-    localStorage.removeItem("personalized");
-    window.location.href = "/login";
+  const handleLogout = async () => {
+    await signOut();
+    navigate({ to: "/" });
   };
 
   return (
     <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
       <div className='flex justify-between items-center mb-8'>
         <h1 className='text-3xl font-bold'>Welcome, {user.displayName}!</h1>
-        <button
+        <Button
+          variant='outline'
+          size='sm'
           onClick={handleLogout}
-          className='px-4 py-2 bg-destructive text-background rounded-md hover:bg-destructive/80'
+          className='flex items-center gap-2 w-full'
         >
+          <LogOut className='h-4 w-4' />
           Logout
-        </button>
+        </Button>
       </div>
 
       {/* User Profile Summary */}
