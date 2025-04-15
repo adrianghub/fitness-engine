@@ -1,3 +1,4 @@
+import googleIcon from "@/assets/google.svg";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -96,7 +97,7 @@ export function LoginForm() {
             "Signing in with Google..."
           ) : (
             <>
-              <img src='/google.svg' alt='Google' className='w-4 h-4' />
+              <img src={googleIcon} alt='Google' className='w-4 h-4' />
               Sign in with Google
             </>
           )}

@@ -2,6 +2,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SUGGESTED_GOALS } from "@/modules/personalization/constants";
 import type { usePersonalizationForm } from "@/modules/personalization/usePersonalizationForm";
+import { Target } from "lucide-react";
+import { motion } from "motion/react";
 
 export function GoalsStep({
   form,
@@ -44,7 +46,7 @@ export function GoalsStep({
 
             <div className='space-y-2'>
               <h3 className='text-lg font-medium flex items-center gap-2'>
-                <span className='i-lucide-target w-5 h-5' />
+                <Target className='h-5 w-5 text-blue-500' />
                 Suggested Goals
               </h3>
               <div className='space-y-2'>
@@ -54,7 +56,15 @@ export function GoalsStep({
                     className='p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors'
                     onClick={() => field.handleChange(goal)}
                   >
-                    {goal}
+                    <motion.div
+                      key={goal}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {goal}
+                    </motion.div>
                   </div>
                 ))}
               </div>

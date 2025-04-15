@@ -8,11 +8,12 @@ import {
   useNavigate,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 function RootLayout() {
   const navigate = useNavigate();
   const { userData, isLoading, currentUser } = useAuth();
+  const [isNavigating, setIsNavigating] = useState(false);
 
   useEffect(() => {
     if (isLoading) return;
@@ -25,25 +26,32 @@ function RootLayout() {
 
     if (!userData.isProfileComplete) {
       if (!isPersonalizationPage) {
-        navigate({ to: "/personalization", search: {} });
+        setIsNavigating(true);
+        navigate({ to: "/personalization", search: {} }).finally(() => {
+          setIsNavigating(false);
+        });
       }
       return;
     }
 
     if (isRootPage || isPersonalizationPage) {
-      navigate({ to: "/dashboard", search: {} });
+      setIsNavigating(true);
+      navigate({ to: "/dashboard", search: {} }).finally(() => {
+        setIsNavigating(false);
+      });
     }
   }, [userData, navigate, isLoading, currentUser]);
 
   return (
     <>
-      <Header />
-      <div className='h-full flex flex-col'>
-        {isLoading ? (
+      <div className='h-screen flex flex-col bg-gradient-to-br from-secondary/50 to-primary/50'>
+        <Header />
+
+        {isLoading || isNavigating ? (
           <Loader />
         ) : (
-          <main className='flex-grow'>
-            <div className='max-w-7xl mx-auto py-6 sm:px-6 lg:px-8'>
+          <main className='flex-1'>
+            <div className='h-full max-w-7xl mx-auto sm:px-6 lg:px-8'>
               <Suspense fallback={<Loader />}>
                 <Outlet />
               </Suspense>
@@ -58,11 +66,18 @@ function RootLayout() {
 
 function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className='flex flex-col items-center justify-center p-4'>
-      <h1 className='text-2xl font-bold text-red-500 mb-4'>
-        Coś poszło nie tak!
-      </h1>
-      <ErrorComponent error={error} />
+    <div className='h-screen flex flex-col bg-gradient-to-br from-secondary/50 to-primary/50'>
+      <Header />
+      <main className='flex-1 flex items-center justify-center'>
+        <div className='max-w-xl w-full mx-auto px-4'>
+          <div className='bg-background/80 backdrop-blur-sm rounded-lg shadow-lg p-6'>
+            <h1 className='text-2xl font-bold text-red-500 mb-4'>
+              Coś poszło nie tak!
+            </h1>
+            <ErrorComponent error={error} />
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

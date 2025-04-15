@@ -17,7 +17,7 @@ export function DisplayNameStep({
         }}
       >
         {(field) => (
-          <div>
+          <div className='space-y-4'>
             <Label htmlFor={field.name}>Display Name</Label>
             <Input
               id={field.name}

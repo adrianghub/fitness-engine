@@ -1,5 +1,17 @@
 import type { Equipment, UserLevel } from "@/types/models";
 import type { PersonalizationData } from "@/types/personalization-data";
+import {
+  Dumbbell,
+  Flame,
+  PersonStanding,
+  Space,
+  Sparkles,
+  Spline,
+  TextCursor,
+  Trophy,
+  Weight,
+  type LucideIcon,
+} from "lucide-react";
 
 export const TOTAL_STEPS = 4;
 
@@ -9,17 +21,25 @@ export const FITNESS_LEVELS: { value: UserLevel; label: string }[] = [
   { value: "advanced", label: "Advanced" },
 ];
 
-export const AVAILABLE_EQUIPMENT: { value: Equipment; label: string }[] = [
-  { value: "bodyweight", label: "Bodyweight Only" },
-  { value: "resistance-bands", label: "Resistance Bands" },
-  { value: "barbell", label: "Barbell" },
-  { value: "dumbbells", label: "Dumbbells" },
-  { value: "pull-up-bar", label: "Pull-up Bar" },
-  { value: "dip-bars", label: "Dip Bars" },
+export const AVAILABLE_EQUIPMENT: {
+  value: Equipment;
+  label: string;
+  icon: LucideIcon;
+}[] = [
+  { value: "bodyweight", label: "Bodyweight Only", icon: PersonStanding },
+  { value: "resistance-bands", label: "Resistance Bands", icon: Spline },
+  { value: "barbell", label: "Barbell", icon: Weight },
+  { value: "dumbbells", label: "Dumbbells", icon: Dumbbell },
+  { value: "pull-up-bar", label: "Pull-up Bar", icon: Space },
+  { value: "dip-bars", label: "Dip Bars", icon: TextCursor },
 ];
 
 export const exercisesByLevel = {
   beginner: {
+    icon: Flame,
+    color: "text-blue-500",
+    borderColor: "border-blue-200",
+    bgColor: "bg-blue-50",
     exercises: [
       "Bodyweight Squats",
       "Push-ups (Modified)",
@@ -28,6 +48,10 @@ export const exercisesByLevel = {
     ],
   },
   intermediate: {
+    icon: Trophy,
+    color: "text-purple-500",
+    borderColor: "border-purple-200",
+    bgColor: "bg-purple-50",
     exercises: [
       "Barbell Squats",
       "Pull-ups",
@@ -36,6 +60,10 @@ export const exercisesByLevel = {
     ],
   },
   advanced: {
+    icon: Sparkles,
+    color: "text-amber-500",
+    borderColor: "border-amber-200",
+    bgColor: "bg-amber-50",
     exercises: [
       "Olympic Lifts",
       "Muscle-ups",
