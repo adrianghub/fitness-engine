@@ -58,6 +58,11 @@ FitnessGoal:
   docs: Represents a fitness goal that a user can have
   type: string
 
+Equipment:
+  model: alias
+  docs: Represents equipment that a user can have
+  type: string
+
 # Document Models
 User:
   model: document
@@ -87,7 +92,7 @@ User:
         docs: Array of equipment that the user has access to
         type:
           type: list
-          elementType: string
+          elementType: Equipment
       totalPoints:
         type: double
         docs: Total points accumulated by the user
@@ -123,7 +128,7 @@ ChallengeTemplate:
         docs: Array of equipment that the challenge requires
         type:
           type: list
-          elementType: string
+          elementType: Equipment
       points:
         type: double
         docs: Points awarded for completing the challenge

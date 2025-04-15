@@ -12,7 +12,7 @@ import {
 import * as logger from "firebase-functions/logger";
 import { generatePersonalizedPlan } from "../services/ai";
 import type { ChallengeTemplate, User } from "../types/models";
-import type { PersonalizationData } from "../types/personalized-data";
+import type { PersonalizationData } from "../types/personalization-data";
 import { generateUserChallenges } from "./generateChallenges";
 /**
  * Validates personalization data submitted by a user

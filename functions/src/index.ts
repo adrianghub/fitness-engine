@@ -19,9 +19,8 @@ try {
   throw error;
 }
 
-import type { PersonalizationData } from "@/types/personalized-data";
+import type { PersonalizationData } from "@/types/personalization-data";
 import {
-  generateUserChallenges,
   generateUserOpponents,
   promoteUser,
   updateOpponentsOnSchedule,
@@ -172,8 +171,6 @@ export const completeUserProfile = onCall(
       }
 
       await applyPersonalization(uid, personalizationData);
-
-      await generateUserChallenges(uid, personalizationData.level);
       await generateUserOpponents(uid, personalizationData.level);
 
       logger.info(`Successfully completed profile setup for user ${uid}`);

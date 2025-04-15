@@ -1,19 +1,22 @@
-import type * as firestore from "firebase-admin/firestore";
+import type * as firestore from 'firebase-admin/firestore';
 
 /** Represents the level of a challenge */
-export type ChallengeLevel = "beginner" | "intermediate" | "advanced" | "all";
+export type ChallengeLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
 
 /** Represents the status of a user's challenge */
-export type ChallengeStatus = "not-started" | "in-progress" | "completed";
+export type ChallengeStatus = 'not-started' | 'in-progress' | 'completed';
 
 /** Represents the type of entity in the leaderboard */
-export type EntityType = "user" | "opponent";
+export type EntityType = 'user' | 'opponent';
+
+/** Represents equipment that a user can have */
+export type Equipment = string;
 
 /** Represents a fitness goal that a user can have */
 export type FitnessGoal = string;
 
 /** Represents user's fitness level */
-export type UserLevel = "beginner" | "intermediate" | "advanced";
+export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
 
 /** Represents a challenge template that can be assigned to users */
 export interface ChallengeTemplate {
@@ -24,7 +27,7 @@ export interface ChallengeTemplate {
   /** Required fitness level for the challenge */
   level: ChallengeLevel;
   /** Array of equipment that the challenge requires */
-  equipment: string[];
+  equipment: Equipment[];
   /** Points awarded for completing the challenge */
   points: number;
   /** Expected time to complete the challenge */
@@ -74,7 +77,7 @@ export interface User {
   /** Array of user's fitness goals */
   fitnessGoals?: FitnessGoal[];
   /** Array of equipment that the user has access to */
-  equipment?: string[];
+  equipment?: Equipment[];
   /** Total points accumulated by the user */
   totalPoints: number;
   /** Whether the user's profile is complete */
