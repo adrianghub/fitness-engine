@@ -19,15 +19,7 @@ function RootLayout() {
 
     const currentPath = window.location.pathname;
     const isPersonalizationPage = currentPath === "/personalization";
-    const isLoginPage = currentPath === "/login";
     const isRootPage = currentPath === "/";
-
-    if (!currentUser) {
-      if (!isLoginPage) {
-        navigate({ to: "/login", search: { redirect: "/dashboard" } });
-      }
-      return;
-    }
 
     if (userData === null) return;
 

@@ -1,17 +1,9 @@
-import { functions } from "@/lib/firebase";
 import { logger } from "@/lib/logger";
-import { UserLevel } from "@/types/models";
+import { completeUserProfile } from "@/services/api";
+import type { Equipment, FitnessGoal } from "@/types/models";
 import { useAuth } from "@/useAuth";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
-import { getAuth } from "firebase/auth";
-import { httpsCallable } from "firebase/functions";
-
-export interface PersonalizationFormValues {
-  displayName: string;
-  level: UserLevel;
-  fitnessGoals: string[];
-}
 
 export function usePersonalizationForm() {
   const navigate = useNavigate();
@@ -20,38 +12,22 @@ export function usePersonalizationForm() {
   const form = useForm({
     defaultValues: {
       displayName: userData?.displayName || "",
-      level: "beginner" as UserLevel,
-      fitnessGoals: userData?.fitnessGoals || [],
+      level: userData?.level || "beginner",
+      equipment: (userData?.equipment as Equipment[]) || [],
+      fitnessGoals: (userData?.fitnessGoals as FitnessGoal[]) || [],
+      goalsDescription: "",
     },
     onSubmit: async ({ value }) => {
       try {
-        const { displayName, level, fitnessGoals } = value;
-        const auth = getAuth();
-        const user = auth.currentUser;
-
-        if (!user) {
-          throw new Error("User not authenticated");
-        }
-
-        const completeUserProfile = httpsCallable(
-          functions,
-          "completeUserProfile"
-        );
-
-        await completeUserProfile({
-          displayName,
-          level,
-          fitnessGoals,
-        });
-
+        await completeUserProfile(value);
         navigate({ to: "/dashboard" });
-        return { status: "success" };
-      } catch (err) {
-        logger.error("Personalization", "Error saving user profile:", err);
-        return {
-          status: "error",
-          error: "Failed to save profile. Please try again.",
-        };
+      } catch (error: unknown) {
+        logger.error(
+          "Personalization",
+          "Error saving user profile:",
+          error instanceof Error ? error.message : String(error)
+        );
+        throw new Error("Failed to save profile. Please try again.");
       }
     },
   });

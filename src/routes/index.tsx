@@ -1,20 +1,13 @@
 import { Button } from "@/components/ui/button";
-import { getCurrentUser } from "@/lib/firebase";
+import { useAuth } from "@/useAuth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
   component: Home,
-  loader: async () => {
-    const currentUser = await getCurrentUser();
-
-    return {
-      currentUser,
-    };
-  },
 });
 
 function Home() {
-  const { currentUser } = Route.useLoaderData();
+  const { userData } = useAuth();
 
   return (
     <div className='container flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] px-4 space-y-8'>
@@ -27,9 +20,11 @@ function Home() {
           challenges that match your goals and skill level.
         </p>
       </div>
-      <Link to={currentUser ? "/dashboard" : "/login"}>
+      <Link
+        to={userData?.isProfileComplete ? "/dashboard" : "/personalization"}
+      >
         <Button size='lg' className='h-12 px-8'>
-          {currentUser ? "Go to Dashboard" : "Get Started"}
+          {userData?.isProfileComplete ? "Go to Dashboard" : "Get Started"}
         </Button>
       </Link>
     </div>
