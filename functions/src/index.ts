@@ -9,7 +9,7 @@
 
 import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
-import { onRequest } from "firebase-functions/v2/https";
+import { onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 
 try {
@@ -19,8 +19,17 @@ try {
   throw error;
 }
 
-import { promoteUser, updateOpponentsOnSchedule } from "./handlers";
-import { completeUserProfile } from "./handlers/personalization";
+import type { PersonalizationData } from "@/types/personalized-data";
+import {
+  generateUserChallenges,
+  generateUserOpponents,
+  promoteUser,
+  updateOpponentsOnSchedule,
+} from "./handlers";
+import {
+  applyPersonalization,
+  validatePersonalizationData,
+} from "./handlers/personalization";
 import { seedChallengeTemplatesFunction } from "./handlers/seedChallengeTemplates";
 
 const defaultProperties = {
@@ -138,4 +147,41 @@ export const dailyOpponentsUpdate = onSchedule(
   }
 );
 
-export { completeUserProfile };
+/**
+ * HTTP callable function to complete user profile and apply personalization
+ */
+export const completeUserProfile = onCall(
+  { ...defaultProperties, cors: true, secrets: ["GEMINI_API_KEY"] },
+  async (request) => {
+    try {
+      const uid = request.auth?.uid;
+      if (!uid) {
+        logger.error("Unauthorized access to completeUserProfile");
+        throw new Error("Unauthorized");
+      }
+
+      const personalizationData = request.data as PersonalizationData;
+
+      const [isValid, errorMessage] = await validatePersonalizationData(
+        personalizationData,
+        uid
+      );
+      if (!isValid) {
+        logger.error(`Invalid personalization data: ${errorMessage}`);
+        throw new Error(`Invalid personalization data: ${errorMessage}`);
+      }
+
+      await applyPersonalization(uid, personalizationData);
+
+      await generateUserChallenges(uid, personalizationData.level);
+      await generateUserOpponents(uid, personalizationData.level);
+
+      logger.info(`Successfully completed profile setup for user ${uid}`);
+
+      return { success: true };
+    } catch (error) {
+      logger.error("Error in completeUserProfile function:", error);
+      throw new Error("Failed to complete profile setup");
+    }
+  }
+);

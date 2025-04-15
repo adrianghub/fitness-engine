@@ -24,21 +24,80 @@ import {
 // Import the Firestore module to ensure Timestamp is available
 
 /**
- * Generates challenges for a user based on their level
- * Should be called when a user completes their profile or levels up
+ * Generates challenges for a user based on their level and AI recommendations
  * @param userId The ID of the user to generate challenges for
  * @param level The level of the user (beginner, intermediate, advanced)
+ * @param recommendedChallengeIds Optional array of challenge IDs recommended by AI
  * @returns Promise that resolves when challenges have been generated
  */
 export async function generateUserChallenges(
   userId: string,
-  level: ChallengeLevel
+  level: ChallengeLevel,
+  recommendedChallengeIds?: string[]
 ): Promise<void> {
   logger.info(`Generating challenges for user ${userId} with level ${level}`);
 
   try {
     const db = admin.firestore();
+    const now = Timestamp.now();
 
+    // Delete any existing unfinished challenges
+    const existingChallengesSnapshot = (await db
+      .collection("userChallenges")
+      .where("userId", "==", userId)
+      .where("status", "in", ["not-started", "in-progress"])
+      .get()) as QuerySnapshot<UserChallenge>;
+
+    if (!existingChallengesSnapshot.empty) {
+      const deleteBatch = db.batch();
+      existingChallengesSnapshot.forEach((doc) => {
+        deleteBatch.delete(doc.ref);
+      });
+      await deleteBatch.commit();
+      logger.info(
+        `Deleted ${existingChallengesSnapshot.size} existing unfinished challenges`
+      );
+    }
+
+    if (recommendedChallengeIds && recommendedChallengeIds.length > 0) {
+      const batch = db.batch();
+      for (const challengeId of recommendedChallengeIds) {
+        const challengeRef = db
+          .collection("userChallenges")
+          .doc() as DocumentReference<UserChallenge>;
+        batch.set(challengeRef, {
+          userId: userId,
+          challengeId: challengeId,
+          status: "not-started",
+          assignedDate: now,
+        });
+      }
+
+      const universalChallengesSnapshot = (await db
+        .collection("challengeTemplates")
+        .where("level", "==", "all")
+        .get()) as QuerySnapshot<ChallengeTemplate>;
+
+      for (const challenge of universalChallengesSnapshot.docs) {
+        const challengeRef = db
+          .collection("userChallenges")
+          .doc() as DocumentReference<UserChallenge>;
+        batch.set(challengeRef, {
+          userId: userId,
+          challengeId: challenge.id,
+          status: "not-started",
+          assignedDate: now,
+        });
+      }
+
+      await batch.commit();
+      logger.info(
+        `Added ${recommendedChallengeIds.length} AI-recommended challenges for user ${userId}`
+      );
+      return;
+    }
+
+    // If no AI recommendations, fall back to original logic
     // Get challenge templates matching the user's level and universal challenges
     const challengeTemplatesSnapshot = (await db
       .collection("challengeTemplates")
@@ -90,28 +149,6 @@ export async function generateUserChallenges(
       ...universalDocs.map((doc) => doc.id),
       ...selectedSpecificIds,
     ];
-
-    // Delete any existing unfinished challenges for this user to avoid duplicates
-    const existingChallengesSnapshot = (await db
-      .collection("userChallenges")
-      .where("userId", "==", userId)
-      .where("status", "in", ["not-started", "in-progress"])
-      .get()) as QuerySnapshot<UserChallenge>;
-
-    // Delete existing unfinished challenges in a batch
-    if (!existingChallengesSnapshot.empty) {
-      const deleteBatch = db.batch();
-      existingChallengesSnapshot.forEach((doc) => {
-        deleteBatch.delete(doc.ref);
-      });
-      await deleteBatch.commit();
-      logger.info(
-        `Deleted ${existingChallengesSnapshot.size} existing unfinished challenges`
-      );
-    }
-
-    // Get the current timestamp
-    const now = Timestamp.now();
 
     // Create user challenges
     const batch = db.batch();

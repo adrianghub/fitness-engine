@@ -82,6 +82,12 @@ User:
         type:
           type: list
           elementType: FitnessGoal
+      equipment:
+        optional: true
+        docs: Array of equipment that the user has access to
+        type:
+          type: list
+          elementType: string
       totalPoints:
         type: double
         docs: Total points accumulated by the user
@@ -113,6 +119,11 @@ ChallengeTemplate:
       level:
         type: ChallengeLevel
         docs: Required fitness level for the challenge
+      equipment:
+        docs: Array of equipment that the challenge requires
+        type:
+          type: list
+          elementType: string
       points:
         type: double
         docs: Points awarded for completing the challenge
@@ -121,9 +132,11 @@ ChallengeTemplate:
         docs: Expected time to complete the challenge
       createdAt:
         type: timestamp
+        optional: true
         docs: When the challenge template was created
       updatedAt:
         type: timestamp
+        optional: true
         docs: When the challenge template was last updated
 
 UserChallenge:

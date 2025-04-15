@@ -4,13 +4,16 @@
  */
 
 import * as admin from "firebase-admin";
-import { DocumentReference, QuerySnapshot } from "firebase-admin/firestore";
+import {
+  DocumentReference,
+  QuerySnapshot,
+  Timestamp,
+} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
-import { onCall } from "firebase-functions/v2/https";
-import type { User } from "../../src/types/models";
+import { generatePersonalizedPlan } from "../services/ai";
+import type { ChallengeTemplate, User } from "../types/models";
+import type { PersonalizationData } from "../types/personalized-data";
 import { generateUserChallenges } from "./generateChallenges";
-import { generateUserOpponents } from "./generateOpponents";
-
 /**
  * Validates personalization data submitted by a user
  * @param data The personalization data to validate
@@ -51,13 +54,14 @@ export async function validatePersonalizationData(
     return [false, "Level must be one of: beginner, intermediate, advanced"];
   }
 
-  // Validate fitness goals
-  if (
-    !data.fitnessGoals ||
-    !Array.isArray(data.fitnessGoals) ||
-    data.fitnessGoals.length === 0
-  ) {
-    return [false, "At least one fitness goal is required"];
+  // Validate goals description
+  if (!data.goalsDescription || data.goalsDescription.trim() === "") {
+    return [false, "Goals description is required"];
+  }
+
+  // Validate equipment array
+  if (!data.equipment || !Array.isArray(data.equipment)) {
+    return [false, "Equipment list is required"];
   }
 
   return [true];
@@ -81,13 +85,32 @@ export async function applyPersonalization(
       .collection("users")
       .doc(userId) as DocumentReference<User>;
 
-    // Update user profile with personalization data
+    const challengeTemplatesSnapshot = (await db
+      .collection("challengeTemplates")
+      .where("level", "in", [data.level])
+      .get()) as QuerySnapshot<ChallengeTemplate>;
+
+    const availableChallenges = challengeTemplatesSnapshot.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+
+    const aiPlan = await generatePersonalizedPlan(data, availableChallenges);
+
     await userRef.update({
       displayName: data.displayName,
       level: data.level,
-      fitnessGoals: data.fitnessGoals,
+      equipment: data.equipment,
+      fitnessGoals: aiPlan.goals,
       isProfileComplete: true,
+      updatedAt: Timestamp.now(),
     });
+
+    await generateUserChallenges(
+      userId,
+      data.level,
+      aiPlan.recommendedChallenges
+    );
 
     logger.info(`Successfully applied personalization for user ${userId}`);
   } catch (error) {
@@ -95,48 +118,3 @@ export async function applyPersonalization(
     throw error;
   }
 }
-
-export interface PersonalizationData {
-  displayName: string;
-  level: User["level"];
-  fitnessGoals: string[];
-}
-
-/**
- * HTTP callable function to complete user profile and apply personalization
- */
-export const completeUserProfile = onCall(
-  { cors: true, region: "europe-central2" },
-  async (request) => {
-    try {
-      const uid = request.auth?.uid;
-      if (!uid) {
-        logger.error("Unauthorized access to completeUserProfile");
-        throw new Error("Unauthorized");
-      }
-
-      const personalizationData = request.data as PersonalizationData;
-
-      const [isValid, errorMessage] = await validatePersonalizationData(
-        personalizationData,
-        uid
-      );
-      if (!isValid) {
-        logger.error(`Invalid personalization data: ${errorMessage}`);
-        throw new Error(`Invalid personalization data: ${errorMessage}`);
-      }
-
-      await applyPersonalization(uid, personalizationData);
-
-      await generateUserChallenges(uid, personalizationData.level);
-      await generateUserOpponents(uid, personalizationData.level);
-
-      logger.info(`Successfully completed profile setup for user ${uid}`);
-
-      return { success: true };
-    } catch (error) {
-      logger.error("Error in completeUserProfile function:", error);
-      throw new Error("Failed to complete profile setup");
-    }
-  }
-);

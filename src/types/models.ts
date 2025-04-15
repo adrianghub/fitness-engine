@@ -23,14 +23,16 @@ export interface ChallengeTemplate {
   description: string;
   /** Required fitness level for the challenge */
   level: ChallengeLevel;
+  /** Array of equipment that the challenge requires */
+  equipment: string[];
   /** Points awarded for completing the challenge */
   points: number;
   /** Expected time to complete the challenge */
   expectedTime: string;
   /** When the challenge template was created */
-  createdAt: firestore.Timestamp;
+  createdAt?: firestore.Timestamp;
   /** When the challenge template was last updated */
-  updatedAt: firestore.Timestamp;
+  updatedAt?: firestore.Timestamp;
 }
 
 /** Represents an entry in the leaderboard */
@@ -71,6 +73,8 @@ export interface User {
   level: UserLevel;
   /** Array of user's fitness goals */
   fitnessGoals?: FitnessGoal[];
+  /** Array of equipment that the user has access to */
+  equipment?: string[];
   /** Total points accumulated by the user */
   totalPoints: number;
   /** Whether the user's profile is complete */
