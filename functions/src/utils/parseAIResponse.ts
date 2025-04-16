@@ -11,7 +11,6 @@ export function parseAIResponse<T extends Record<string, unknown>>(
   config: ParseConfig<T>
 ): string[] | null {
   try {
-    // First, try to find the content between tags
     const tagPattern = new RegExp(`<${config.tag}>(.*?)</${config.tag}>`, "s");
     const match = response.match(tagPattern);
 
@@ -28,10 +27,8 @@ export function parseAIResponse<T extends Record<string, unknown>>(
 
     logger.debug(`Cleaned JSON content: ${jsonContent}`);
 
-    // Try to parse the JSON content
     const parsed = JSON.parse(jsonContent) as T;
 
-    // Validate the parsed content
     const key = String(config.key);
     const items = parsed[key];
     if (!Array.isArray(items)) {
@@ -39,7 +36,6 @@ export function parseAIResponse<T extends Record<string, unknown>>(
       return null;
     }
 
-    // Return the items, limited to maxItems
     return items.slice(0, config.maxItems);
   } catch (error) {
     logger.error(`Error parsing ${config.tag} response:`, error);
