@@ -1,7 +1,7 @@
 import type * as firestore from 'firebase-admin/firestore';
 
 /** Represents the level of a challenge */
-export type ChallengeLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
+export type ChallengeLevel = 'beginner' | 'intermediate' | 'advanced';
 
 /** Represents the status of a user's challenge */
 export type ChallengeStatus = 'not-started' | 'in-progress' | 'completed';
@@ -69,6 +69,22 @@ export interface Opponent {
   level: UserLevel;
 }
 
+/** Represents a universal challenge that is always available */
+export interface UniversalChallenge {
+  /** Title of the challenge */
+  title: string;
+  /** Detailed description of the challenge */
+  description: string;
+  /** Points awarded for completing the challenge */
+  points: number;
+  /** When the challenge was created */
+  createdAt?: firestore.Timestamp;
+  /** When the challenge was last updated */
+  updatedAt?: firestore.Timestamp;
+  /** Current status of the challenge */
+  status: ChallengeStatus;
+}
+
 /** Represents a user in the fitness application */
 export interface User {
   /** User's email address (unique) */
@@ -82,7 +98,7 @@ export interface User {
   /** Array of equipment that the user has access to */
   equipment?: Equipment[];
   /** Total points accumulated by the user */
-  totalPoints: number;
+  points: number;
   /** Whether the user's profile is complete */
   isProfileComplete: boolean;
   /** When the user account was created */

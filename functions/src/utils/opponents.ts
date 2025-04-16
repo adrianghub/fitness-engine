@@ -6,9 +6,9 @@ export const LEVEL_POINT_RANGES: Record<
   UserLevel,
   { min: number; max: number; userMax: number; dailyMax: number }
 > = {
-  beginner: { min: 0, max: 3800, userMax: 4000, dailyMax: 395 },
-  intermediate: { min: 4000, max: 7800, userMax: 8000, dailyMax: 790 },
-  advanced: { min: 8000, max: 14800, userMax: 15000, dailyMax: 1185 },
+  beginner: { min: 0, max: 3800, userMax: 4000, dailyMax: 360 },
+  intermediate: { min: 1500, max: 7800, userMax: 8000, dailyMax: 720 },
+  advanced: { min: 2500, max: 14800, userMax: 15000, dailyMax: 1080 },
 };
 
 // Base points for each level - starting points when entering a new level

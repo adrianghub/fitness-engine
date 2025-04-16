@@ -38,7 +38,7 @@ export function useAuth() {
           email: user.email || "",
           displayName: user.displayName || undefined,
           level: "beginner",
-          totalPoints: 0,
+          points: 0,
           isProfileComplete: false,
         };
 

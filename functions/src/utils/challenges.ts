@@ -1,4 +1,4 @@
-import type { ChallengeLevel } from "../types/models";
+import type { ChallengeLevel, ChallengeTemplate } from "../types/models";
 
 /**
  * Point values for different types of challenges at each level
@@ -26,24 +26,7 @@ export const CHALLENGE_POINTS: Record<
     regular: 150,
     universal: 45,
   },
-  all: {
-    daily: 100,
-    regular: 50,
-    universal: 15,
-  },
 };
-
-/**
- * Generates timestamps for challenge completion history
- * @param now Current timestamp
- * @returns Object containing various timestamps for challenge history
- */
-export function generateChallengeTimestamps(now: Date) {
-  return {
-    oneWeekAgo: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000),
-    twoWeeksAgo: new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000),
-  };
-}
 
 /**
  * Shuffles and selects challenge templates based on user level
@@ -73,15 +56,75 @@ export function filterRecentChallenges(
 }
 
 /**
- * Separates universal and level-specific challenges
- * @param challenges Array of challenge objects with level property
- * @returns Object containing separated universal and level-specific challenges
+ * Shuffles an array using Fisher-Yates algorithm
+ * @param array Array to shuffle
+ * @returns New shuffled array
  */
-export function separateChallengesByLevel<T extends { level: ChallengeLevel }>(
-  challenges: T[]
-): { universal: T[]; levelSpecific: T[] } {
+function shuffleArray<T>(array: T[]): T[] {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/**
+ * Selects regular challenges for a user based on available templates and AI recommendations
+ * @param availableChallenges Array of all available regular challenges
+ * @param recommendedChallenges Array of recommended challenge IDs from AI
+ * @param userLevel User's current level
+ * @returns Object containing selected daily and regular challenges
+ */
+export function selectRegularChallenges(
+  availableChallenges: (ChallengeTemplate & { id: string })[],
+  recommendedChallenges: string[],
+  userLevel: ChallengeLevel
+) {
+  // Filter challenges by user level
+  const levelSpecificChallenges = availableChallenges.filter(
+    (c) => c.level === userLevel
+  );
+
+  // Select daily challenge from regular challenges
+  const dailyChallenge =
+    levelSpecificChallenges[
+      Math.floor(Math.random() * levelSpecificChallenges.length)
+    ];
+
+  // Select regular challenges (4 challenges)
+  let regularChallenges: (ChallengeTemplate & { id: string })[] = [];
+
+  if (recommendedChallenges.length > 0) {
+    // Use AI recommendations for regular challenges
+    regularChallenges = levelSpecificChallenges
+      .filter(
+        (c) =>
+          recommendedChallenges.includes(c.id) && c.id !== dailyChallenge?.id
+      )
+      .slice(0, 4);
+
+    // If we don't have enough recommended challenges, fill with random ones
+    if (regularChallenges.length < 4) {
+      const remainingNeeded = 4 - regularChallenges.length;
+      const unusedChallenges = levelSpecificChallenges.filter(
+        (c) =>
+          !recommendedChallenges.includes(c.id) && c.id !== dailyChallenge?.id
+      );
+      regularChallenges = [
+        ...regularChallenges,
+        ...shuffleArray(unusedChallenges).slice(0, remainingNeeded),
+      ];
+    }
+  } else {
+    // Random selection if no AI recommendations
+    regularChallenges = shuffleArray(
+      levelSpecificChallenges.filter((c) => c.id !== dailyChallenge?.id)
+    ).slice(0, 4);
+  }
+
   return {
-    universal: challenges.filter((c) => c.level === "all"),
-    levelSpecific: challenges.filter((c) => c.level !== "all"),
+    dailyChallenge,
+    regularChallenges,
   };
 }

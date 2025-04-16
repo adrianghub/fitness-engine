@@ -4,6 +4,6 @@ export interface PersonalizationData {
   displayName: string;
   level: UserLevel;
   equipment: Equipment[];
-  fitnessGoals: FitnessGoal[];
+  fitnessGoals?: FitnessGoal[];
   goalsDescription?: string;
 }
