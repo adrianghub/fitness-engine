@@ -1,0 +1,60 @@
+### Test Challenge Refresh Flow
+@baseUrl = http://127.0.0.1:5001/fitness-engine-a3383/europe-central2
+
+### 1. Seed some challenge templates (if not already done)
+POST {{baseUrl}}/seedChallengeTemplates
+x-admin-key: YUBSgYb1mdtSaUZlgvjnzvHIjFg3AZ4uo4tmMVD24/M=
+
+### 2. Seed universal challenges (if not already done)
+POST {{baseUrl}}/seedUniversalChallenges
+x-admin-key: YUBSgYb1mdtSaUZlgvjnzvHIjFg3AZ4uo4tmMVD24/M=
+
+### 3. Create a test user profile
+POST {{baseUrl}}/completeUserProfile
+Content-Type: application/json
+Authorization: Bearer your-test-user-token
+
+{
+  "displayName": "TestUser",
+  "level": "beginner",
+  "equipment": ["dumbbells", "resistance-bands"],
+  "goalsDescription": "Build strength and improve endurance"
+}
+
+### 4. Manually trigger the daily challenge refresh (for testing)
+# This will refresh challenges for all users with completed profiles
+POST {{baseUrl}}/triggerDailyChallengeRefresh
+Content-Type: application/json
+
+### 5. Manually trigger user level up (for testing only)
+# This endpoint allows forcing a user level up without checking points or position
+# Useful for testing the promotion flow and verifying new level challenges
+POST {{baseUrl}}/manualUserLevelUp
+Content-Type: application/json
+
+{
+  "userId": "your-test-user-id",
+  "newLevel": "intermediate" // can be: "beginner", "intermediate", "advanced"
+}
+
+### 6. Complete a challenge (callable function)
+# This endpoint marks a challenge as completed and handles points/promotion
+POST {{baseUrl}}/completeChallengeEndpoint
+Content-Type: application/json
+Authorization: Bearer your-test-user-token
+
+{
+  "challengeId": "your-challenge-id",
+  "userId": "your-test-user-id"
+}
+
+### 7. Resign from a challenge (callable function)
+# This endpoint marks a challenge as uncompleted and applies a penalty
+POST {{baseUrl}}/resignChallengeEndpoint
+Content-Type: application/json
+Authorization: Bearer your-test-user-token
+
+{
+  "challengeId": "your-challenge-id",
+  "userId": "your-test-user-id"
+}
