@@ -9,6 +9,7 @@ This directory contains the business logic handlers for the FitnessEngine applic
 - `generateChallenges.ts` - Generates user challenges based on their level
 - `generateOpponents.ts` - Generates opponents and manages the leaderboard
 - `promoteUser.ts` - Handles user level progression
+- `refreshChallenges.ts` - Handles daily challenge refresh and penalties
 
 ## Responsibility Breakdown
 
@@ -18,6 +19,7 @@ The personalization handler is responsible for:
 - Validating user personalization data
 - Ensuring uniqueness of display names
 - Applying personalization settings to a user profile
+- Generating initial fitness goals and challenges
 
 ### Challenge Generation
 
@@ -25,7 +27,17 @@ The challenge generation handler is responsible for:
 - Generating user-specific challenges based on level
 - Always including universal challenges
 - Randomly selecting level-specific challenges
-- Avoiding repetition of challenges from previous days
+- Maintaining the standard challenge distribution (1 daily + 4-5 regular + 3-4 universal)
+- Using AI recommendations for regular challenges when available
+
+### Challenge Refresh
+
+The challenge refresh handler is responsible for:
+- Processing incomplete challenges from the previous day
+- Applying point penalties for incomplete challenges
+- Tracking and preventing repetition of regular challenges
+- Generating new daily challenges
+- Coordinating with the opponent update process
 
 ### Opponent Generation
 

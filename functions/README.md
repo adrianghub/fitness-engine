@@ -12,6 +12,7 @@ The code is organized as follows:
     - `generateChallenges.ts` - Challenge generation logic
     - `generateOpponents.ts` - Opponent generation logic
     - `promoteUser.ts` - User level progression logic
+    - `refreshChallenges.ts` - Daily challenge refresh logic
   - `/types` - TypeScript type definitions
     - `models.ts` - Generated Firestore models (Admin SDK)
     - `challenge-template.ts` - Types for challenge templates
@@ -20,6 +21,9 @@ The code is organized as follows:
     - `challenge-templates.ts` - Challenge template data
   - `/seed` - Data seeding functions
   - `/shared` - Shared utilities
+  - `/docs` - Documentation files
+    - `points-distribution.md` - Points system documentation
+    - `challenge-refresh.md` - Daily challenge refresh process
   - `index.ts` - Main entry point for all functions
 
 ## Type Safety
@@ -53,7 +57,11 @@ npm run generate:types
 
 ### Scheduled Functions
 
-- `dailyOpponentsUpdate` - Updates opponent scores daily based on user training frequency
+- `dailyChallengeAndOpponentUpdate` - Daily function (00:00 Europe/Warsaw) that:
+  - Processes incomplete challenges and applies penalties
+  - Generates new challenges for users
+  - Updates opponent scores based on user training frequency
+  - Maintains leaderboard rankings
 
 ## Development
 
@@ -84,3 +92,9 @@ npm run generate:types
 ```bash
 npm run deploy
 ```
+
+## Documentation
+
+Detailed documentation for various processes can be found in the `/docs` directory:
+- `points-distribution.md` - Details about the points system
+- `challenge-refresh.md` - Daily challenge refresh process and penalties

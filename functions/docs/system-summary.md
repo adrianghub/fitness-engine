@@ -5,41 +5,35 @@
 ### Daily Challenge Distribution
 Total: 9 challenges per day, distributed as follows:
 
-1. **When Daily is from Regular Pool:**
-   - 1 Daily Challenge (from regular)
-   - 4 Regular Challenges
-   - 4 Universal Challenges
-
-2. **When Daily is from Universal Pool:**
-   - 1 Daily Challenge (from universal)
-   - 5 Regular Challenges
-   - 3 Universal Challenges
+- 1 Daily Challenge
+- 4 Regular Challenges
+- 4 Universal Challenges
 
 > For detailed point calculations and maximums, see [Points Distribution](points-distribution.md)
 
 ### Core Features
 
 1. **Challenge Selection**
-   - Daily challenge selected from either pool
-   - Challenge count adjusts dynamically
-   - Universal challenges upgradeable to daily
+   - Fixed challenge distribution
+   - AI-recommended challenge selection
+   - Level-appropriate difficulty
 
 2. **Level System**
    - Three progression tiers:
-     - Beginner: 0 - 4,000
-     - Intermediate: 4,000 - 8,000
-     - Advanced: 8,000 - 15,000
+     - Beginner: 0 - 3,800 (max 4,000)
+     - Intermediate: 4,000 - 7,800 (max 8,000)
+     - Advanced: 8,000 - 14,800 (max 15,000)
 
 3. **Competition Design**
    - Dynamic opponent distribution
    - Balanced progression path
-   - Flexible challenge selection
+   - Merit-based advancement
 
 ### Recent Enhancements
 
 1. **Distribution Logic**
    - Fixed total at 9 daily challenges
-   - Dynamic pool adjustment
+   - Consistent challenge type distribution
    - Improved challenge selection
 
 2. **Implementation**
@@ -60,27 +54,27 @@ Total: 9 challenges per day, distributed as follows:
 
 ### 1. Daily Challenge Structure
 - **9 Total Daily Challenges**
-  - 1 Daily Challenge (selected from regular challenges pool, highest reward)
-  - 4 Regular Challenges (remaining from pool after daily selection)
+  - 1 Daily Challenge (highest reward)
+  - 4 Regular Challenges (medium reward)
   - 4 Universal Challenges (base reward)
 
 ### 2. Point System
 **Daily Maximum Points by Level:**
 ```
 Beginner:
-- Daily Challenge: 100pts (upgraded from regular challenge)
+- Daily Challenge: 100pts
 - Regular: 50pts × 4 = 200pts
 - Universal: 15pts × 4 = 60pts
 Total: 360 points/day
 
 Intermediate:
-- Daily Challenge: 200pts (upgraded from regular challenge)
+- Daily Challenge: 200pts
 - Regular: 100pts × 4 = 400pts
 - Universal: 30pts × 4 = 120pts
 Total: 720 points/day
 
 Advanced:
-- Daily Challenge: 300pts (upgraded from regular challenge)
+- Daily Challenge: 300pts
 - Regular: 150pts × 4 = 600pts
 - Universal: 45pts × 4 = 180pts
 Total: 1,080 points/day
@@ -93,19 +87,16 @@ Beginner:
 - Start: 0 points
 - Range: 0 - 3,800
 - Max: 4,000
-- Time: ~11-12 days
 
 Intermediate:
 - Start: 4,000 points
 - Range: 4,000 - 7,800
 - Max: 8,000
-- Time: ~11-12 days
 
 Advanced:
 - Start: 8,000 points
 - Range: 8,000 - 14,800
 - Max: 15,000
-- Time: ~14-15 days
 ```
 
 ### 4. Opponent Distribution
@@ -124,7 +115,7 @@ Advanced:
 
 ### 1. Engagement Mechanics
 - Daily reset of challenges
-- Daily challenge selected from regular pool
+- Fixed challenge distribution
 - Mix of challenge types
 - Progressive difficulty
 - Consistent baseline through universal challenges
@@ -132,18 +123,18 @@ Advanced:
 ### 2. Competition Design
 - Balanced opponent distribution
 - Dynamic point changes
-- Buffer zone for top performers
+- Merit-based advancement
 - Level-appropriate rewards
 
 ### 3. Progression System
 - Clear level boundaries
 - Reset on level-up
 - Increased rewards at higher levels
-- ~11-15 days per level progression
+- Must be #1 in leaderboard to advance
 
 ### 4. Balance Considerations
 - Universal challenges provide steady progress
-- Regular challenge upgraded to daily for extra motivation
+- Daily challenges provide highest rewards
 - Regular challenges form core progression
 - Point gaps prevent instant level-ups
 
@@ -170,8 +161,8 @@ Advanced:
 ## Challenge Types and Distribution
 
 Each day, users receive:
-- 1 Daily Challenge (high points)
-- 4 Regular Challenges (medium points)
-- 3-4 Universal Challenges (low points)
+- 1 Daily Challenge (100/200/300 points)
+- 4 Regular Challenges (50/100/150 points)
+- 4 Universal Challenges (15/30/45 points)
 
-Total: 8-9 challenges per day
+Total: 9 challenges per day
