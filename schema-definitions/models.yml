@@ -39,8 +39,6 @@ ChallengeLevel:
         value: intermediate
       - label: Advanced
         value: advanced
-      - label: Apply to all levels
-        value: all
 
 ChallengeStatus:
   model: alias
@@ -106,7 +104,7 @@ User:
         type:
           type: list
           elementType: Equipment
-      totalPoints:
+      points:
         type: double
         docs: Total points accumulated by the user
       isProfileComplete:
@@ -156,6 +154,34 @@ ChallengeTemplate:
         type: timestamp
         optional: true
         docs: When the challenge template was last updated
+
+UniversalChallenge:
+  model: document
+  path: universalChallenges/{universalChallengeId}
+  docs: Represents a universal challenge that is always available
+  type:
+    type: object
+    fields:
+      title:
+        type: string
+        docs: Title of the challenge
+      description:
+        type: string
+        docs: Detailed description of the challenge
+      points:
+        type: double
+        docs: Points awarded for completing the challenge
+      createdAt:
+        type: timestamp
+        optional: true
+        docs: When the challenge was created
+      updatedAt:
+        type: timestamp
+        optional: true
+        docs: When the challenge was last updated
+      status:
+        type: ChallengeStatus
+        docs: Current status of the challenge
 
 UserChallenge:
   model: document

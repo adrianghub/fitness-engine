@@ -9,46 +9,10 @@
 import type { ChallengeLevel, ChallengeTemplate } from "@/types/models";
 
 const ALL_LEVELS: Record<string, ChallengeLevel> = {
-  all: "all",
   beginner: "beginner",
   intermediate: "intermediate",
   advanced: "advanced",
 };
-
-const UNIVERSAL_CHALLENGES = [
-  {
-    title: "Wypij 8 Szklanek Wody",
-    description: "Wypij co najmniej 8 szklanek wody w ciągu dnia",
-    level: ALL_LEVELS.all,
-    points: 30,
-    equipment: [],
-    expectedTime: "Cały dzień",
-  },
-  {
-    title: "5 Minut Głębokiego Oddychania",
-    description: "Ćwicz głębokie oddychanie przez 5 minut",
-    level: ALL_LEVELS.all,
-    points: 150,
-    equipment: [],
-    expectedTime: "5 min",
-  },
-  {
-    title: "Zrób 8,000 Kroków",
-    description: "Przejdź co najmniej 8,000 kroków w ciągu dnia",
-    level: ALL_LEVELS.all,
-    points: 120,
-    equipment: [],
-    expectedTime: "Cały dzień",
-  },
-  {
-    title: "Stretching",
-    description: "Wykonaj 10 minut stretchingu",
-    level: ALL_LEVELS.all,
-    equipment: [],
-    points: 80,
-    expectedTime: "10 min",
-  },
-];
 
 const BEGINNER_CHALLENGES = [
   {
@@ -731,7 +695,6 @@ const INTERMEDIATE_CHALLENGES = [
 ];
 
 export const CHALLENGE_TEMPLATES: ChallengeTemplate[] = [
-  ...UNIVERSAL_CHALLENGES,
   ...BEGINNER_CHALLENGES,
   ...ADVANCED_CHALLENGES,
   ...INTERMEDIATE_CHALLENGES,
