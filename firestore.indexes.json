@@ -5,6 +5,24 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
+          "fieldPath": "entityType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "level",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "points",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "leaderboard",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
           "fieldPath": "userId",
           "order": "ASCENDING"
         },
@@ -29,20 +47,6 @@
       ]
     },
     {
-      "collectionGroup": "users",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "email",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "totalPoints",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
       "collectionGroup": "userChallenges",
       "queryScope": "COLLECTION",
       "fields": [
@@ -69,6 +73,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "type",
           "order": "ASCENDING"
         }
@@ -80,10 +88,6 @@
       "fields": [
         {
           "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
           "order": "ASCENDING"
         },
         {
@@ -116,42 +120,6 @@
         },
         {
           "fieldPath": "updatedAt",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "leaderboard",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "entityType",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "level",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "points",
-          "order": "DESCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "userChallenges",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "userId",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "status",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "assignedDate",
           "order": "ASCENDING"
         }
       ]
