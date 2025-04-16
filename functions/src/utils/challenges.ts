@@ -1,6 +1,39 @@
 import type { ChallengeLevel } from "../types/models";
 
 /**
+ * Point values for different types of challenges at each level
+ */
+export const CHALLENGE_POINTS: Record<
+  ChallengeLevel,
+  {
+    daily: number;
+    regular: number;
+    universal: number;
+  }
+> = {
+  beginner: {
+    daily: 100,
+    regular: 50,
+    universal: 15,
+  },
+  intermediate: {
+    daily: 200,
+    regular: 100,
+    universal: 30,
+  },
+  advanced: {
+    daily: 300,
+    regular: 150,
+    universal: 45,
+  },
+  all: {
+    daily: 100,
+    regular: 50,
+    universal: 15,
+  },
+};
+
+/**
  * Generates timestamps for challenge completion history
  * @param now Current timestamp
  * @returns Object containing various timestamps for challenge history

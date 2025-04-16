@@ -4,18 +4,18 @@ import type { UserLevel } from "../types/models";
 // Point ranges for different levels to ensure opponents have appropriate scores
 export const LEVEL_POINT_RANGES: Record<
   UserLevel,
-  { min: number; max: number }
+  { min: number; max: number; userMax: number; dailyMax: number }
 > = {
-  beginner: { min: 1000, max: 15000 },
-  intermediate: { min: 16000, max: 30000 },
-  advanced: { min: 31000, max: 100000 },
+  beginner: { min: 0, max: 3800, userMax: 4000, dailyMax: 395 },
+  intermediate: { min: 4000, max: 7800, userMax: 8000, dailyMax: 790 },
+  advanced: { min: 8000, max: 14800, userMax: 15000, dailyMax: 1185 },
 };
 
-// Base points for each level
+// Base points for each level - starting points when entering a new level
 export const LEVEL_BASE_POINTS: Record<UserLevel, number> = {
-  beginner: 50,
-  intermediate: 150,
-  advanced: 300,
+  beginner: 0,
+  intermediate: 4000,
+  advanced: 8000,
 };
 
 /**
@@ -45,37 +45,49 @@ export function generateRandomUsername(): string {
 
 /**
  * Calculates initial points for an opponent based on user level
+ * Uses a more balanced distribution to create engaging competition
+ * Points are distributed based on expected daily progress
  * @param level The level to calculate points for
  * @returns The calculated points
  */
 export function calculateOpponentPoints(level: UserLevel): number {
   const pointRange = LEVEL_POINT_RANGES[level];
+  const availableRange = pointRange.max - pointRange.min;
   const distribution = Math.random();
 
-  if (distribution < 0.7) {
-    // 70% of opponents are within middle range
-    return Math.floor(
+  let points: number;
+
+  if (distribution < 0.35) {
+    // 35% of opponents in the lower range (1-4 days worth)
+    points = pointRange.min + availableRange * 0.4 * Math.random();
+  } else if (distribution < 0.75) {
+    // 40% of opponents in the middle range (4-7 days worth)
+    points =
       pointRange.min +
-        (pointRange.max - pointRange.min) * 0.3 +
-        (pointRange.max - pointRange.min) * 0.4 * Math.random()
-    );
-  } else if (distribution < 0.9) {
-    // 20% of opponents are in the lower range
-    return Math.floor(
-      pointRange.min + (pointRange.max - pointRange.min) * 0.3 * Math.random()
-    );
+      availableRange * 0.4 +
+      availableRange * 0.3 * Math.random();
+  } else if (distribution < 0.95) {
+    // 20% of opponents in upper-middle range (7-9 days worth)
+    points =
+      pointRange.min +
+      availableRange * 0.7 +
+      availableRange * 0.2 * Math.random();
   } else {
-    // 10% of opponents are in the upper range
-    return Math.floor(
+    // 5% of opponents near the top (9-10 days worth)
+    points =
       pointRange.min +
-        (pointRange.max - pointRange.min) * 0.7 +
-        (pointRange.max - pointRange.min) * 0.3 * Math.random()
-    );
+      availableRange * 0.9 +
+      availableRange * 0.1 * Math.random();
   }
+
+  // Ensure points stay within the defined range
+  return Math.min(Math.max(Math.floor(points), pointRange.min), pointRange.max);
 }
 
 /**
  * Calculates a point change for an opponent to simulate activity
+ * Uses a more balanced approach to maintain engagement
+ * Changes are based on daily achievable points
  * @param currentPoints The current points of the opponent
  * @param level The level of the opponent
  * @returns The new points value
@@ -84,31 +96,36 @@ export function calculatePointChange(
   currentPoints: number,
   level: UserLevel
 ): number {
-  let pointsChange: number;
-  switch (level) {
-    case "beginner":
-      // Small change for beginners (1-5% of current points)
-      pointsChange = Math.floor(currentPoints * (0.01 + Math.random() * 0.04));
-      break;
-    case "intermediate":
-      // Medium change for intermediate (3-8% of current points)
-      pointsChange = Math.floor(currentPoints * (0.03 + Math.random() * 0.05));
-      break;
-    case "advanced":
-      // Larger change for advanced (5-12% of current points)
-      pointsChange = Math.floor(currentPoints * (0.05 + Math.random() * 0.07));
-      break;
-    default:
-      pointsChange = Math.floor(currentPoints * 0.03);
+  const pointRange = LEVEL_POINT_RANGES[level];
+  const dailyMax = pointRange.dailyMax;
+
+  // Calculate maximum allowed change based on current position
+  const positionInRange =
+    (currentPoints - pointRange.min) / (pointRange.max - pointRange.min);
+  let maxChangePercent: number;
+
+  if (positionInRange < 0.3) {
+    // Bottom third can gain up to 3 days worth of points
+    maxChangePercent = (dailyMax * 3) / currentPoints;
+  } else if (positionInRange < 0.7) {
+    // Middle range can gain up to 2 days worth of points
+    maxChangePercent = (dailyMax * 2) / currentPoints;
+  } else {
+    // Top range can gain up to 1 day worth of points
+    maxChangePercent = dailyMax / currentPoints;
   }
 
-  // Randomly decide if points increase or decrease (70% chance to increase)
-  const isIncrease = Math.random() < 0.7;
+  const pointsChange = Math.floor(
+    currentPoints * (maxChangePercent * Math.random())
+  );
+
+  // 65% chance to increase for steady progression while maintaining challenge
+  const isIncrease = Math.random() < 0.65;
+
   const newPoints = isIncrease
     ? currentPoints + pointsChange
-    : Math.max(currentPoints - pointsChange, 0); // Ensure points don't go below 0
+    : Math.max(currentPoints - pointsChange, pointRange.min);
 
-  // Ensure points stay within the level's range
-  const pointRange = LEVEL_POINT_RANGES[level];
+  // Ensure points stay within the level's range and below user maximum
   return Math.min(Math.max(newPoints, pointRange.min), pointRange.max);
 }

@@ -19,7 +19,7 @@ ${availableChallenges.map((c) => `- ${c.id}: ${c.title}: ${c.description} (Pozio
 
 Na podstawie tych informacji:
 1. Zdefiniuj maksymalnie 3 konkretne, mierzalne cele fitness, które są zgodne z opisem użytkownika i jego poziomem doświadczenia
-2. Stwórz listę 10 wyzwań z dostępnej listy szablonów i sprzętu, które najlepiej pomogą w osiągnięciu tych celów, zwróć tylko i wyłącznie "id" wyzwań
+2. Stwórz listę 5 regularnych wyzwań z dostępnej listy szablonów i sprzętu, które najlepiej pomogą w osiągnięciu tych celów, zwróć tylko i wyłącznie "id" wyzwań. Te wyzwania będą wykorzystane jako rekomendowane wyzwania regularne w planie treningowym użytkownika.
 3. Możesz zaproponować 1-2 wyzwania z wyższego/niższego poziomu niż poziom użytkownika (np. jeśli użytkownik jest początkujący, możesz zaproponować wyzwanie z poziomu średnio-zaawansowanego lub jeśli zaawansowany, możesz zaproponować np. wyzwanie dla początkujących), jeśli sprzęt pasuje do wymagań wyzwania
 
 Odpowiedź dodaj do znacznika <fitness-plan> w formacie JSON:

@@ -6,6 +6,9 @@ export type ChallengeLevel = 'beginner' | 'intermediate' | 'advanced' | 'all';
 /** Represents the status of a user's challenge */
 export type ChallengeStatus = 'not-started' | 'in-progress' | 'completed';
 
+/** Represents the type of challenge */
+export type ChallengeType = 'daily' | 'regular' | 'universal';
+
 /** Represents the type of entity in the leaderboard */
 export type EntityType = 'user' | 'opponent';
 
@@ -103,5 +106,7 @@ export interface UserChallenge {
   /** When the challenge was completed */
   finishedAt?: firestore.Timestamp;
   /** Points awarded for completing the challenge */
-  pointsAwarded?: number;
+  points: number;
+  /** Type of the challenge */
+  type: ChallengeType;
 }

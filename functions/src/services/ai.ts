@@ -68,7 +68,7 @@ function parseFitnessPlan(response: string): AIGeneratedPlan | null {
         Array.isArray(plan.recommendedChallenges)
       ) {
         plan.goals = plan.goals.slice(0, 3);
-        plan.recommendedChallenges = plan.recommendedChallenges.slice(0, 10);
+        plan.recommendedChallenges = plan.recommendedChallenges.slice(0, 5);
 
         return plan;
       } else {

@@ -62,100 +62,6 @@ async function updateLeaderboardRanks(
 }
 
 /**
- * Generates opponents for a user based on their level
- * @param userId The ID of the user to generate opponents for
- * @param level The level of the user (beginner, intermediate, advanced)
- * @returns Promise that resolves with an array of opponent IDs
- */
-export async function generateUserOpponents(
-  userId: string,
-  level: UserLevel
-): Promise<string[]> {
-  logger.info(`Generating opponents for user ${userId} with level ${level}`);
-
-  const opponentIds: string[] = [];
-  const db = admin.firestore();
-
-  // Delete any existing opponents for this user
-  const existingOpponentsSnapshot = (await db
-    .collection("opponents")
-    .where("userId", "==", userId)
-    .get()) as QuerySnapshot<Opponent>;
-
-  if (!existingOpponentsSnapshot.empty) {
-    const batch = db.batch();
-    existingOpponentsSnapshot.forEach((doc) => {
-      batch.delete(doc.ref);
-    });
-    await batch.commit();
-    logger.info(`Deleted ${existingOpponentsSnapshot.size} existing opponents`);
-  }
-
-  // Generate 100 unique opponents for this user
-  const numOpponents = 100;
-  let batch = db.batch();
-  let batchCount = 0;
-  const BATCH_SIZE = 450; // Firestore batch limit is 500
-
-  for (let i = 0; i < numOpponents; i++) {
-    try {
-      // Generate a unique opponent ID
-      const opponentId = db.collection("opponents").doc().id;
-      const opponentRef = db
-        .collection("opponents")
-        .doc(opponentId) as DocumentReference<Opponent>;
-
-      // Calculate points and generate username
-      const points = calculateOpponentPoints(level);
-      const username = generateRandomUsername();
-
-      const opponentData = {
-        id: opponentId,
-        name: username,
-        currentPoints: points,
-        level: level,
-        userId: userId,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now(),
-        lastUpdated: Timestamp.now(),
-      };
-
-      batch.set(opponentRef, opponentData);
-      opponentIds.push(opponentId);
-      batchCount++;
-
-      // If batch size reaches limit, commit the batch and start a new one
-      if (batchCount >= BATCH_SIZE) {
-        await batch.commit();
-        batch = db.batch();
-        batchCount = 0;
-        logger.info(`Committed batch of ${BATCH_SIZE} opponents`);
-      }
-    } catch (error) {
-      logger.error(`Error creating opponent for user ${userId}:`, error);
-    }
-  }
-
-  // Commit any remaining opponents in the batch
-  if (batchCount > 0) {
-    await batch.commit();
-  }
-
-  logger.info(`Added ${opponentIds.length} opponents for user ${userId}`);
-
-  // Now update the leaderboard with the new opponents
-  await updateLeaderboardRanks(db, userId);
-
-  // Update the user's last opponent regeneration timestamp
-  await db.collection("users").doc(userId).update({
-    lastOpponentRegeneration: Timestamp.now(),
-    updatedAt: Timestamp.now(),
-  });
-
-  return opponentIds;
-}
-
-/**
  * Updates opponents for all users due for an update
  * This should be called by a scheduled function
  */
@@ -268,4 +174,98 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
     logger.error("Error in scheduled opponent score update:", error);
     throw error;
   }
+}
+
+/**
+ * Generates opponents for a user based on their level
+ * @param userId The ID of the user to generate opponents for
+ * @param level The level of the user (beginner, intermediate, advanced)
+ * @returns Promise that resolves with an array of opponent IDs
+ */
+export async function generateUserOpponents(
+  userId: string,
+  level: UserLevel
+): Promise<string[]> {
+  logger.info(`Generating opponents for user ${userId} with level ${level}`);
+
+  const opponentIds: string[] = [];
+  const db = admin.firestore();
+
+  // Delete any existing opponents for this user
+  const existingOpponentsSnapshot = (await db
+    .collection("opponents")
+    .where("userId", "==", userId)
+    .get()) as QuerySnapshot<Opponent>;
+
+  if (!existingOpponentsSnapshot.empty) {
+    const batch = db.batch();
+    existingOpponentsSnapshot.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+    await batch.commit();
+    logger.info(`Deleted ${existingOpponentsSnapshot.size} existing opponents`);
+  }
+
+  // Generate 100 unique opponents for this user
+  const numOpponents = 100;
+  let batch = db.batch();
+  let batchCount = 0;
+  const BATCH_SIZE = 450; // Firestore batch limit is 500
+
+  for (let i = 0; i < numOpponents; i++) {
+    try {
+      // Generate a unique opponent ID
+      const opponentId = db.collection("opponents").doc().id;
+      const opponentRef = db
+        .collection("opponents")
+        .doc(opponentId) as DocumentReference<Opponent>;
+
+      // Calculate points and generate username
+      const points = calculateOpponentPoints(level);
+      const username = generateRandomUsername();
+
+      const opponentData = {
+        id: opponentId,
+        name: username,
+        currentPoints: points,
+        level: level,
+        userId: userId,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        lastUpdated: Timestamp.now(),
+      };
+
+      batch.set(opponentRef, opponentData);
+      opponentIds.push(opponentId);
+      batchCount++;
+
+      // If batch size reaches limit, commit the batch and start a new one
+      if (batchCount >= BATCH_SIZE) {
+        await batch.commit();
+        batch = db.batch();
+        batchCount = 0;
+        logger.info(`Committed batch of ${BATCH_SIZE} opponents`);
+      }
+    } catch (error) {
+      logger.error(`Error creating opponent for user ${userId}:`, error);
+    }
+  }
+
+  // Commit any remaining opponents in the batch
+  if (batchCount > 0) {
+    await batch.commit();
+  }
+
+  logger.info(`Added ${opponentIds.length} opponents for user ${userId}`);
+
+  // Now update the leaderboard with the new opponents
+  await updateLeaderboardRanks(db, userId);
+
+  // Update the user's last opponent regeneration timestamp
+  await db.collection("users").doc(userId).update({
+    lastOpponentRegeneration: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  });
+
+  return opponentIds;
 }
