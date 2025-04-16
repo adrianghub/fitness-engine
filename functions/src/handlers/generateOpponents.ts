@@ -184,13 +184,10 @@ export async function generateUserOpponents(
 
   try {
     await db.runTransaction(async (transaction) => {
-      // READS SECTION - Perform all reads first
-      // 1. Get existing opponents
       const existingOpponentsSnapshot = await transaction.get(
         db.collection("opponents").where("userId", "==", userId)
       );
 
-      // 2. Get existing leaderboard entries
       const existingLeaderboardEntries = await transaction.get(
         db
           .collection("leaderboard")
@@ -198,11 +195,8 @@ export async function generateUserOpponents(
           .where("userId", "==", userId)
       );
 
-      // 3. Get user reference for later update
       const userRef = db.collection("users").doc(userId);
 
-      // PREPARATION SECTION - Prepare all data
-      // 1. Generate opponent data
       const numOpponents = 100;
       const opponentsData = Array.from({ length: numOpponents }, () => {
         const opponentId = db.collection("opponents").doc().id;
@@ -219,7 +213,6 @@ export async function generateUserOpponents(
         };
       });
 
-      // 2. Prepare leaderboard entries
       const leaderboardEntries = opponentsData.map((opponent) => ({
         entityId: opponent.id,
         entityType: "opponent" as const,
@@ -229,30 +222,24 @@ export async function generateUserOpponents(
         updatedAt: now,
       }));
 
-      // WRITES SECTION - Perform all writes after reads
-      // 1. Delete existing opponents
       existingOpponentsSnapshot.forEach((doc) => {
         transaction.delete(doc.ref);
       });
 
-      // 2. Delete existing leaderboard entries
       existingLeaderboardEntries.forEach((doc) => {
         transaction.delete(doc.ref);
       });
 
-      // 3. Create new opponents
       opponentsData.forEach((opponentData) => {
         const opponentRef = db.collection("opponents").doc(opponentData.id);
         transaction.set(opponentRef, opponentData);
       });
 
-      // 4. Create new leaderboard entries
       leaderboardEntries.forEach((entry) => {
         const leaderboardRef = db.collection("leaderboard").doc();
         transaction.set(leaderboardRef, entry);
       });
 
-      // 5. Update user's regeneration timestamp
       transaction.update(userRef, {
         lastOpponentRegeneration: now,
         updatedAt: now,
