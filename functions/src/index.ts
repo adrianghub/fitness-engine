@@ -11,6 +11,15 @@ import * as admin from "firebase-admin";
 import * as logger from "firebase-functions/logger";
 import { onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
+import {
+  completeChallenge,
+  generateUserOpponents,
+  promoteUser,
+  resignChallenge,
+  seedChallengeTemplatesFunction,
+  seedUniversalChallengesFunction,
+  updateOpponentsOnSchedule,
+} from "./handlers";
 
 try {
   admin.initializeApp();
@@ -21,15 +30,10 @@ try {
 
 import type { PersonalizationData } from "@/types/personalization-data";
 import {
-  generateUserOpponents,
-  promoteUser,
-  updateOpponentsOnSchedule,
-} from "./handlers";
-import {
   applyPersonalization,
   validatePersonalizationData,
 } from "./handlers/personalization";
-import { seedChallengeTemplatesFunction } from "./handlers/seedChallengeTemplates";
+import { refreshUserChallenges } from "./handlers/refreshChallenges";
 
 const defaultProperties = {
   timeZone: "Europe/Warsaw",
@@ -99,7 +103,8 @@ export const manualUserLevelUp = onRequest(
         return;
       }
 
-      if (!["beginner", "intermediate", "advanced"].includes(newLevel)) {
+      const validLevels = ["beginner", "intermediate", "advanced"] as const;
+      if (!validLevels.includes(newLevel)) {
         response.status(400).json({
           success: false,
           error:
@@ -126,22 +131,31 @@ export const manualUserLevelUp = onRequest(
 );
 
 /**
- * Scheduled function that runs daily to check which users need
- * their opponent scores updated based on their training frequency.
- * This only updates the scores of existing opponents without regenerating them.
+ * Scheduled function that runs daily to:
+ * 1. Apply penalties for incomplete challenges
+ * 2. Generate new challenges for users
+ * 3. Update opponent scores
  */
-export const dailyOpponentsUpdate = onSchedule(
+export const dailyChallengeAndOpponentUpdate = onSchedule(
   {
     schedule: "every day 00:00",
     ...defaultProperties,
+    secrets: ["GEMINI_API_KEY"],
   },
   async () => {
     try {
-      logger.info("Starting daily opponent update");
+      logger.info("Starting daily challenge and opponent update");
+
+      // First, refresh challenges and apply penalties
+      await refreshUserChallenges();
+
+      // Then update opponent scores
       await updateOpponentsOnSchedule();
-      logger.info("Daily opponent update completed successfully");
+
+      logger.info("Daily challenge and opponent update completed successfully");
     } catch (error) {
-      logger.error("Error in daily opponent regeneration:", error);
+      logger.error("Error in daily challenge and opponent update:", error);
+      throw error;
     }
   }
 );
@@ -179,6 +193,135 @@ export const completeUserProfile = onCall(
     } catch (error) {
       logger.error("Error in completeUserProfile function:", error);
       throw new Error("Failed to complete profile setup");
+    }
+  }
+);
+
+/**
+ * HTTP endpoint for testing the challenge refresh process locally
+ * This endpoint is only available in development
+ */
+export const triggerDailyChallengeRefresh = onRequest(
+  {
+    ...defaultProperties,
+  },
+  async (_, response) => {
+    try {
+      if (process.env.NODE_ENV === "production") {
+        response.status(404).send("Not available in production");
+        return;
+      }
+
+      await refreshUserChallenges();
+
+      response.json({
+        success: true,
+        message: "Challenge refresh process completed for all users",
+      });
+    } catch (error) {
+      logger.error("Error in triggerDailyChallengeRefresh:", error);
+      response.status(500).json({
+        success: false,
+        error:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    }
+  }
+);
+
+/**
+ * HTTP callable function to complete a challenge
+ * This endpoint is called when a user marks a challenge as completed
+ */
+export const completeChallengeEndpoint = onCall(
+  { ...defaultProperties, cors: true },
+  async (request) => {
+    try {
+      const uid = request.auth?.uid;
+      if (!uid) {
+        logger.error("Unauthorized access to completeChallengeEndpoint");
+        throw new Error("Unauthorized");
+      }
+
+      const { challengeId } = request.data;
+      if (!challengeId) {
+        throw new Error("Missing required parameter: challengeId");
+      }
+
+      const result = await completeChallenge(uid, challengeId);
+
+      return {
+        success: true,
+        wasPromoted: result.wasPromoted,
+        message: `Challenge ${challengeId} completed successfully${result.wasPromoted ? " and user was promoted!" : ""}`,
+      };
+    } catch (error) {
+      logger.error("Error in completeChallengeEndpoint:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Failed to complete challenge"
+      );
+    }
+  }
+);
+
+/**
+ * HTTP callable function to resign from a challenge
+ * This endpoint is called when a user wants to give up on a challenge
+ */
+export const resignChallengeEndpoint = onCall(
+  { ...defaultProperties, cors: true },
+  async (request) => {
+    try {
+      const uid = request.auth?.uid;
+      if (!uid) {
+        logger.error("Unauthorized access to resignChallengeEndpoint");
+        throw new Error("Unauthorized");
+      }
+
+      const { challengeId } = request.data;
+      if (!challengeId) {
+        throw new Error("Missing required parameter: challengeId");
+      }
+
+      await resignChallenge(uid, challengeId);
+
+      return {
+        success: true,
+        message: `Successfully resigned from challenge ${challengeId}`,
+      };
+    } catch (error) {
+      logger.error("Error in resignChallengeEndpoint:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to resign from challenge"
+      );
+    }
+  }
+);
+
+/**
+ * HTTP endpoint to seed universal challenges
+ * Protected by admin key
+ */
+export const seedUniversalChallenges = onRequest(
+  {
+    ...defaultProperties,
+    secrets: ["ADMIN_SECRET_KEY"],
+  },
+  async (req, res) => {
+    try {
+      const adminKey = req.headers["x-admin-key"];
+      if (adminKey !== process.env.ADMIN_SECRET_KEY) {
+        res.status(401).send("Unauthorized");
+        return;
+      }
+
+      await seedUniversalChallengesFunction();
+      res.status(200).send("Universal challenges seeded successfully");
+    } catch (error) {
+      logger.error("Error in seedUniversalChallenges:", error);
+      res.status(500).send("Error seeding universal challenges");
     }
   }
 );
