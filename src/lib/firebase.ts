@@ -9,7 +9,6 @@ import {
   indexedDBLocalPersistence,
   onAuthStateChanged,
   setPersistence,
-  signInWithEmailAndPassword,
   signInWithPopup,
   User,
 } from "firebase/auth";
@@ -95,31 +94,6 @@ if (isDevelopment) {
     "Firebase",
     `Functions emulator: ${EMULATOR_HOST}:${FUNCTIONS_PORT}`
   );
-}
-
-/**
- * Signs in a user with email and password
- * @param email The user's email
- * @param password The user's password
- * @returns A promise that resolves with the user's credentials
- */
-export async function signIn(
-  email: string,
-  password: string
-): Promise<User | null> {
-  try {
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    return userCredential.user;
-  } catch (error) {
-    if (error instanceof Error) {
-      logger.error("Firebase Auth", "Sign in error:", error.message);
-    }
-    throw error;
-  }
 }
 
 /**

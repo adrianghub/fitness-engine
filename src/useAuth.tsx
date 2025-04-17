@@ -3,7 +3,7 @@ import { User } from "@/types/models";
 import { User as FirebaseUser, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { auth, db, signInWithGoogle } from "./lib/firebase";
+import { auth, db } from "./lib/firebase";
 
 export function useAuth() {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
@@ -85,22 +85,11 @@ export function useAuth() {
     }
   };
 
-  const signInWithGoogleAccount = async (): Promise<void> => {
-    try {
-      await signInWithGoogle();
-      logger.info("Auth", "Google sign-in successful");
-    } catch (error) {
-      logger.error("Auth", "Error signing in with Google:", error);
-      throw error;
-    }
-  };
-
   return {
     currentUser,
     userData,
     isLoading,
     isAuthenticated: !!currentUser,
     getIdToken,
-    signInWithGoogle: signInWithGoogleAccount,
   };
 }
