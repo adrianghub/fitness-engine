@@ -1,20 +1,16 @@
-import type * as firestore from "firebase-admin/firestore";
+import type * as firestore from 'firebase-admin/firestore';
 
 /** Represents the level of a challenge */
-export type ChallengeLevel = "beginner" | "intermediate" | "advanced";
+export type ChallengeLevel = 'beginner' | 'intermediate' | 'advanced';
 
 /** Represents the status of a user's challenge */
-export type ChallengeStatus =
-  | "not-started"
-  | "in-progress"
-  | "completed"
-  | "uncompleted";
+export type ChallengeStatus = 'not-started' | 'in-progress' | 'completed' | 'uncompleted';
 
 /** Represents the type of challenge */
-export type ChallengeType = "daily" | "regular" | "universal";
+export type ChallengeType = 'daily' | 'regular' | 'universal';
 
 /** Represents the type of entity in the leaderboard */
-export type EntityType = "user" | "opponent";
+export type EntityType = 'user' | 'opponent';
 
 /** Represents equipment that a user can have */
 export type Equipment = string;
@@ -23,7 +19,7 @@ export type Equipment = string;
 export type FitnessGoal = string;
 
 /** Represents user's fitness level */
-export type UserLevel = "beginner" | "intermediate" | "advanced";
+export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
 
 /** Represents a challenge template that can be assigned to users */
 export interface ChallengeTemplate {
