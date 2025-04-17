@@ -127,9 +127,16 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+  html {
+    @apply bg-gradient-to-br from-secondary/80 to-primary/80;
   }
+  body {
+    @apply text-foreground;
+  }
+}
+
+html, body, #root {
+  min-height: 100vh;
 }
 
 @media (max-width: 868px) {

@@ -43,41 +43,41 @@ function RootLayout() {
   }, [userData, navigate, isLoading, currentUser]);
 
   return (
-    <>
-      <div className='min-h-screen flex flex-col bg-gradient-to-br from-secondary/80 to-primary/80'>
-        <div className='w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
-          <Header />
+    <div className='min-h-screen flex flex-col'>
+      <div className='w-full flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col'>
+        <Header />
 
-          {isLoading || isNavigating ? (
-            <Loader />
-          ) : (
-            <main className='flex-1'>
-              <Suspense fallback={<Loader />}>
-                <Outlet />
-              </Suspense>
-            </main>
-          )}
-          {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
-        </div>
+        {isLoading || isNavigating ? (
+          <Loader />
+        ) : (
+          <main className='flex-1'>
+            <Suspense fallback={<Loader />}>
+              <Outlet />
+            </Suspense>
+          </main>
+        )}
+        {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
       </div>
-    </>
+    </div>
   );
 }
 
 function ErrorBoundary({ error }: { error: Error }) {
   return (
-    <div className='h-screen flex flex-col bg-gradient-to-br from-secondary/50 to-primary/50'>
-      <Header />
-      <main className='flex-1 flex items-center justify-center'>
-        <div className='max-w-xl w-full mx-auto px-4'>
-          <div className='bg-background/80 backdrop-blur-sm rounded-lg shadow-lg p-6'>
-            <h1 className='text-2xl font-bold text-red-500 mb-4'>
-              Coś poszło nie tak!
-            </h1>
-            <ErrorComponent error={error} />
+    <div className='min-h-screen flex flex-col'>
+      <div className='w-full flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col'>
+        <Header />
+        <main className='flex-1'>
+          <div className='max-w-xl w-full mx-auto px-4'>
+            <div className='bg-background/80 backdrop-blur-sm rounded-lg shadow-lg p-6'>
+              <h1 className='text-2xl font-bold text-red-500 mb-4'>
+                Coś poszło nie tak!
+              </h1>
+              <ErrorComponent error={error} />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
