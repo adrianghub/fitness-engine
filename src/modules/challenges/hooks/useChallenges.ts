@@ -55,17 +55,18 @@ export function useCompletedChallenges() {
 }
 
 /**
- * Hook to fetch universal challenges
+ * Hook to fetch universal challenges associated with the user
  */
 export function useUniversalChallenges() {
   const { currentUser } = useAuth();
   const userId = currentUser?.uid;
 
   return useQuery({
-    queryKey: [COLLECTIONS.CHALLENGE_TEMPLATES, userId, "universal"],
+    queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "universal"],
     queryFn: () => {
       if (!userId) return [];
       return challengeService.getUserUniversalChallenges(userId);
     },
+    enabled: !!userId,
   });
 }

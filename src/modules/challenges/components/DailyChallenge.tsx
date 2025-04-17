@@ -1,6 +1,5 @@
 import { useDailyChallenge } from "@/modules/challenges/hooks/useChallengesQuery";
 import { ArrowRight, Clock, Dumbbell, Flame, Trophy } from "lucide-react";
-import { Loader } from "../../../components/Loader";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import {
@@ -11,24 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
+import { DailyChallengeSkeleton } from "./ChallengeSkeletons";
 
 export function DailyChallenge() {
   const { data: dailyChallenge, isLoading } = useDailyChallenge();
 
   if (isLoading) {
-    return (
-      <Card className='w-full mb-6 border-2 border-primary/30 bg-primary/5'>
-        <CardHeader>
-          <CardTitle className='flex items-center gap-2'>
-            <Flame className='text-primary' />
-            <span>Loading your daily challenge...</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className='h-24 relative'>
-          <Loader />
-        </CardContent>
-      </Card>
-    );
+    return <DailyChallengeSkeleton />;
   }
 
   if (!dailyChallenge) {

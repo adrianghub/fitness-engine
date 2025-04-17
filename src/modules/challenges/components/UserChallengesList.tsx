@@ -1,6 +1,5 @@
 import { useUserChallenges } from "@/modules/challenges/hooks/useChallengesQuery";
 import { ArrowRight, Clock, Dumbbell, Trophy } from "lucide-react";
-import { Loader } from "../../../components/Loader";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
 import {
@@ -11,14 +10,18 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
+import { UserChallengesListSkeleton } from "./ChallengeSkeletons";
 
 export function UserChallengesList() {
   const { data: challenges = [], isLoading } = useUserChallenges();
 
   if (isLoading) {
     return (
-      <div className='w-full h-40 relative'>
-        <Loader />
+      <div className='mt-8'>
+        <h2 className='text-xl font-bold mb-6 flex items-center gap-2'>
+          <Dumbbell className='text-gray-400' /> Regular Exercises
+        </h2>
+        <UserChallengesListSkeleton />
       </div>
     );
   }
@@ -42,7 +45,7 @@ export function UserChallengesList() {
 
   return (
     <div className='space-y-4'>
-      <h2 className='text-xl font-bold  flex items-center gap-2'>
+      <h2 className='text-xl font-bold flex items-center gap-2'>
         <Dumbbell /> Regular Exercises
       </h2>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>

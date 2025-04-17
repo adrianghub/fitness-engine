@@ -5,8 +5,8 @@ import { lazy } from "react";
 import { createProtectedLoader } from "../lib/protected-route";
 
 const DashboardView = lazy(() =>
-  import("../modules/challenges/components/Challenges").then((module) => ({
-    default: module.Challenges,
+  import("../modules/challenges/components/Dashboard").then((module) => ({
+    default: module.Dashboard,
   }))
 );
 

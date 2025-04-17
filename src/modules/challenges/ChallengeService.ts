@@ -6,36 +6,33 @@ import type {
 } from "@/types/models";
 import { orderBy, where } from "firebase/firestore";
 
+// Create an extended COLLECTIONS object with universalChallenges
+const EXTENDED_COLLECTIONS = {
+  ...COLLECTIONS,
+  UNIVERSAL_CHALLENGES: "universalChallenges",
+};
+
 interface UserChallengeWithId extends UserChallenge {
   id: string;
-  challengeTemplate?: ChallengeTemplateWithId;
-}
-
-interface ChallengeTemplateWithId extends ChallengeTemplate {
-  id: string;
-}
-
-interface UniversalChallengeWithId extends UniversalChallenge {
-  id: string;
+  challengeTemplate?: ChallengeTemplate;
+  universalChallenge?: UniversalChallenge;
 }
 
 export class ChallengeService {
   private userChallengeService: FirestoreService<UserChallengeWithId>;
-  private challengeTemplateService: FirestoreService<ChallengeTemplateWithId>;
-  private universalChallengeService: FirestoreService<UniversalChallengeWithId>;
+  private challengeTemplateService: FirestoreService<ChallengeTemplate>;
+  private universalChallengeService: FirestoreService<UniversalChallenge>;
 
   constructor() {
     this.userChallengeService = new FirestoreService<UserChallengeWithId>(
       COLLECTIONS.USER_CHALLENGES
     );
-    this.challengeTemplateService =
-      new FirestoreService<ChallengeTemplateWithId>(
-        COLLECTIONS.CHALLENGE_TEMPLATES
-      );
-    this.universalChallengeService =
-      new FirestoreService<UniversalChallengeWithId>(
-        COLLECTIONS.UNIVERSAL_CHALLENGES
-      );
+    this.challengeTemplateService = new FirestoreService<ChallengeTemplate>(
+      COLLECTIONS.CHALLENGE_TEMPLATES
+    );
+    this.universalChallengeService = new FirestoreService<UniversalChallenge>(
+      EXTENDED_COLLECTIONS.UNIVERSAL_CHALLENGES
+    );
   }
 
   async getDailyChallengeForUser(
@@ -120,14 +117,34 @@ export class ChallengeService {
     return challengesWithDetails;
   }
 
-  async getUniversalChallenges(): Promise<UniversalChallengeWithId[]> {
-    return this.universalChallengeService.getAll();
+  async getUserUniversalChallenges(
+    userId: string
+  ): Promise<UserChallengeWithId[]> {
+    const constraints = [
+      where("userId", "==", userId),
+      where("type", "==", "universal"),
+      where("status", "in", ["not-started", "in-progress"]),
+    ];
+
+    const userChallenges = await this.userChallengeService.query(constraints);
+
+    const challengesWithDetails = await Promise.all(
+      userChallenges.map(async (userChallenge) => {
+        if (userChallenge.challengeId) {
+          const universalChallengeData =
+            await this.universalChallengeService.getById(
+              userChallenge.challengeId
+            );
+          if (universalChallengeData) {
+            userChallenge.universalChallenge = universalChallengeData;
+          }
+        }
+        return userChallenge;
+      })
+    );
+
+    return challengesWithDetails;
   }
 }
 
 export const challengeService = new ChallengeService();
-export type {
-  ChallengeTemplateWithId,
-  UniversalChallengeWithId,
-  UserChallengeWithId,
-};

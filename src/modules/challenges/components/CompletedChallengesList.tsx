@@ -1,7 +1,6 @@
-import { useCompletedChallenges } from "@/modules/challenges/hooks/useChallengesQuery";
+import { useCompletedChallenges } from "@/modules/challenges/hooks/useChallenges";
 import { Timestamp } from "firebase/firestore";
 import { CheckCircle, Clock, Dumbbell, Medal } from "lucide-react";
-import { Loader } from "../../../components/Loader";
 import {
   Card,
   CardContent,
@@ -10,14 +9,19 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { Separator } from "../../../components/ui/separator";
+import { CompletedChallengesListSkeleton } from "./ChallengeSkeletons";
 
 export function CompletedChallengesList() {
   const { data: challenges = [], isLoading } = useCompletedChallenges();
 
   if (isLoading) {
     return (
-      <div className='w-full h-40 relative'>
-        <Loader />
+      <div className='mt-8 pt-4'>
+        <Separator className='mb-6' />
+        <h2 className='text-xl font-bold mb-6 flex items-center gap-2'>
+          <Medal className='text-gray-500' /> Completed Exercises
+        </h2>
+        <CompletedChallengesListSkeleton />
       </div>
     );
   }

@@ -1,6 +1,5 @@
 import { useUniversalChallenges } from "@/modules/challenges/hooks/useChallengesQuery";
 import { CheckCircle, Star, Trophy } from "lucide-react";
-import { Loader } from "../../../components/Loader";
 import { Button } from "../../../components/ui/button";
 import {
   Card,
@@ -9,14 +8,18 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../components/ui/card";
+import { UniversalChallengesListSkeleton } from "./ChallengeSkeletons";
 
 export function UniversalChallengesList() {
   const { data: challenges = [], isLoading } = useUniversalChallenges();
 
   if (isLoading) {
     return (
-      <div className='w-full h-40 relative'>
-        <Loader />
+      <div className='mb-8'>
+        <h2 className='text-xl font-bold mb-4 flex items-center gap-2'>
+          <Star className='text-yellow-500' /> Universal Challenges
+        </h2>
+        <UniversalChallengesListSkeleton />
       </div>
     );
   }
@@ -73,14 +76,14 @@ export function UniversalChallengesList() {
           <Card key={challenge.id}>
             <CardHeader>
               <div className='flex justify-between items-start'>
-                <CardTitle>{challenge.title}</CardTitle>
+                <CardTitle>{challenge.universalChallenge?.title}</CardTitle>
                 <div className='flex items-center gap-1 text-yellow-500 font-bold'>
                   <Trophy size={18} />
                   <span>{challenge.points}</span>
                 </div>
               </div>
               <CardDescription className='mt-1'>
-                {challenge.description}
+                {challenge.universalChallenge?.description}
               </CardDescription>
             </CardHeader>
 
