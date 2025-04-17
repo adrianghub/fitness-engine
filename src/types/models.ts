@@ -1,10 +1,14 @@
 import type * as firestore from "firebase/firestore";
 
 /** Represents the level of a challenge */
-export type ChallengeLevel = "beginner" | "intermediate" | "advanced" | "all";
+export type ChallengeLevel = "beginner" | "intermediate" | "advanced";
 
 /** Represents the status of a user's challenge */
-export type ChallengeStatus = "not-started" | "in-progress" | "completed";
+export type ChallengeStatus =
+  | "not-started"
+  | "in-progress"
+  | "completed"
+  | "uncompleted";
 
 /** Represents the type of challenge */
 export type ChallengeType = "daily" | "regular" | "universal";
@@ -67,6 +71,22 @@ export interface Opponent {
   lastUpdated: firestore.Timestamp;
   /** Opponent's fitness level */
   level: UserLevel;
+}
+
+/** Represents a universal challenge that is always available */
+export interface UniversalChallenge {
+  /** Title of the challenge */
+  title: string;
+  /** Detailed description of the challenge */
+  description: string;
+  /** Points awarded for completing the challenge */
+  points: number;
+  /** When the challenge was created */
+  createdAt?: firestore.Timestamp;
+  /** When the challenge was last updated */
+  updatedAt?: firestore.Timestamp;
+  /** Current status of the challenge */
+  status: ChallengeStatus;
 }
 
 /** Represents a user in the fitness application */

@@ -52,6 +52,8 @@ ChallengeStatus:
         value: in-progress
       - label: Completed
         value: completed
+      - label: Uncompleted
+        value: uncompleted
 
 EntityType:
   model: alias
