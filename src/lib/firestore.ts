@@ -19,6 +19,7 @@ export const COLLECTIONS = {
   USERS: "users",
   CHALLENGE_TEMPLATES: "challengeTemplates",
   USER_CHALLENGES: "userChallenges",
+  UNIVERSAL_CHALLENGES: "universalChallenges",
   OPPONENTS: "opponents",
   LEADERBOARD: "leaderboard",
 };

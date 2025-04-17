@@ -1,19 +1,12 @@
 import { auth, db } from "@/lib/firebase";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { lazy } from "react";
 import { createProtectedLoader } from "../lib/protected-route";
 
 const DashboardView = lazy(() =>
-  import("../components/Dashboard").then((module) => ({
-    default: module.Dashboard,
+  import("../modules/challenges/components/Challenges").then((module) => ({
+    default: module.Challenges,
   }))
 );
 
@@ -35,21 +28,6 @@ export const Route = createFileRoute("/dashboard")({
       });
     }
 
-    const challengesQuery = query(
-      collection(db, "userChallenges"),
-      where("userId", "==", currentUser.uid),
-      where("status", "in", ["not-started", "in-progress"])
-    );
-
-    const challengesSnapshot = await getDocs(challengesQuery);
-    const userChallenges = challengesSnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-
-    return {
-      user: userData,
-      userChallenges,
-    };
+    return {};
   }),
 });

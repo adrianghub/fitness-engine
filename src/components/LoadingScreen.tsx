@@ -11,7 +11,7 @@ export function LoadingScreen({
   currentMessageIndex,
 }: LoadingScreenProps) {
   return (
-    <div className='fixed inset-0 bg-gradient-to-br from-secondary/50 to-primary/50 flex items-center justify-center'>
+    <div className='fixed inset-0 bg-gradient-to-br from-secondary/80 to-primary/80 flex items-center justify-center'>
       <div className='max-w-md w-full mx-4'>
         <div className='text-center'>
           <motion.div

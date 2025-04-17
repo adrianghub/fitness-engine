@@ -1,0 +1,133 @@
+import { COLLECTIONS, FirestoreService } from "@/lib/firestore";
+import type {
+  ChallengeTemplate,
+  UniversalChallenge,
+  UserChallenge,
+} from "@/types/models";
+import { orderBy, where } from "firebase/firestore";
+
+interface UserChallengeWithId extends UserChallenge {
+  id: string;
+  challengeTemplate?: ChallengeTemplateWithId;
+}
+
+interface ChallengeTemplateWithId extends ChallengeTemplate {
+  id: string;
+}
+
+interface UniversalChallengeWithId extends UniversalChallenge {
+  id: string;
+}
+
+export class ChallengeService {
+  private userChallengeService: FirestoreService<UserChallengeWithId>;
+  private challengeTemplateService: FirestoreService<ChallengeTemplateWithId>;
+  private universalChallengeService: FirestoreService<UniversalChallengeWithId>;
+
+  constructor() {
+    this.userChallengeService = new FirestoreService<UserChallengeWithId>(
+      COLLECTIONS.USER_CHALLENGES
+    );
+    this.challengeTemplateService =
+      new FirestoreService<ChallengeTemplateWithId>(
+        COLLECTIONS.CHALLENGE_TEMPLATES
+      );
+    this.universalChallengeService =
+      new FirestoreService<UniversalChallengeWithId>(
+        COLLECTIONS.UNIVERSAL_CHALLENGES
+      );
+  }
+
+  async getDailyChallengeForUser(
+    userId: string
+  ): Promise<UserChallengeWithId | null> {
+    const constraints = [
+      where("userId", "==", userId),
+      where("type", "==", "daily"),
+      where("status", "in", ["not-started", "in-progress"]),
+    ];
+
+    const challenges = await this.userChallengeService.query(constraints);
+
+    if (challenges.length === 0) {
+      return null;
+    }
+
+    const challenge = challenges[0];
+
+    if (challenge.challengeId) {
+      const templateData = await this.challengeTemplateService.getById(
+        challenge.challengeId
+      );
+      if (templateData) {
+        challenge.challengeTemplate = templateData;
+      }
+    }
+
+    return challenge;
+  }
+
+  async getUserChallenges(userId: string): Promise<UserChallengeWithId[]> {
+    const constraints = [
+      where("userId", "==", userId),
+      where("type", "==", "regular"),
+      where("status", "in", ["not-started", "in-progress"]),
+      orderBy("assignedDate", "desc"),
+    ];
+
+    const challenges = await this.userChallengeService.query(constraints);
+
+    const challengesWithDetails = await Promise.all(
+      challenges.map(async (challenge) => {
+        if (challenge.challengeId) {
+          const templateData = await this.challengeTemplateService.getById(
+            challenge.challengeId
+          );
+          if (templateData) {
+            challenge.challengeTemplate = templateData;
+          }
+        }
+        return challenge;
+      })
+    );
+
+    return challengesWithDetails;
+  }
+
+  async getCompletedChallenges(userId: string): Promise<UserChallengeWithId[]> {
+    const constraints = [
+      where("userId", "==", userId),
+      where("status", "==", "completed"),
+      orderBy("finishedAt", "desc"),
+    ];
+
+    const challenges = await this.userChallengeService.query(constraints);
+
+    const challengesWithDetails = await Promise.all(
+      challenges.map(async (challenge) => {
+        if (challenge.challengeId) {
+          const templateData = await this.challengeTemplateService.getById(
+            challenge.challengeId
+          );
+          if (templateData) {
+            challenge.challengeTemplate = templateData;
+          }
+        }
+        return challenge;
+      })
+    );
+
+    return challengesWithDetails;
+  }
+
+  async getUniversalChallenges(): Promise<UniversalChallengeWithId[]> {
+    return this.universalChallengeService.getAll();
+  }
+}
+
+export const challengeService = new ChallengeService();
+export type {
+  ChallengeTemplateWithId,
+  UniversalChallengeWithId,
+  UserChallengeWithId,
+};

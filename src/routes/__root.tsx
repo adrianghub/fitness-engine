@@ -44,21 +44,21 @@ function RootLayout() {
 
   return (
     <>
-      <div className='h-screen flex flex-col bg-gradient-to-br from-secondary/50 to-primary/50'>
-        <Header />
+      <div className='min-h-screen flex flex-col bg-gradient-to-br from-secondary/80 to-primary/80'>
+        <div className='w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6'>
+          <Header />
 
-        {isLoading || isNavigating ? (
-          <Loader />
-        ) : (
-          <main className='flex-1'>
-            <div className='h-full max-w-7xl mx-auto sm:px-6 lg:px-8'>
+          {isLoading || isNavigating ? (
+            <Loader />
+          ) : (
+            <main className='flex-1'>
               <Suspense fallback={<Loader />}>
                 <Outlet />
               </Suspense>
-            </div>
-          </main>
-        )}
-        {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
+            </main>
+          )}
+          {process.env.NODE_ENV === "development" && <TanStackRouterDevtools />}
+        </div>
       </div>
     </>
   );

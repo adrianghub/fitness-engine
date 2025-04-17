@@ -14,7 +14,7 @@ export function Header() {
   };
 
   return (
-    <header className='flex h-16 items-center px-4'>
+    <header className='flex h-16 items-center justify-between'>
       <Link to='/' className='flex items-center space-x-2'>
         <Dumbbell className='h-6 w-6' />
         <span className='text-xl font-bold'>FitnessEngine</span>
