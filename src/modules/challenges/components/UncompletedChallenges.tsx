@@ -1,6 +1,4 @@
-import { formatTimestamp } from "@/lib/formatTimestamp";
-import { useCompletedChallenges } from "@/modules/challenges/hooks/useChallengesQuery";
-import { CheckCircle, Clock, Dumbbell, Medal } from "lucide-react";
+import { CheckCircle, Clock, Dumbbell, X } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -9,17 +7,17 @@ import {
   CardTitle,
 } from "../../../components/ui/card";
 import { Separator } from "../../../components/ui/separator";
+import { useUncompletedChallenges } from "../hooks/useChallengesQuery";
 import { CompletedChallengesListSkeleton } from "./ChallengeSkeletons";
-
-export function CompletedChallengesList() {
-  const { data: challenges = [], isLoading } = useCompletedChallenges();
+export function UncompletedChallengesList() {
+  const { data: challenges = [], isLoading } = useUncompletedChallenges();
 
   if (isLoading) {
     return (
       <div className='mt-8 pt-4'>
         <Separator className='mb-6' />
         <h2 className='text-xl font-bold mb-6 flex items-center gap-2'>
-          <Medal className='text-gray-500' /> Completed Challenges
+          <X className='text-gray-500' /> Uncompleted Challenges
         </h2>
         <CompletedChallengesListSkeleton />
       </div>
@@ -34,7 +32,7 @@ export function CompletedChallengesList() {
     <div className='mt-8 pt-4'>
       <Separator className='mb-6' />
       <h2 className='text-xl font-bold mb-6 flex items-center gap-2'>
-        <Medal className='text-gray-500' /> Completed Challenges
+        <X className='text-gray-500' /> Uncompleted Challenges
       </h2>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
         {challenges.map((challenge) => (
@@ -69,11 +67,6 @@ export function CompletedChallengesList() {
             </CardHeader>
 
             <CardContent className='pb-4 text-xs text-gray-500'>
-              <div className='flex items-center gap-2'>
-                <Medal size={14} />
-                <span>Completed: {formatTimestamp(challenge.finishedAt)}</span>
-              </div>
-
               {challenge.challengeTemplate?.expectedTime && (
                 <div className='flex items-center gap-2 mt-1'>
                   <Clock size={14} />

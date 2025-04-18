@@ -35,58 +35,18 @@ export class ChallengeService {
     );
   }
 
-  async getDailyChallengeForUser(
-    userId: string
-  ): Promise<UserChallengeWithId | null> {
-    const constraints = [
-      where("userId", "==", userId),
-      where("type", "==", "daily"),
-      where("status", "in", ["not-started", "in-progress"]),
-    ];
-
-    const challenges = await this.userChallengeService.query(constraints);
-
-    if (challenges.length === 0) {
-      return null;
-    }
-
-    const challenge = challenges[0];
-
-    if (challenge.challengeId) {
-      const templateData = await this.challengeTemplateService.getById(
-        challenge.challengeId
-      );
-      if (templateData) {
-        challenge.challengeTemplate = templateData;
-      }
-    }
-
-    return challenge;
-  }
-
   async getUserChallenges(userId: string): Promise<UserChallengeWithId[]> {
     const constraints = [
       where("userId", "==", userId),
-      where("type", "==", "regular"),
+      where("type", "in", ["regular", "daily"]),
       where("status", "in", ["not-started", "in-progress"]),
       orderBy("assignedDate", "desc"),
     ];
 
     const challenges = await this.userChallengeService.query(constraints);
 
-    const challengesWithDetails = await Promise.all(
-      challenges.map(async (challenge) => {
-        if (challenge.challengeId) {
-          const templateData = await this.challengeTemplateService.getById(
-            challenge.challengeId
-          );
-          if (templateData) {
-            challenge.challengeTemplate = templateData;
-          }
-        }
-        return challenge;
-      })
-    );
+    const challengesWithDetails =
+      await this.enrichChallengesWithTemplateData(challenges);
 
     return challengesWithDetails;
   }
@@ -100,19 +60,24 @@ export class ChallengeService {
 
     const challenges = await this.userChallengeService.query(constraints);
 
-    const challengesWithDetails = await Promise.all(
-      challenges.map(async (challenge) => {
-        if (challenge.challengeId) {
-          const templateData = await this.challengeTemplateService.getById(
-            challenge.challengeId
-          );
-          if (templateData) {
-            challenge.challengeTemplate = templateData;
-          }
-        }
-        return challenge;
-      })
-    );
+    const challengesWithDetails =
+      await this.enrichChallengesWithTemplateData(challenges);
+
+    return challengesWithDetails;
+  }
+
+  async getUncompletedChallenges(
+    userId: string
+  ): Promise<UserChallengeWithId[]> {
+    const constraints = [
+      where("userId", "==", userId),
+      where("status", "in", ["not-started", "in-progress"]),
+    ];
+
+    const challenges = await this.userChallengeService.query(constraints);
+
+    const challengesWithDetails =
+      await this.enrichChallengesWithTemplateData(challenges);
 
     return challengesWithDetails;
   }
@@ -144,6 +109,24 @@ export class ChallengeService {
     );
 
     return challengesWithDetails;
+  }
+
+  private async enrichChallengesWithTemplateData(
+    challenges: UserChallengeWithId[]
+  ): Promise<UserChallengeWithId[]> {
+    return Promise.all(
+      challenges.map(async (challenge) => {
+        if (challenge.challengeId) {
+          const templateData = await this.challengeTemplateService.getById(
+            challenge.challengeId
+          );
+          if (templateData) {
+            challenge.challengeTemplate = templateData;
+          }
+        }
+        return challenge;
+      })
+    );
   }
 }
 

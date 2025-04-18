@@ -40,12 +40,7 @@ export function UniversalChallengesList() {
     );
   }
 
-  // Filter to show only non-completed challenges
-  const activeChallenges = challenges.filter(
-    (challenge) => challenge.status !== "completed"
-  );
-
-  if (activeChallenges.length === 0) {
+  if (challenges.length === 0) {
     return (
       <div className='mb-8'>
         <h2 className='text-xl font-bold mb-4 flex items-center gap-2'>
@@ -72,26 +67,40 @@ export function UniversalChallengesList() {
         <Star className='text-yellow-500' /> Universal Challenges
       </h2>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-        {activeChallenges.map((challenge) => (
+        {challenges.map((challenge) => (
           <Card key={challenge.id}>
             <CardHeader>
               <div className='flex justify-between items-start'>
-                <CardTitle>{challenge.universalChallenge?.title}</CardTitle>
-                <div className='flex items-center gap-1 text-yellow-500 font-bold'>
+                <CardTitle
+                  className={challenge.finishedAt ? "line-through" : ""}
+                >
+                  {challenge.universalChallenge?.title}
+                </CardTitle>
+                <div
+                  className={`flex items-center gap-1 font-bold ${
+                    challenge.finishedAt ? "text-gray-400" : "text-yellow-500"
+                  }`}
+                >
                   <Trophy size={18} />
                   <span>{challenge.points}</span>
                 </div>
               </div>
-              <CardDescription className='mt-1'>
+              <CardDescription
+                className={`mt-1 ${
+                  challenge.finishedAt ? "line-through text-gray-400" : ""
+                }`}
+              >
                 {challenge.universalChallenge?.description}
               </CardDescription>
             </CardHeader>
 
-            <CardFooter className='flex justify-end'>
-              <Button className='gap-2' size='sm'>
-                Mark as done <CheckCircle size={14} />
-              </Button>
-            </CardFooter>
+            {!challenge.finishedAt && (
+              <CardFooter className='flex justify-end'>
+                <Button className='gap-2' size='sm'>
+                  Mark as done <CheckCircle size={14} />
+                </Button>
+              </CardFooter>
+            )}
           </Card>
         ))}
       </div>

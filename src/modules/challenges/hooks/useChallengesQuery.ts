@@ -4,23 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { challengeService } from "../ChallengeService";
 
 /**
- * Hook to fetch daily challenge for the current user
- */
-export function useDailyChallenge() {
-  const { currentUser } = useAuth();
-  const userId = currentUser?.uid;
-
-  return useQuery({
-    queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "daily"],
-    queryFn: () => {
-      if (!userId) return null;
-      return challengeService.getDailyChallengeForUser(userId);
-    },
-    enabled: !!userId,
-  });
-}
-
-/**
  * Hook to fetch regular challenges for the current user
  */
 export function useUserChallenges() {
@@ -28,12 +11,28 @@ export function useUserChallenges() {
   const userId = currentUser?.uid;
 
   return useQuery({
-    queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "regular"],
+    queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "regular-and-daily"],
     queryFn: () => {
       if (!userId) return [];
       return challengeService.getUserChallenges(userId);
     },
     enabled: !!userId,
+  });
+}
+
+/**
+ * Hook to fetch universal challenges
+ */
+export function useUniversalChallenges() {
+  const { currentUser } = useAuth();
+  const userId = currentUser?.uid;
+
+  return useQuery({
+    queryKey: [COLLECTIONS.CHALLENGE_TEMPLATES, userId, "universal"],
+    queryFn: () => {
+      if (!userId) return [];
+      return challengeService.getUserUniversalChallenges(userId);
+    },
   });
 }
 
@@ -55,17 +54,18 @@ export function useCompletedChallenges() {
 }
 
 /**
- * Hook to fetch universal challenges
+ * Hook to fetch completed challenges for the current user
  */
-export function useUniversalChallenges() {
+export function useUncompletedChallenges() {
   const { currentUser } = useAuth();
   const userId = currentUser?.uid;
 
   return useQuery({
-    queryKey: [COLLECTIONS.CHALLENGE_TEMPLATES, userId, "universal"],
+    queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "uncompleted"],
     queryFn: () => {
       if (!userId) return [];
-      return challengeService.getUserUniversalChallenges(userId);
+      return challengeService.getUncompletedChallenges(userId);
     },
+    enabled: !!userId,
   });
 }

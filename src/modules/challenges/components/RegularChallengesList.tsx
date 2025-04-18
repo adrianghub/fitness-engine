@@ -12,21 +12,25 @@ import {
 } from "../../../components/ui/card";
 import { UserChallengesListSkeleton } from "./ChallengeSkeletons";
 
-export function UserChallengesList() {
+export function RegularChallengesList() {
   const { data: challenges = [], isLoading } = useUserChallenges();
+
+  const regularChallenges = challenges.filter(
+    (challenge) => challenge.type === "regular"
+  );
 
   if (isLoading) {
     return (
       <div className='mt-8'>
         <h2 className='text-xl font-bold mb-6 flex items-center gap-2'>
-          <Dumbbell className='text-gray-400' /> Regular Exercises
+          <Dumbbell className='text-gray-400' /> Regular Challenges
         </h2>
         <UserChallengesListSkeleton />
       </div>
     );
   }
 
-  if (challenges.length === 0) {
+  if (regularChallenges.length === 0) {
     return (
       <Card className='w-full mb-6'>
         <CardHeader>
@@ -46,10 +50,10 @@ export function UserChallengesList() {
   return (
     <div className='space-y-4'>
       <h2 className='text-xl font-bold flex items-center gap-2'>
-        <Dumbbell /> Regular Exercises
+        <Dumbbell /> Regular Challenges
       </h2>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-4'>
-        {challenges.map((challenge) => (
+        {regularChallenges.map((challenge) => (
           <Card key={challenge.id} className='overflow-hidden'>
             <CardHeader>
               <div className='flex justify-between items-start mb-1'>

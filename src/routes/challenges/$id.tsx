@@ -3,9 +3,9 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { lazy } from "react";
 
 const ChallengeDetailView = lazy(() =>
-  import("../../modules/challenges/components/ChallengeDetail").then(
+  import("../../modules/challenges/components/ChallengeDetails").then(
     (module) => ({
-      default: module.ChallengeDetail,
+      default: module.ChallengeDetails,
     })
   )
 );

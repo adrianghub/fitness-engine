@@ -1,4 +1,4 @@
-import { useDailyChallenge } from "@/modules/challenges/hooks/useChallengesQuery";
+import { useUserChallenges } from "@/modules/challenges/hooks/useChallengesQuery";
 import { ArrowRight, Clock, Dumbbell, Flame, Trophy } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
 import { Button } from "../../../components/ui/button";
@@ -13,7 +13,11 @@ import {
 import { DailyChallengeSkeleton } from "./ChallengeSkeletons";
 
 export function DailyChallenge() {
-  const { data: dailyChallenge, isLoading } = useDailyChallenge();
+  const { data: challenges, isLoading } = useUserChallenges();
+
+  const dailyChallenge = challenges?.find(
+    (challenge) => challenge.type === "daily"
+  );
 
   if (isLoading) {
     return <DailyChallengeSkeleton />;
