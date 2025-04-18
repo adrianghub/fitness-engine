@@ -39,6 +39,7 @@ const defaultProperties = {
   timeZone: "Europe/Warsaw",
   retryCount: 3,
   region: "europe-central2",
+  cors: true,
 };
 
 /**
@@ -234,7 +235,7 @@ export const triggerDailyChallengeRefresh = onRequest(
  * This endpoint is called when a user marks a challenge as completed
  */
 export const completeChallengeEndpoint = onCall(
-  { ...defaultProperties, cors: true },
+  { ...defaultProperties },
   async (request) => {
     try {
       const uid = request.auth?.uid;
@@ -253,7 +254,9 @@ export const completeChallengeEndpoint = onCall(
       return {
         success: true,
         wasPromoted: result.wasPromoted,
-        message: `Challenge ${challengeId} completed successfully${result.wasPromoted ? " and user was promoted!" : ""}`,
+        message: `Challenge ${challengeId} completed successfully${
+          result.wasPromoted ? " and user was promoted!" : ""
+        }`,
       };
     } catch (error) {
       logger.error("Error in completeChallengeEndpoint:", error);
