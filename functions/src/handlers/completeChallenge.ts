@@ -64,7 +64,7 @@ export async function completeChallenge(
       const leaderboardQuery = await transaction.get(
         db
           .collection("leaderboard")
-          .where("entityType", "==", "user")
+          .where("entityType", "in", ["user", "opponent"])
           .where("level", "==", userData.level)
           .orderBy("points", "desc")
           .limit(1)

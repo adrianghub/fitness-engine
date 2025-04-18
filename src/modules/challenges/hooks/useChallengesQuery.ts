@@ -28,7 +28,7 @@ export function useUniversalChallenges() {
   const userId = currentUser?.uid;
 
   return useQuery({
-    queryKey: [COLLECTIONS.CHALLENGE_TEMPLATES, userId, "universal"],
+    queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "universal"],
     queryFn: () => {
       if (!userId) return [];
       return challengeService.getUserUniversalChallenges(userId);

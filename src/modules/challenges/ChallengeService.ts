@@ -55,6 +55,7 @@ export class ChallengeService {
     const constraints = [
       where("userId", "==", userId),
       where("status", "==", "completed"),
+      where("type", "in", ["regular", "daily"]),
       orderBy("finishedAt", "desc"),
     ];
 
@@ -88,7 +89,6 @@ export class ChallengeService {
     const constraints = [
       where("userId", "==", userId),
       where("type", "==", "universal"),
-      where("status", "in", ["not-started", "in-progress"]),
     ];
 
     const userChallenges = await this.userChallengeService.query(constraints);
