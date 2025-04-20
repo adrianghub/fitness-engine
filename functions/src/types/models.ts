@@ -18,6 +18,8 @@ export type Equipment = string;
 /** Represents a fitness goal that a user can have */
 export type FitnessGoal = string;
 
+export type TimestampOrNil = firestore.Timestamp | null;
+
 /** Represents user's fitness level */
 export type UserLevel = 'beginner' | 'intermediate' | 'advanced';
 
@@ -31,8 +33,6 @@ export interface ChallengeTemplate {
   level: ChallengeLevel;
   /** Array of equipment that the challenge requires */
   equipment: Equipment[];
-  /** Points awarded for completing the challenge */
-  points: number;
   /** Expected time to complete the challenge */
   expectedTime: string;
   /** When the challenge template was created */
@@ -116,11 +116,11 @@ export interface UserChallenge {
   /** Current status of the challenge */
   status: ChallengeStatus;
   /** When the challenge was assigned */
-  assignedDate: firestore.Timestamp;
+  assignedAt: firestore.Timestamp;
   /** When the challenge was started */
-  startedAt?: firestore.Timestamp;
+  startedAt?: TimestampOrNil;
   /** When the challenge was completed */
-  finishedAt?: firestore.Timestamp;
+  finishedAt?: TimestampOrNil;
   /** Points awarded for completing the challenge */
   points: number;
   /** Type of the challenge */

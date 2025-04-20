@@ -76,6 +76,14 @@ Equipment:
   docs: Represents equipment that a user can have
   type: string
 
+TimestampOrNil:
+  model: alias
+  type:
+    type: union
+    variants:
+      - timestamp
+      - nil
+
 # Document Models
 User:
   model: document
@@ -142,9 +150,6 @@ ChallengeTemplate:
         type:
           type: list
           elementType: Equipment
-      points:
-        type: double
-        docs: Points awarded for completing the challenge
       expectedTime:
         type: string
         docs: Expected time to complete the challenge
@@ -201,15 +206,15 @@ UserChallenge:
       status:
         type: ChallengeStatus
         docs: Current status of the challenge
-      assignedDate:
+      assignedAt:
         type: timestamp
         docs: When the challenge was assigned
       startedAt:
-        type: timestamp
+        type: TimestampOrNil
         optional: true
         docs: When the challenge was started
       finishedAt:
-        type: timestamp
+        type: TimestampOrNil
         optional: true
         docs: When the challenge was completed
       points:

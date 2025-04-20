@@ -44,12 +44,9 @@ export async function checkUserPromotionEligibility(
     }
 
     const userData = userDoc.data();
-    if (!userData) {
-      return false;
-    }
 
     // If already at max level, return false
-    if (userData.level === "advanced") {
+    if (!userData || userData.level === "advanced") {
       return false;
     }
 
@@ -94,7 +91,8 @@ export async function promoteUser(userId: string): Promise<void> {
     const db = admin.firestore();
     const now = Timestamp.now();
 
-    await db.runTransaction(async (transaction) => {
+    // We capture userData and nextLevel within the transaction
+    const { nextLevel } = await db.runTransaction(async (transaction) => {
       // SECTION 1: All reads first
       const userRef = db.collection("users").doc(userId);
       const userDoc = await transaction.get(userRef);
@@ -104,6 +102,7 @@ export async function promoteUser(userId: string): Promise<void> {
       }
 
       const userData = userDoc.data() as User;
+
       const nextLevel = LEVEL_PROGRESSION[userData.level];
 
       if (!nextLevel) {
@@ -120,26 +119,29 @@ export async function promoteUser(userId: string): Promise<void> {
 
       // 2. Update leaderboard entry
       const leaderboardRef = db.collection("leaderboard").doc(userId);
-      transaction.set(leaderboardRef, {
-        entityId: userId,
-        entityType: "user",
-        level: nextLevel,
-        points: 0,
-        updatedAt: now,
-      });
+      transaction.set(
+        leaderboardRef,
+        {
+          entityId: userId,
+          entityType: "user",
+          level: nextLevel,
+          points: 0,
+          updatedAt: now,
+        },
+        { merge: true }
+      );
 
       logger.info(`Promoted user ${userId} to ${nextLevel}`);
-    });
 
-    // Get updated user data
-    const userDoc = await db.collection("users").doc(userId).get();
-    const userData = userDoc.data() as User;
+      // Return the userData and nextLevel
+      return { userData, nextLevel };
+    });
 
     // Generate new challenges and opponents for the new level
     await Promise.all([
-      generateUserChallenges(userId, userData.level),
-      assignUniversalChallenges(userId, userData.level),
-      generateUserOpponents(userId, userData.level),
+      generateUserChallenges(userId, nextLevel),
+      assignUniversalChallenges(userId, nextLevel),
+      generateUserOpponents(userId, nextLevel),
     ]);
 
     logger.info(`Successfully completed promotion process for user ${userId}`);

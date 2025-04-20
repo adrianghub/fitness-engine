@@ -45,7 +45,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "assignedDate",
+          "fieldPath": "assignedAt",
           "order": "ASCENDING"
         }
       ]
@@ -59,7 +59,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "assignedDate",
+          "fieldPath": "assignedAt",
           "order": "DESCENDING"
         }
       ]
@@ -77,7 +77,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "assignedDate",
+          "fieldPath": "assignedAt",
           "order": "ASCENDING"
         }
       ]
@@ -149,7 +149,7 @@
           "order": "ASCENDING"
         },
         {
-          "fieldPath": "assignedDate",
+          "fieldPath": "assignedAt",
           "order": "DESCENDING"
         }
       ]

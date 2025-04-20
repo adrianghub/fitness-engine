@@ -1,5 +1,5 @@
 import * as admin from "firebase-admin";
-import { Timestamp } from "firebase-admin/firestore";
+import { Timestamp, type DocumentSnapshot } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import type { User, UserChallenge } from "../types/models";
 import { promoteUser } from "./promoteUser";
@@ -27,21 +27,18 @@ export async function completeChallenge(
     const db = admin.firestore();
     const now = Timestamp.now();
 
-    // Run everything in a transaction to ensure consistency
     const result = await db.runTransaction(async (transaction) => {
-      // SECTION 1: All reads first
-      // 1. Get the challenge document
-      const challengeDoc = await transaction.get(
+      const challengeDoc = (await transaction.get(
         db.collection("userChallenges").doc(challengeId)
-      );
+      )) as DocumentSnapshot<UserChallenge>;
 
       if (!challengeDoc.exists) {
         logger.error(`Challenge ${challengeId} not found`);
         throw new Error("Challenge not found");
       }
 
-      const challengeData = challengeDoc.data() as UserChallenge;
-      if (challengeData.userId !== userId) {
+      const challengeData = challengeDoc.data();
+      if (challengeData?.userId !== userId) {
         logger.error(
           `Challenge ${challengeId} does not belong to user ${userId}`
         );
@@ -53,14 +50,12 @@ export async function completeChallenge(
         return { wasPromoted: false };
       }
 
-      // 2. Get current user data for promotion check
       const userDoc = await transaction.get(db.collection("users").doc(userId));
       if (!userDoc.exists) {
         throw new Error(`User ${userId} not found`);
       }
       const userData = userDoc.data() as User;
 
-      // 3. Check leaderboard position
       const leaderboardQuery = await transaction.get(
         db
           .collection("leaderboard")
@@ -70,26 +65,20 @@ export async function completeChallenge(
           .limit(1)
       );
 
-      // SECTION 2: Process data
-      // Calculate new points
       const newPoints = (userData.points || 0) + challengeData.points;
       const isNumberOne =
         !leaderboardQuery.empty && leaderboardQuery.docs[0].id === userId;
 
-      // SECTION 3: All writes
-      // 1. Update challenge status
       transaction.update(challengeDoc.ref, {
         status: "completed",
         finishedAt: now,
       });
 
-      // 2. Update user points
       transaction.update(userDoc.ref, {
         points: newPoints,
         updatedAt: now,
       });
 
-      // 3. Update leaderboard
       const leaderboardRef = db.collection("leaderboard").doc(userId);
       transaction.set(
         leaderboardRef,

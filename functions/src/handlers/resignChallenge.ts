@@ -6,9 +6,12 @@ import type { User, UserChallenge } from "../types/models";
 /**
  * Handles the resignation of a challenge by:
  * 1. Marking the challenge as uncompleted
- * 2. Applying point penalty to the user
+ * 2. Applying point penalty to the user (only if not the same day as assigned)
  * 3. Updating the leaderboard
  * 4. The challenge will remain visible until the next daily refresh
+ *
+ * If the challenge is resigned on the same day it was assigned, no penalty is applied
+ * and the user can try again without losing points.
  *
  * @param userId The ID of the user resigning from the challenge
  * @param challengeId The ID of the challenge being resigned
@@ -60,32 +63,43 @@ export async function resignChallenge(
       }
       const userData = userDoc.data() as User;
 
+      // Check if challenge is being resigned on the same day it was assigned
+      const isSameDay = isSameDayTimestamp(challengeData.assignedAt, now);
+
       // SECTION 2: Process data
-      const penaltyPoints = Math.floor(challengeData.points * 0.5);
-      const currentPoints = userData.points || 0;
-      const finalPenalty = Math.min(penaltyPoints, currentPoints);
-      const newPoints = Math.max(0, currentPoints - finalPenalty);
+      let newPoints = userData.points || 0;
+      let finalPenalty = 0;
+
+      if (!isSameDay) {
+        // Only apply penalty if not the same day
+        const penaltyPoints = Math.floor(challengeData.points * 0.5);
+        const currentPoints = userData.points || 0;
+        finalPenalty = Math.min(penaltyPoints, currentPoints);
+        newPoints = Math.max(0, currentPoints - finalPenalty);
+      }
 
       // SECTION 3: All writes
-      // 1. Update user points
-      transaction.update(userDoc.ref, {
-        points: newPoints,
-        updatedAt: now,
-      });
-
-      // 2. Update leaderboard
-      const leaderboardRef = db.collection("leaderboard").doc(userId);
-      transaction.set(
-        leaderboardRef,
-        {
-          entityId: userId,
-          entityType: "user",
-          level: userData.level,
+      // 1. Update user points only if penalty is applied
+      if (finalPenalty > 0) {
+        transaction.update(userDoc.ref, {
           points: newPoints,
           updatedAt: now,
-        },
-        { merge: true }
-      );
+        });
+
+        // 2. Update leaderboard
+        const leaderboardRef = db.collection("leaderboard").doc(userId);
+        transaction.set(
+          leaderboardRef,
+          {
+            entityId: userId,
+            entityType: "user",
+            level: userData.level,
+            points: newPoints,
+            updatedAt: now,
+          },
+          { merge: true }
+        );
+      }
 
       // 3. Mark the challenge as uncompleted
       transaction.update(challengeDoc.ref, {
@@ -94,7 +108,9 @@ export async function resignChallenge(
       });
 
       logger.info(
-        `Challenge ${challengeId} marked as uncompleted by user ${userId}. Applied penalty of ${finalPenalty} points (original penalty: ${penaltyPoints}). New total: ${newPoints}`
+        isSameDay
+          ? `Challenge ${challengeId} marked as uncompleted by user ${userId}. No penalty applied as challenge was assigned today.`
+          : `Challenge ${challengeId} marked as uncompleted by user ${userId}. Applied penalty of ${finalPenalty} points. New total: ${newPoints}`
       );
     });
   } catch (error) {
@@ -104,4 +120,21 @@ export async function resignChallenge(
     );
     throw error;
   }
+}
+
+/**
+ * Checks if two timestamps are from the same day
+ */
+function isSameDayTimestamp(
+  timestamp1: Timestamp,
+  timestamp2: Timestamp
+): boolean {
+  const date1 = timestamp1.toDate();
+  const date2 = timestamp2.toDate();
+
+  return (
+    date1.getFullYear() === date2.getFullYear() &&
+    date1.getMonth() === date2.getMonth() &&
+    date1.getDate() === date2.getDate()
+  );
 }

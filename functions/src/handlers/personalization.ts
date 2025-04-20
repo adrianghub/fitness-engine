@@ -13,6 +13,7 @@ import {
 } from "../services/ai";
 import type { ChallengeTemplate, User } from "../types/models";
 import type { PersonalizationData } from "../types/personalization-data";
+import { CHALLENGE_POINTS } from "../utils/challenges";
 import { generateUserChallenges } from "./generateChallenges";
 import { assignUniversalChallenges } from "./manageUniversalChallenges";
 
@@ -55,10 +56,7 @@ export async function validatePersonalizationData(
   }
 
   // Validate level
-  if (
-    !data.level ||
-    !["beginner", "intermediate", "advanced"].includes(data.level)
-  ) {
+  if (!data.level || !Object.keys(CHALLENGE_POINTS).includes(data.level)) {
     return [false, "Level must be one of: beginner, intermediate, advanced"];
   }
 

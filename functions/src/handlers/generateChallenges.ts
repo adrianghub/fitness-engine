@@ -4,12 +4,17 @@
  */
 
 import * as admin from "firebase-admin";
-import { FieldPath, Timestamp } from "firebase-admin/firestore";
+import {
+  FieldPath,
+  Timestamp,
+  type DocumentReference,
+} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import type {
   ChallengeLevel,
   ChallengeTemplate,
   ChallengeType,
+  UserChallenge,
 } from "../types/models";
 import { CHALLENGE_POINTS, selectRegularChallenges } from "../utils/challenges";
 
@@ -31,54 +36,65 @@ export async function generateUserChallenges(
   level: ChallengeLevel,
   recommendedChallengeIds?: string[]
 ): Promise<void> {
-  logger.info(`Generating challenges for user ${userId} with level ${level}`);
+  logger.info(
+    `Generating challenges for user ${userId} with level ${level}${
+      recommendedChallengeIds ? " (using AI recommendations)" : ""
+    }`
+  );
 
   try {
     const db = admin.firestore();
     const now = Timestamp.now();
 
     await db.runTransaction(async (transaction) => {
-      // Delete any existing unfinished regular and daily challenges
+      const existingChallengesQuery = db
+        .collection(COLLECTIONS.userChallenges)
+        .where("userId", "==", userId)
+        .where("type", "in", ["regular", "daily"]);
       const existingChallengesSnapshot = await transaction.get(
-        db
-          .collection(COLLECTIONS.userChallenges)
-          .where("userId", "==", userId)
-          .where("status", "in", ["not-started", "in-progress"])
-          .where("type", "in", ["regular", "daily"])
+        existingChallengesQuery
       );
-
-      existingChallengesSnapshot.forEach((doc) => {
-        transaction.delete(doc.ref);
-      });
       logger.info(
-        `Marked ${existingChallengesSnapshot.size} existing unfinished challenges for deletion`
+        `Read ${existingChallengesSnapshot.size} existing challenges to potentially delete.`
       );
 
-      // Get regular challenge templates matching the user's level
+      const challengeTemplatesQuery = db
+        .collection(COLLECTIONS.challengeTemplates)
+        .where("level", "==", level);
       const challengeTemplatesSnapshot = await transaction.get(
-        db
-          .collection(COLLECTIONS.challengeTemplates)
-          .where("level", "==", level)
+        challengeTemplatesQuery
       );
+      logger.info(
+        `Read ${challengeTemplatesSnapshot.size} challenge templates for level ${level}.`
+      );
+
+      let validationSnapshot: admin.firestore.QuerySnapshot | null = null;
+      if (recommendedChallengeIds && recommendedChallengeIds.length > 0) {
+        const validationQuery = db
+          .collection(COLLECTIONS.challengeTemplates)
+          .where(FieldPath.documentId(), "in", recommendedChallengeIds);
+        validationSnapshot = await transaction.get(validationQuery);
+        logger.info(
+          `Read ${validationSnapshot.size} recommended templates for validation.`
+        );
+      }
 
       if (challengeTemplatesSnapshot.empty) {
         logger.error(`No challenge templates found for level: ${level}`);
+        // Decide if you want to throw an error or just return early
         return;
       }
 
-      // If we have AI recommendations, verify they exist in our templates
       let useAIRecommendations = false;
-      if (recommendedChallengeIds && recommendedChallengeIds.length > 0) {
-        const validationSnapshot = await transaction.get(
-          db
-            .collection(COLLECTIONS.challengeTemplates)
-            .where(FieldPath.documentId(), "in", recommendedChallengeIds)
-        );
-
+      if (
+        recommendedChallengeIds &&
+        recommendedChallengeIds.length > 0 &&
+        validationSnapshot
+      ) {
         if (validationSnapshot.size === recommendedChallengeIds.length) {
           useAIRecommendations = true;
           logger.info(
-            `Using ${validationSnapshot.size} AI recommended challenges`
+            `Validated ${validationSnapshot.size} AI recommended challenges.`
           );
         } else {
           logger.warn(
@@ -88,55 +104,83 @@ export async function generateUserChallenges(
         }
       }
 
-      // Process regular challenge templates
       const regularTemplates = challengeTemplatesSnapshot.docs.map((doc) => ({
         ...(doc.data() as ChallengeTemplate),
         id: doc.id,
       }));
 
-      // Generate and select challenges
       const { dailyChallenge, regularChallenges } = selectRegularChallenges(
         regularTemplates,
         useAIRecommendations ? recommendedChallengeIds || [] : [],
         level
       );
 
-      // Add daily challenge
+      existingChallengesSnapshot.forEach((doc) => {
+        transaction.delete(doc.ref);
+      });
+      if (!existingChallengesSnapshot.empty) {
+        logger.info(
+          `Marked ${existingChallengesSnapshot.size} existing challenges for deletion.`
+        );
+      }
+
       if (dailyChallenge) {
-        const challengeRef = db.collection(COLLECTIONS.userChallenges).doc();
-        transaction.set(challengeRef, {
+        const dailyChallengeRef = db
+          .collection(COLLECTIONS.userChallenges)
+          .doc() as DocumentReference<UserChallenge>;
+        transaction.set(dailyChallengeRef, {
           userId,
           challengeId: dailyChallenge.id,
           status: "not-started",
-          assignedDate: now,
+          assignedAt: now,
           points: CHALLENGE_POINTS[level].daily,
           type: "daily" as ChallengeType,
         });
+        logger.info(
+          `Marked daily challenge ${dailyChallenge.id} for creation.`
+        );
+      } else {
+        logger.warn(`No suitable daily challenge found for level ${level}.`);
       }
 
-      // Add regular challenges
+      // 3. Add regular challenges
       for (const challenge of regularChallenges) {
-        const challengeRef = db.collection(COLLECTIONS.userChallenges).doc();
-        transaction.set(challengeRef, {
+        const regularChallengeRef = db
+          .collection(COLLECTIONS.userChallenges)
+          .doc(); // Generate new ID
+        transaction.set(regularChallengeRef, {
           userId,
-          challengeId: challenge.id,
+          challengeId: challenge.id, // Store template ID
           status: "not-started",
-          assignedDate: now,
+          assignedAt: now,
           points: CHALLENGE_POINTS[level].regular,
           type: "regular" as ChallengeType,
+          level,
         });
+      }
+      if (regularChallenges.length > 0) {
+        logger.info(
+          `Marked ${regularChallenges.length} regular challenges for creation.`
+        );
       }
 
       logger.info(
-        `Generated challenges for user ${userId}: 1 daily + ${regularChallenges.length} regular${useAIRecommendations ? " (AI recommended)" : ""}`
+        `Transaction prepared for user ${userId}: ${
+          existingChallengesSnapshot.size
+        } deletions, ${dailyChallenge ? 1 : 0} daily creation, ${
+          regularChallenges.length
+        } regular creations.`
       );
     });
 
     logger.info(
-      `Successfully completed challenge generation for user ${userId}`
+      `Successfully completed challenge generation transaction for user ${userId}`
     );
   } catch (error) {
-    logger.error(`Error generating challenges for user ${userId}:`, error);
-    throw error;
+    logger.error(
+      `Error in challenge generation transaction for user ${userId}:`,
+      error
+    );
+    throw error; // Re-throw the error for upstream handling
   }
 }

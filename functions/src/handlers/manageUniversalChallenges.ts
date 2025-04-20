@@ -81,7 +81,7 @@ export async function assignUniversalChallenges(
           userId,
           challengeId: challenge.id,
           status: "not-started",
-          assignedDate: now,
+          assignedAt: now,
           points: universalPoints,
           type: "universal" as ChallengeType,
         });

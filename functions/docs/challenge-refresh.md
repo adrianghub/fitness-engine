@@ -44,7 +44,7 @@ The process is implemented as part of the `dailyChallengeAndOpponentUpdate` sche
 ### Database Operations
 - All operations for a user are executed in a single batch for atomicity
 - Challenges are stored in the `userChallenges` collection
-- Each challenge document contains: userId, challengeId, type, status, points, assignedDate
+- Each challenge document contains: userId, challengeId, type, status, points, assignedAt
 - Efficient indexes are maintained for quick querying
 
 ## Error Handling
