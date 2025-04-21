@@ -10,7 +10,9 @@ export const generateFitnessGoalsPrompt = (data: PersonalizationData) => {
 </user-profile>
 
 Na podstawie tych informacji:
-1. Zdefiniuj maksymalnie 3 konkretne, mierzalne cele fitness, które są zgodne z opisem użytkownika i jego poziomem doświadczenia
+1. Zdefiniuj maksymalnie 3 konkretne, mierzalne cele fitness, które są zgodne z opisem użytkownika i jego poziomem doświadczenia.
+2. Upewnij się, że cele są zgodne z dostępnym sprzętem i poziomem doświadczenia użytkownika.
+3. Każdy cel powinien być nie dłuższy niż 10 słów.
 
 Odpowiedź dodaj do znacznika <fitness-goals> w formacie JSON:
 <fitness-goals>
