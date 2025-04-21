@@ -54,7 +54,7 @@ export function useCompletedChallenges() {
 }
 
 /**
- * Hook to fetch completed challenges for the current user
+ * Hook to fetch uncompleted challenges for the current user
  */
 export function useUncompletedChallenges() {
   const { currentUser } = useAuth();
@@ -62,10 +62,23 @@ export function useUncompletedChallenges() {
 
   return useQuery({
     queryKey: [COLLECTIONS.USER_CHALLENGES, userId, "uncompleted"],
-    queryFn: () => {
+    queryFn: async () => {
       if (!userId) return [];
-      return challengeService.getUncompletedChallenges(userId);
+      try {
+        const challenges =
+          await challengeService.getUncompletedChallenges(userId);
+
+        console.log(
+          `Fetched ${challenges.length} uncompleted challenges:`,
+          challenges
+        );
+        return challenges;
+      } catch (error) {
+        console.error("Error fetching uncompleted challenges:", error);
+        throw error;
+      }
     },
     enabled: !!userId,
+    staleTime: 30000, // 30 seconds
   });
 }

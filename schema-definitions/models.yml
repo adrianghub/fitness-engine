@@ -223,6 +223,10 @@ UserChallenge:
       type:
         type: ChallengeType
         docs: Type of the challenge
+      retriesLeft:
+        type: int
+        docs: Number of times the user can retry the challenge
+        optional: true
 
 Opponent:
   model: document

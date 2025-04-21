@@ -125,4 +125,6 @@ export interface UserChallenge {
   points: number;
   /** Type of the challenge */
   type: ChallengeType;
+  /** Number of times the user can retry the challenge */
+  retriesLeft?: number;
 }

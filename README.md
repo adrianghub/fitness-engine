@@ -6,6 +6,7 @@
 - [Project Structure](#project-structure)
 - [Getting Started Locally](#getting-started-locally)
 - [Available Scripts](#available-scripts)
+- [Challenge System Architecture](#challenge-system-architecture)
 - [Project Scope](#project-scope)
 - [Project Status](#project-status)
 - [License](#license)
@@ -69,6 +70,36 @@ fitness-engine/
 - `lint`: Runs ESLint for code quality checks.
 - `preview`: Previews the production build.
 - `generate:types`: Regenerates TypeScript types for Firestore models using [TypeSync](https://github.com/kafkas/typesync).
+
+## Challenge System Architecture
+
+The challenge system in FitnessEngine is designed to provide users with a motivating and engaging experience:
+
+### Challenge Lifecycle
+
+1. **Challenge Assignment**: Challenges are assigned to users based on their level
+2. **Starting Challenges**: Users can start challenges which changes status to "in-progress"
+3. **Challenge Timer**: A dynamic timer tracks the remaining time for each challenge
+4. **Completion/Failure**: Users can complete challenges or fail them if time expires
+
+### Key Features
+
+#### Challenge Timer System
+
+The application implements a sophisticated server-based challenge timing system:
+
+- **Client-Server Coordination**: Challenge timers display in real-time on the client while the server handles expirations
+- **Visual Indicators**: Progress bars and circular indicators show remaining time
+- **User-Friendly Penalties**: No penalties for expired challenges on the same day they're assigned
+- **Cloud Function Integration**: Serverless functions handle challenge expiration and point calculations
+- **Cross-Device Consistency**: Timer state is consistent across devices via server-side verification
+
+#### Motivational Quotes
+
+To enhance user motivation, the application displays inspirational quotes:
+
+- **API Integration**: Quotes are fetched from ZenQuotes API [https://zenquotes.io/api/random]
+- **Display**: Quotes are shown during active challenges
 
 ## Project Scope
 ### In Scope (MVP)

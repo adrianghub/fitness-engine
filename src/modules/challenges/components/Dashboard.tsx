@@ -5,6 +5,7 @@ import { Button } from "../../../components/ui/button";
 import { CompletedChallengesList } from "./CompletedChallengesList";
 import { DailyChallenge } from "./DailyChallenge";
 import { RegularChallengesList } from "./RegularChallengesList";
+import { UncompletedChallengesList } from "./UncompletedChallengesList";
 import { UniversalChallengesList } from "./UniversalChallengesList";
 
 export function Dashboard() {
@@ -28,6 +29,7 @@ export function Dashboard() {
         <DailyChallenge />
         <UniversalChallengesList />
         <RegularChallengesList />
+        <UncompletedChallengesList />
         <CompletedChallengesList />
       </div>
     </>

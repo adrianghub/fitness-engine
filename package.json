@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:emulators": "firebase emulators:start --import=./firebase-data --export-on-exit=./firebase-data",
-    "dev:all": "concurrently \"npm run dev\" \"npm run dev:emulators\" \"npm run dev:functions\"",
+    "dev:all": "concurrently \"pnpm run dev\" \"pnpm run dev:emulators\" \"pnpm run dev:functions\"",
     "dev:functions": "cd functions && npm run build -- --watch",
     "prebuild": "npm run generate:types",
     "build": "tsc -b && vite build",

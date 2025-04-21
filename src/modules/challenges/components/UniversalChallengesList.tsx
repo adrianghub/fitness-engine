@@ -1,9 +1,9 @@
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
-import { useCompleteChallenge } from "@/modules/challenges/hooks/useChallengeMutations";
+import { useChallengeActions } from "@/modules/challenges/hooks/useChallengeActions";
 import { useUniversalChallenges } from "@/modules/challenges/hooks/useChallengesQuery";
-import { CheckCircle, Star, Trophy } from "lucide-react";
+import { useHasChallengeInProgress } from "@/modules/challenges/hooks/useHasChallengeInProgress";
+import { CheckCircle, FileQuestionIcon, Star, Trophy } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 import { Button } from "../../../components/ui/button";
 import {
   Card,
@@ -16,24 +16,19 @@ import { UniversalChallengesListSkeleton } from "./ChallengeSkeletons";
 
 export function UniversalChallengesList() {
   const { data: challenges = [], isLoading } = useUniversalChallenges();
-  const completeMutation = useCompleteChallenge();
+  const { completeChallenge } = useChallengeActions();
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(
     null
   );
+  const { hasInProgressChallenge } = useHasChallengeInProgress();
 
   const handleComplete = async () => {
     if (!selectedChallengeId) return;
 
     try {
-      const result = await completeMutation.mutateAsync(selectedChallengeId);
-      toast.success("Challenge completed successfully!", {
-        description: result.wasPromoted
-          ? "Congratulations! You've been promoted to the next level!"
-          : "Keep up the good work!",
-      });
-    } catch {
-      toast.error("Failed to complete challenge", {
-        description: "Please try again later.",
+      await completeChallenge.mutateAsync({
+        challengeId: selectedChallengeId,
+        skipRedirectToLeaderboard: true,
       });
     } finally {
       setSelectedChallengeId(null);
@@ -60,12 +55,9 @@ export function UniversalChallengesList() {
         <Card className='w-full'>
           <CardHeader>
             <CardTitle className='flex items-center gap-2 text-xl'>
-              <CheckCircle className='text-green-500' />
-              All universal challenges completed
+              <FileQuestionIcon className='text-gray-500' />
+              No universal challenges available
             </CardTitle>
-            <CardDescription>
-              Great job! You've completed all available universal challenges.
-            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -75,14 +67,17 @@ export function UniversalChallengesList() {
   return (
     <div className='mb-8'>
       <h2 className='text-xl font-bold mb-4 flex items-center gap-2'>
-        <Star className='text-yellow-500' /> Universal Challenges
+        <Star className='text-accent-foreground' /> Universal Challenges
       </h2>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
         {challenges.map((challenge) => (
-          <Card key={challenge.id} className='relative overflow-hidden'>
+          <Card
+            key={challenge.id}
+            className='relative overflow-hidden metallic-card'
+          >
             {challenge.finishedAt && (
               <div className='absolute inset-0 bg-black/5 backdrop-blur-[1px] flex items-center justify-center'>
-                <div className='bg-green-500 text-white py-3 px-6 rounded-lg shadow-lg flex flex-col items-center gap-1'>
+                <div className='bg-foreground/80 text-white py-3 px-6 rounded-lg shadow-lg flex flex-col items-center gap-1'>
                   <div className='flex items-center gap-2'>
                     <CheckCircle size={20} />
                     <span className='font-semibold'>Completed</span>
@@ -92,17 +87,21 @@ export function UniversalChallengesList() {
             )}
             <CardHeader>
               <div className='flex justify-between items-start'>
-                <CardTitle>{challenge.universalChallenge?.title}</CardTitle>
+                <CardTitle className='text-foreground'>
+                  {challenge.universalChallenge?.title}
+                </CardTitle>
                 <div
                   className={`flex items-center gap-1 font-bold ${
-                    challenge.finishedAt ? "text-gray-400" : "text-yellow-500"
+                    challenge.finishedAt
+                      ? "text-foreground/80"
+                      : "text-accent-foreground"
                   }`}
                 >
                   <Trophy size={18} />
                   <span>{challenge.points}</span>
                 </div>
               </div>
-              <CardDescription className='mt-1'>
+              <CardDescription className='mt-1 text-foreground/80'>
                 {challenge.universalChallenge?.description}
               </CardDescription>
             </CardHeader>
@@ -117,9 +116,11 @@ export function UniversalChallengesList() {
                       className='gap-2'
                       size='sm'
                       onClick={() => setSelectedChallengeId(challenge.id)}
-                      disabled={completeMutation.isPending}
+                      disabled={
+                        completeChallenge.isPending || hasInProgressChallenge
+                      }
                     >
-                      {completeMutation.isPending &&
+                      {completeChallenge.isPending &&
                       selectedChallengeId === challenge.id
                         ? "Completing..."
                         : "Mark as done"}
@@ -130,7 +131,7 @@ export function UniversalChallengesList() {
                   onCancel={() => setSelectedChallengeId(null)}
                   confirmText='Complete'
                   isLoading={
-                    completeMutation.isPending &&
+                    completeChallenge.isPending &&
                     selectedChallengeId === challenge.id
                   }
                 />

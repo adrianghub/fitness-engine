@@ -27,10 +27,6 @@
     @apply !text-base sm:!text-lg leading-relaxed;
   }
 
-  span {
-    @apply !text-base sm:!text-lg;
-  }
-
   .text-small {
     @apply !text-sm sm:!text-base;
   }

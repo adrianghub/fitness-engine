@@ -1,4 +1,5 @@
 import { COLLECTIONS, FirestoreService } from "@/lib/firestore";
+import { logger } from "@/lib/logger";
 import type {
   ChallengeTemplate,
   UniversalChallenge,
@@ -6,52 +7,58 @@ import type {
 } from "@/types/models";
 import { orderBy, where } from "firebase/firestore";
 
-// Create an extended COLLECTIONS object with universalChallenges
-const EXTENDED_COLLECTIONS = {
-  ...COLLECTIONS,
-  UNIVERSAL_CHALLENGES: "universalChallenges",
-};
-
-interface UserChallengeWithId extends UserChallenge {
+interface UserChallengeWithTemplate extends UserChallenge {
   id: string;
   challengeTemplate?: ChallengeTemplate;
   universalChallenge?: UniversalChallenge;
 }
 
+interface ChallengeTemplateWithId extends ChallengeTemplate {
+  id: string;
+}
+
 export class ChallengeService {
-  private userChallengeService: FirestoreService<UserChallengeWithId>;
-  private challengeTemplateService: FirestoreService<ChallengeTemplate>;
+  private userChallengeService: FirestoreService<UserChallengeWithTemplate>;
+  private challengeTemplateService: FirestoreService<ChallengeTemplateWithId>;
   private universalChallengeService: FirestoreService<UniversalChallenge>;
 
   constructor() {
-    this.userChallengeService = new FirestoreService<UserChallengeWithId>(
+    this.userChallengeService = new FirestoreService<UserChallengeWithTemplate>(
       COLLECTIONS.USER_CHALLENGES
     );
-    this.challengeTemplateService = new FirestoreService<ChallengeTemplate>(
-      COLLECTIONS.CHALLENGE_TEMPLATES
-    );
+    this.challengeTemplateService =
+      new FirestoreService<ChallengeTemplateWithId>(
+        COLLECTIONS.CHALLENGE_TEMPLATES
+      );
     this.universalChallengeService = new FirestoreService<UniversalChallenge>(
-      EXTENDED_COLLECTIONS.UNIVERSAL_CHALLENGES
+      COLLECTIONS.UNIVERSAL_CHALLENGES
     );
   }
 
-  async getUserChallenges(userId: string): Promise<UserChallengeWithId[]> {
+  /**
+   * Get all active challenges for a specific user (not-started or in-progress)
+   */
+  async getUserChallenges(
+    userId: string
+  ): Promise<UserChallengeWithTemplate[]> {
     const constraints = [
       where("userId", "==", userId),
-      where("type", "in", ["regular", "daily"]),
       where("status", "in", ["not-started", "in-progress"]),
-      orderBy("assignedDate", "desc"),
     ];
 
     const challenges = await this.userChallengeService.query(constraints);
 
-    const challengesWithDetails =
-      await this.enrichChallengesWithTemplateData(challenges);
+    console.log("Challenges:", challenges);
 
-    return challengesWithDetails;
+    return this.enrichChallengesWithTemplates(challenges);
   }
 
-  async getCompletedChallenges(userId: string): Promise<UserChallengeWithId[]> {
+  /**
+   * Get all completed challenges for a specific user
+   */
+  async getCompletedChallenges(
+    userId: string
+  ): Promise<UserChallengeWithTemplate[]> {
     const constraints = [
       where("userId", "==", userId),
       where("status", "==", "completed"),
@@ -62,30 +69,38 @@ export class ChallengeService {
     const challenges = await this.userChallengeService.query(constraints);
 
     const challengesWithDetails =
-      await this.enrichChallengesWithTemplateData(challenges);
+      await this.enrichChallengesWithTemplates(challenges);
 
     return challengesWithDetails;
   }
 
+  /**
+   * Get all uncompleted challenges for a specific user
+   */
   async getUncompletedChallenges(
     userId: string
-  ): Promise<UserChallengeWithId[]> {
+  ): Promise<UserChallengeWithTemplate[]> {
     const constraints = [
       where("userId", "==", userId),
-      where("status", "in", ["not-started", "in-progress"]),
+      where("status", "in", ["uncompleted"]),
     ];
 
     const challenges = await this.userChallengeService.query(constraints);
 
     const challengesWithDetails =
-      await this.enrichChallengesWithTemplateData(challenges);
+      await this.enrichChallengesWithTemplates(challenges);
+
+    console.log("Challenges with details:", challengesWithDetails);
 
     return challengesWithDetails;
   }
 
+  /**
+   * Get all universal challenges for a specific user
+   */
   async getUserUniversalChallenges(
     userId: string
-  ): Promise<UserChallengeWithId[]> {
+  ): Promise<UserChallengeWithTemplate[]> {
     const constraints = [
       where("userId", "==", userId),
       where("type", "==", "universal"),
@@ -111,22 +126,102 @@ export class ChallengeService {
     return challengesWithDetails;
   }
 
-  private async enrichChallengesWithTemplateData(
-    challenges: UserChallengeWithId[]
-  ): Promise<UserChallengeWithId[]> {
-    return Promise.all(
-      challenges.map(async (challenge) => {
-        if (challenge.challengeId) {
-          const templateData = await this.challengeTemplateService.getById(
+  /**
+   * Get a single challenge with its template, ensuring it belongs to the specified user
+   */
+  async getChallengeWithTemplate(
+    challengeId: string,
+    userId: string
+  ): Promise<UserChallengeWithTemplate | null> {
+    try {
+      const challenge = await this.userChallengeService.getById(challengeId);
+
+      if (!challenge) {
+        logger.warn("ChallengeService", `Challenge ${challengeId} not found`);
+        return null;
+      }
+
+      // Only validate user if both IDs are present and don't match
+      // Skip check for dev/testing purposes if userId is empty
+      if (userId && challenge.userId && challenge.userId !== userId) {
+        logger.warn(
+          "ChallengeService",
+          `Challenge ${challengeId} does not belong to user ${userId}`
+        );
+        return null;
+      }
+
+      if (challenge.challengeId) {
+        try {
+          const template = await this.challengeTemplateService.getById(
             challenge.challengeId
           );
-          if (templateData) {
-            challenge.challengeTemplate = templateData;
+
+          if (template) {
+            challenge.challengeTemplate = template;
+          } else {
+            logger.warn(
+              "ChallengeService",
+              `Template ${challenge.challengeId} not found for challenge ${challengeId}`
+            );
           }
+        } catch (error) {
+          logger.error(
+            "ChallengeService",
+            `Error fetching template for challenge ${challengeId}:`,
+            error
+          );
         }
-        return challenge;
-      })
+      } else {
+        logger.warn(
+          "ChallengeService",
+          `Challenge ${challengeId} has no associated template ID`
+        );
+      }
+
+      return challenge;
+    } catch (error) {
+      logger.error(
+        "ChallengeService",
+        `Error in getChallengeWithTemplate for ${challengeId}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Add templates to challenges
+   */
+  private async enrichChallengesWithTemplates(
+    challenges: UserChallengeWithTemplate[]
+  ): Promise<UserChallengeWithTemplate[]> {
+    const challengeIds = challenges
+      .map((challenge) => challenge.challengeId)
+      .filter(Boolean) as string[];
+
+    if (!challengeIds.length) return challenges;
+
+    const templates = await Promise.all(
+      challengeIds.map((id) => this.challengeTemplateService.getById(id))
     );
+
+    const templateMap = new Map<string, ChallengeTemplateWithId>();
+    templates.forEach((template) => {
+      if (template && template.id) {
+        templateMap.set(template.id, template);
+      }
+    });
+
+    return challenges.map((challenge) => {
+      if (challenge.challengeId && templateMap.has(challenge.challengeId)) {
+        return {
+          ...challenge,
+          challengeTemplate: templateMap.get(challenge.challengeId),
+        };
+      }
+      return challenge;
+    });
   }
 }
 

@@ -1,5 +1,5 @@
 import { logger } from "@/lib/logger";
-import { completeUserProfile } from "@/services/api";
+import { completeUserProfile } from "@/services/cloud-functions";
 import type { Equipment, FitnessGoal } from "@/types/models";
 import { useAuth } from "@/useAuth";
 import { useForm } from "@tanstack/react-form";
