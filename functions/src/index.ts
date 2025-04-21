@@ -12,7 +12,9 @@ import * as logger from "firebase-functions/logger";
 import { onCall, onRequest } from "firebase-functions/v2/https";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import {
+  checkChallengeExpiration,
   completeChallenge,
+  fetchMotivationalQuote,
   generateUserOpponents,
   promoteUser,
   resignChallenge,
@@ -28,12 +30,13 @@ try {
   throw error;
 }
 
-import type { PersonalizationData } from "@/types/personalization-data";
 import {
   applyPersonalization,
   validatePersonalizationData,
 } from "./handlers/personalization";
 import { refreshUserChallenges } from "./handlers/refreshChallenges";
+import type { PersonalizationData } from "./types/personalization-data";
+import { CHALLENGE_POINTS } from "./utils/challenges";
 
 const defaultProperties = {
   timeZone: "Europe/Warsaw",
@@ -104,12 +107,11 @@ export const manualUserLevelUp = onRequest(
         return;
       }
 
-      const validLevels = ["beginner", "intermediate", "advanced"] as const;
+      const validLevels = Object.keys(CHALLENGE_POINTS);
       if (!validLevels.includes(newLevel)) {
         response.status(400).json({
           success: false,
-          error:
-            "Invalid level. Must be one of: beginner, intermediate, advanced",
+          error: `Invalid level. Must be one of: ${validLevels.join(", ")}`,
         });
         return;
       }
@@ -164,7 +166,7 @@ export const dailyChallengeAndOpponentUpdate = onSchedule(
 /**
  * HTTP callable function to complete user profile and apply personalization
  */
-export const completeUserProfile = onCall(
+export const completeUserProfileEndpoint = onCall(
   { ...defaultProperties, cors: true, secrets: ["GEMINI_API_KEY"] },
   async (request) => {
     try {
@@ -286,10 +288,11 @@ export const resignChallengeEndpoint = onCall(
         throw new Error("Missing required parameter: challengeId");
       }
 
-      await resignChallenge(uid, challengeId);
+      const result = await resignChallenge(uid, challengeId);
 
       return {
         success: true,
+        canRetry: result.canRetry,
         message: `Successfully resigned from challenge ${challengeId}`,
       };
     } catch (error) {
@@ -325,6 +328,57 @@ export const seedUniversalChallenges = onRequest(
     } catch (error) {
       logger.error("Error in seedUniversalChallenges:", error);
       res.status(500).send("Error seeding universal challenges");
+    }
+  }
+);
+
+/**
+ * HTTP callable function to check if a challenge has expired
+ * This endpoint is called to verify if a challenge has exceeded its time limit
+ */
+export const checkChallengeExpirationEndpoint = onCall(
+  { ...defaultProperties },
+  async (request) => {
+    try {
+      const uid = request.auth?.uid;
+      if (!uid) {
+        logger.error("Unauthorized access to checkChallengeExpirationEndpoint");
+        throw new Error("Unauthorized");
+      }
+
+      const { challengeId } = request.data;
+      if (!challengeId) {
+        throw new Error("Missing required parameter: challengeId");
+      }
+
+      const result = await checkChallengeExpiration(uid, challengeId);
+      return result;
+    } catch (error) {
+      logger.error("Error in checkChallengeExpirationEndpoint:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "An unknown error occurred"
+      );
+    }
+  }
+);
+
+/**
+ * HTTP callable function to fetch motivational quotes
+ * This acts as a proxy to avoid CORS issues when calling the quotes API directly
+ */
+export const getMotivationalQuote = onCall(
+  { ...defaultProperties },
+  async () => {
+    try {
+      const quotes = await fetchMotivationalQuote();
+      return { quotes };
+    } catch (error) {
+      logger.error("Error in getMotivationalQuote:", error);
+      throw new Error(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch motivational quote"
+      );
     }
   }
 );

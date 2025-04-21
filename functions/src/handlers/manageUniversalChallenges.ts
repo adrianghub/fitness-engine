@@ -35,8 +35,6 @@ export async function assignUniversalChallenges(
     const now = Timestamp.now();
 
     await db.runTransaction(async (transaction) => {
-      // SECTION 1: All reads first
-      // 1. Get existing universal challenges
       const existingChallengesSnapshot = await transaction.get(
         db
           .collection(COLLECTIONS.userChallenges)
@@ -44,7 +42,6 @@ export async function assignUniversalChallenges(
           .where("type", "==", "universal")
       );
 
-      // 2. Get active universal challenges
       const universalChallengesSnapshot = await transaction.get(
         db
           .collection(COLLECTIONS.universalChallenges)
@@ -56,8 +53,6 @@ export async function assignUniversalChallenges(
         return;
       }
 
-      // SECTION 2: Process data
-      // Process universal challenges
       const universalChallenges = universalChallengesSnapshot.docs.map(
         (doc) => ({
           ...(doc.data() as UniversalChallenge),
@@ -65,16 +60,12 @@ export async function assignUniversalChallenges(
         })
       );
 
-      // Calculate points based on user level
       const universalPoints = CHALLENGE_POINTS[level].universal;
 
-      // SECTION 3: All writes
-      // 1. Delete existing universal challenges
       existingChallengesSnapshot.forEach((doc) => {
         transaction.delete(doc.ref);
       });
 
-      // 2. Add new universal challenges
       for (const challenge of universalChallenges) {
         const challengeRef = db.collection(COLLECTIONS.userChallenges).doc();
         transaction.set(challengeRef, {

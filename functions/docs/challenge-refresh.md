@@ -7,9 +7,9 @@ The Fitness Engine automatically refreshes user challenges every day at 00:00 (E
 ## Process Flow
 
 1. **Challenge Processing & Penalties**
-   - System identifies incomplete challenges (status: "not-started" or "in-progress") from the previous day
+   - System identifies incomplete challenges (status: "not-started", "in-progress", or "uncompleted") from the previous day
    - Points penalty is calculated based on the total points of incomplete challenges
-   - All challenges (completed and incomplete) are removed from the database
+   - All challenges (completed and incomplete) are removed from the database regardless of retry count
    - User's points are reduced by the penalty amount if applicable
 
 2. **Challenge History Tracking**
@@ -27,12 +27,22 @@ The Fitness Engine automatically refreshes user challenges every day at 00:00 (E
      - 4 universal challenges
    - AI recommendations are used for regular challenge selection when available
 
+## Challenge Retry System
+
+During the day, users can retry uncompleted challenges with the following rules:
+- Each challenge can be attempted up to 3 times on the same day
+- The system tracks retry count per challenge
+- After 3 unsuccessful attempts, the challenge is permanently uncompleted for that day
+- All challenges and their retry counts are reset at midnight during the refresh process
+- Retries only apply within the same day; the next day brings completely new challenges
+
 ## Points System
 
-- Users lose points for incomplete challenges from the previous day
+- Users lose points for all incomplete challenges during the nightly refresh
 - The penalty equals the sum of points from all incomplete challenges
-- Points are deducted immediately during the refresh process
-- Completed challenges are archived in user history (if implemented)
+- Points are deducted only during the midnight refresh process, not during individual challenge expirations
+- This allows users to retry challenges during the day without immediate penalties
+- Completed challenges contribute to the user's point total
 
 ## Technical Implementation
 
@@ -44,7 +54,7 @@ The process is implemented as part of the `dailyChallengeAndOpponentUpdate` sche
 ### Database Operations
 - All operations for a user are executed in a single batch for atomicity
 - Challenges are stored in the `userChallenges` collection
-- Each challenge document contains: userId, challengeId, type, status, points, assignedAt
+- Each challenge document contains: userId, challengeId, type, status, points, assignedAt, retriesLeft
 - Efficient indexes are maintained for quick querying
 
 ## Error Handling
@@ -64,13 +74,14 @@ The process is implemented as part of the `dailyChallengeAndOpponentUpdate` sche
    - Ensure appropriate difficulty based on user level
 
 2. **Database Management**
-   - Clean slate approach: remove all challenges daily
+   - Clean slate approach: remove all challenges daily regardless of retry count
    - Use batch operations for atomic updates
    - Maintain efficient indexes for quick querying
    - Consider implementing challenge history archival if needed
 
 3. **User Experience**
-   - Apply penalties fairly and transparently
+   - Allow retries within the same day to encourage persistence
+   - Apply penalties fairly and transparently during nightly refresh
    - Ensure new challenges are appropriate for user's level
    - Maintain challenge variety through proper filtering
    - Prevent challenge fatigue by allowing challenges to return after 24 hours

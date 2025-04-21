@@ -63,11 +63,23 @@ npm run generate:types
   - Updates opponent scores based on user training frequency
   - Maintains leaderboard rankings
 
+## Challenge Expiration Logic
+
+The challenge expiration system follows these rules:
+
+1. When a challenge timer expires, the client calls the `checkChallengeExpirationEndpoint` function.
+2. The function verifies if the challenge has indeed expired based on server time.
+3. If expired, the challenge is marked as "uncompleted" and the retry count is incremented.
+4. Users can retry an uncompleted challenge up to 3 times within the same day.
+5. After 3 unsuccessful attempts on the same day, the user cannot retry the challenge again that day.
+6. Penalties are not applied when a challenge expires during the day - instead, all incomplete challenges receive penalties during the nightly refresh at midnight.
+7. All challenges (including those with remaining retries) are refreshed at midnight.
+
 ## Development
 
 ### Prerequisites
 
-- Node.js v18 or higher
+- Node.js v22 or higher
 - Firebase Tools
 
 ### Setup

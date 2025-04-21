@@ -3,6 +3,8 @@
  */
 
 export * from "./completeChallenge";
+export * from "./expireChallenge";
+export * from "./fetchQuote";
 export * from "./generateChallenges";
 export * from "./generateOpponents";
 export * from "./personalization";

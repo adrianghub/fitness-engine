@@ -76,13 +76,19 @@ Available test endpoints:
    - Wrong user attempting completion
    - Max level reached (advanced)
 
-2. **Points & Levels**
+2. **Challenge Retry System**
+   - Tracking of retry attempts (up to 3 per challenge per day)
+   - Preventing retries after 3 unsuccessful attempts
+   - Maintaining retry count in database
+   - Reset of retry counts during daily refresh
+
+3. **Points & Levels**
    - Points calculation accuracy
    - Level progression limits
    - Leaderboard position checks
    - Transaction rollback on errors
 
-3. **Security**
+4. **Security**
    - Auth checks
    - Admin-only endpoints protected
    - User data isolation

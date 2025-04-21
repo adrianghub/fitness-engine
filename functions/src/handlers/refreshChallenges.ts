@@ -1,7 +1,12 @@
 import * as admin from "firebase-admin";
-import { QuerySnapshot, Timestamp } from "firebase-admin/firestore";
+import {
+  QuerySnapshot,
+  Timestamp,
+  type DocumentReference,
+} from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { ADJACENT_LEVELS } from "../data/adjacent-levels";
+import { assignUniversalChallenges } from "../handlers/manageUniversalChallenges";
 import { generatePersonalizedChallenges } from "../services/ai";
 import type {
   ChallengeTemplate,
@@ -48,35 +53,32 @@ export async function refreshUserChallenges(): Promise<void> {
         const recentChallengeIds: string[] = [];
 
         await db.runTransaction(async (transaction) => {
-          // SECTION 1: All reads first
-          // 1. Get incomplete challenges from yesterday
+          // Get incomplete challenges - apply penalties to ALL incomplete challenges
           const incompleteChallengesSnapshot = await transaction.get(
             db
               .collection(COLLECTIONS.userChallenges)
               .where("userId", "==", userId)
-              .where("status", "in", ["not-started", "in-progress"])
-              .where("assignedDate", "<", now)
+              .where("status", "not-in", ["completed"])
+              .where("assignedAt", "<", now)
           );
 
-          // 2. Get old challenges to delete
+          // Get all old challenges to be removed
           const oldChallengesSnapshot = await transaction.get(
             db
               .collection(COLLECTIONS.userChallenges)
               .where("userId", "==", userId)
-              .where("type", "in", ["regular", "daily"])
-              .where("assignedDate", "<", now)
+              .where("assignedAt", "<", now)
           );
 
-          // 3. Get today's regular challenges
+          // Get challenges from today - to avoid duplicates
           const todaysChallengesSnapshot = await transaction.get(
             db
               .collection(COLLECTIONS.userChallenges)
               .where("userId", "==", userId)
               .where("type", "==", "regular")
-              .where("assignedDate", ">=", yesterday)
+              .where("assignedAt", ">=", yesterday)
           );
 
-          // 4. Get available regular challenges for the user's level and adjacent levels
           const allowedLevels = ADJACENT_LEVELS[userData.level];
           const levelChallengesSnapshot = await transaction.get(
             db
@@ -84,21 +86,19 @@ export async function refreshUserChallenges(): Promise<void> {
               .where("level", "in", allowedLevels)
           );
 
-          // SECTION 2: Process data from reads
-          // Calculate penalties
           let penaltyPoints = 0;
+
+          // Apply penalties for all incomplete challenges
           incompleteChallengesSnapshot.forEach((doc) => {
             const challenge = doc.data() as UserChallenge;
             penaltyPoints += challenge.points;
           });
 
-          // Get recent challenge IDs
           todaysChallengesSnapshot.forEach((doc) => {
             const challenge = doc.data() as UserChallenge;
             recentChallengeIds.push(challenge.challengeId);
           });
 
-          // Process available challenges
           const availableRegularChallenges = levelChallengesSnapshot.docs
             .map((doc) => ({
               ...doc.data(),
@@ -123,15 +123,12 @@ export async function refreshUserChallenges(): Promise<void> {
             availableRegularChallenges
           );
 
-          // Select new challenges
           const { dailyChallenge, regularChallenges } = selectRegularChallenges(
             availableRegularChallenges,
             recommendedChallenges || [],
             userData.level
           );
 
-          // SECTION 3: All writes after processing
-          // Apply penalties if any, ensuring points don't go below 0
           if (penaltyPoints > 0) {
             const currentPoints = userData.points || 0;
             const finalPenalty = Math.min(penaltyPoints, currentPoints);
@@ -140,44 +137,59 @@ export async function refreshUserChallenges(): Promise<void> {
               transaction.update(userDoc.ref, {
                 points: Math.max(0, currentPoints - finalPenalty),
               });
+
+              const leaderboardRef = db.collection("leaderboard").doc(userId);
+              transaction.set(
+                leaderboardRef,
+                {
+                  entityId: userId,
+                  entityType: "user",
+                  level: userData.level,
+                  points: Math.max(0, currentPoints - finalPenalty),
+                  updatedAt: now,
+                },
+                { merge: true }
+              );
+
               logger.info(
                 `Applied penalty of ${finalPenalty} points to user ${userId} (original penalty: ${penaltyPoints})`
               );
             }
           }
 
-          // Delete old challenges
           oldChallengesSnapshot.forEach((doc) => {
             transaction.delete(doc.ref);
           });
 
-          // Add daily challenge
+          logger.info(`Removed ${oldChallengesSnapshot.size} old challenges`);
+
           if (dailyChallenge) {
             const challengeRef = db
               .collection(COLLECTIONS.userChallenges)
-              .doc();
+              .doc() as DocumentReference<UserChallenge>;
             transaction.set(challengeRef, {
               userId,
               challengeId: dailyChallenge.id,
               status: "not-started",
-              assignedDate: now,
+              assignedAt: now,
               points: CHALLENGE_POINTS[userData.level].daily,
               type: "daily" as ChallengeType,
+              retriesLeft: 3,
             });
           }
 
-          // Add regular challenges
           for (const challenge of regularChallenges) {
             const challengeRef = db
               .collection(COLLECTIONS.userChallenges)
-              .doc();
+              .doc() as DocumentReference<UserChallenge>;
             transaction.set(challengeRef, {
               userId,
               challengeId: challenge.id,
               status: "not-started",
-              assignedDate: now,
+              assignedAt: now,
               points: CHALLENGE_POINTS[userData.level].regular,
               type: "regular" as ChallengeType,
+              retriesLeft: 3,
             });
           }
 
@@ -186,10 +198,11 @@ export async function refreshUserChallenges(): Promise<void> {
           );
         });
 
+        await assignUniversalChallenges(userId, userData.level);
+
         logger.info(`Successfully refreshed challenges for user ${userId}`);
       } catch (error) {
         logger.error(`Error processing user ${userId}:`, error);
-        // Continue with next user even if one fails
         continue;
       }
     }
