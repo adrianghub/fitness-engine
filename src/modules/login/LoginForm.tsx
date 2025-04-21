@@ -10,8 +10,13 @@ import {
 } from "@/components/ui/card";
 import { useLoginForm } from "@/modules/login/useLoginForm";
 
-export function LoginForm() {
-  const { error, googleLoading, handleGoogleSignIn } = useLoginForm();
+interface LoginFormProps {
+  redirectUrl?: string;
+}
+
+export function LoginForm({ redirectUrl }: LoginFormProps) {
+  const { error, googleLoading, handleGoogleSignIn } =
+    useLoginForm(redirectUrl);
 
   return (
     <Card className='w-full max-w-md'>

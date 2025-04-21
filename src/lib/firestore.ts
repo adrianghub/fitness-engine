@@ -1,3 +1,4 @@
+import { timestampToDate } from "@/lib/date-utils";
 import {
   addDoc,
   collection,
@@ -22,14 +23,6 @@ export const COLLECTIONS = {
   UNIVERSAL_CHALLENGES: "universalChallenges",
   OPPONENTS: "opponents",
   LEADERBOARD: "leaderboard",
-};
-
-export const timestampToDate = (timestamp: Timestamp): Date => {
-  return timestamp.toDate();
-};
-
-export const dateToTimestamp = (date: Date): Timestamp => {
-  return Timestamp.fromDate(date);
 };
 
 // Convert Firestore document to typed object

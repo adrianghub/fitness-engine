@@ -3,14 +3,15 @@ import { logger } from "@/lib/logger";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 
-export function useLoginForm() {
+export function useLoginForm(redirectUrl?: string) {
   const [error, setError] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
 
   const getRedirectUrl = () => {
+    if (redirectUrl) return redirectUrl;
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("redirect") || "/";
+    return urlParams.get("redirect") || "/dashboard";
   };
 
   const handleGoogleSignIn = async () => {

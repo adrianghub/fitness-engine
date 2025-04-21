@@ -1,8 +1,11 @@
 import { getCurrentUser } from "@/lib/firebase";
 import { redirect } from "@tanstack/react-router";
+import { User } from "firebase/auth";
 
 interface LoaderFunctionArgs {
-  context: unknown;
+  context: {
+    user?: User;
+  };
   location: {
     href: string;
     pathname: string;
@@ -27,8 +30,16 @@ export function createProtectedLoader<T = unknown>(
       throw redirect({ to: redirectUrl });
     }
 
+    const contextWithUser = {
+      ...args,
+      context: {
+        ...args.context,
+        user,
+      },
+    };
+
     if (originalLoader) {
-      return originalLoader(args);
+      return originalLoader(contextWithUser);
     }
 
     return {} as T;

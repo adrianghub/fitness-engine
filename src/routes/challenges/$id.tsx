@@ -1,5 +1,6 @@
 import { createProtectedLoader } from "@/lib/protected-route";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { challengeService } from "@/modules/challenges/ChallengeService";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { lazy } from "react";
 
 const ChallengeDetailView = lazy(() =>
@@ -12,14 +13,35 @@ const ChallengeDetailView = lazy(() =>
 
 export const Route = createFileRoute("/challenges/$id")({
   component: ChallengeDetailView,
-  loader: createProtectedLoader(async () => {
-    // TODO: Find the challenge by ID
-    const challenge = null;
+  loader: createProtectedLoader(async ({ params, context }) => {
+    const { id } = params;
+    const userId = context?.user?.uid;
 
-    if (!challenge) {
-      throw notFound();
+    if (!userId) {
+      throw redirect({
+        to: "/login",
+        search: {
+          redirect: `/challenges/${id}`,
+        },
+      });
     }
 
-    return { challenge };
+    try {
+      const challenge = await challengeService.getChallengeWithTemplate(
+        id,
+        userId
+      );
+
+      if (!challenge) {
+        return { notFound: true };
+      }
+
+      return {
+        challenge,
+      };
+    } catch (error) {
+      console.error(`Error loading challenge ${id}:`, error);
+      return { error: "Failed to load challenge details" };
+    }
   }),
 });
