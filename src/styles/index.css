@@ -145,7 +145,7 @@ html, body, #root {
   border: none;
 }
 
-.metallic-card-universal {
+.metallic-card-daily {
   @apply bg-gradient-to-bl from-primary/40 to-secondary/40;
   backdrop-filter: blur(10px);
   border: none;

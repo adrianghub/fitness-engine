@@ -115,7 +115,7 @@ export function DailyChallenge() {
   }
 
   return (
-    <Card className='metallic-card-universal w-full mb-6 overflow-hidden'>
+    <Card className='metallic-card-daily w-full mb-6 overflow-hidden'>
       <CardHeader className='pb-3'>
         <div className='flex justify-between items-start mb-1'>
           <div className='flex items-center gap-2'>
