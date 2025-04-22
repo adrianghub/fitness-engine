@@ -17,8 +17,12 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 25 * 1024 * 1024,
       },
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "icon.png"],
-      manifestFilename: "manifest.json",
+      includeAssets: [
+        "logo.svg",
+        "icon512_maskable.png",
+        "icon512_rounded.png",
+      ],
+      manifest: false,
     }),
     TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
     tailwindcss(),

@@ -15,11 +15,14 @@
       "type": "image/png"
     }
   ],
+  "id": "/",
+  "scope": "/",
+  "start_url": "/",
   "orientation": "any",
   "display": "standalone",
-  "dir": "auto",
   "lang": "en-US",
   "name": "FitnessEngine",
+  "categories": ["health", "fitness"],
   "description": "App designed to boost motivation and promote consistency in fitness training. ",
   "short_name": "FitnessEngine"
 }
