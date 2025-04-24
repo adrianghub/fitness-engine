@@ -1,4 +1,5 @@
 import { UserGreetings } from "@/modules/challenges/components/UserGreetings";
+import { WelcomeDialog } from "@/modules/challenges/components/welcome-dialog/WelcomeDialog";
 import { Link } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -11,6 +12,8 @@ import { UniversalChallengesList } from "./UniversalChallengesList";
 export function Dashboard() {
   return (
     <>
+      <WelcomeDialog />
+
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8'>
         <h1 className='text-2xl sm:text-3xl font-bold'>
           <>Today's Challenges</>
