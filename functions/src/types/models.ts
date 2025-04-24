@@ -49,8 +49,6 @@ export interface Leaderboard {
   entityId: string;
   /** Total points */
   points: number;
-  /** Current ranking position */
-  rank?: number;
   /** When the leaderboard entry was last updated */
   lastUpdated: firestore.Timestamp;
 }

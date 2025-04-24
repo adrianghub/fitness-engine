@@ -268,10 +268,6 @@ Leaderboard:
       points:
         type: double
         docs: Total points
-      rank:
-        type: double
-        optional: true
-        docs: Current ranking position
       lastUpdated:
         type: timestamp
         docs: When the leaderboard entry was last updated
