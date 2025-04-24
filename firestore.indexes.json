@@ -61,6 +61,20 @@
         {
           "fieldPath": "assignedAt",
           "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "userChallenges",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "assignedAt",
+          "order": "ASCENDING"
         },
         {
           "fieldPath": "status",
