@@ -222,7 +222,9 @@ export function Leaderboard() {
                 </div>
 
                 <div className='flex-grow'>
-                  <div className='font-medium'>{entry.name}</div>
+                  <div className='font-medium truncate max-w-[150px] sm:max-w-none'>
+                    {entry.name}
+                  </div>
                 </div>
 
                 <div className='flex-shrink-0 font-bold'>
