@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { useLoadingMessages } from "@/hooks/useLoadingMessages";
 import { DisplayNameStep } from "@/modules/personalization/DisplayNameStep";
 import { EquipmentStep } from "@/modules/personalization/EquipmentStep";
 import { FitnessLevelStep } from "@/modules/personalization/FitnessLevelStep";
@@ -33,7 +34,27 @@ export function PersonalizationForm() {
   const progress = (currentStep / TOTAL_STEPS) * 100;
   const isSubmitting = useStore(form.store, (state) => state.isSubmitting);
   const [isLocalSubmitting, setIsLocalSubmitting] = useState(false);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+  const {
+    isLoading: isShowingLoadingScreen,
+    currentMessageIndex,
+    startLoading: startLoadingScreen,
+    resetLoading: resetLoadingScreen,
+  } = useLoadingMessages({
+    messages: loadingMessages,
+    intervalTime: 1500,
+    onComplete: async () => {
+      try {
+        await form.handleSubmit();
+        await new Promise((resolve) => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error("Form submission error:", error);
+      } finally {
+        setIsLocalSubmitting(false);
+        resetLoadingScreen();
+      }
+    },
+  });
 
   const handleNext = () => {
     const nextStep = Math.min(currentStep + 1, TOTAL_STEPS);
@@ -45,11 +66,11 @@ export function PersonalizationForm() {
     setCurrentStep(prevStep);
   };
 
-  if (isLocalSubmitting || isSubmitting) {
+  if (isLocalSubmitting || isSubmitting || isShowingLoadingScreen) {
     return (
       <LoadingScreen
         messages={loadingMessages}
-        currentMessageIndex={loadingMessageIndex}
+        currentMessageIndex={currentMessageIndex}
       />
     );
   }
@@ -76,23 +97,7 @@ export function PersonalizationForm() {
 
             if (currentStep === TOTAL_STEPS) {
               setIsLocalSubmitting(true);
-              const messageDelay = 1500;
-
-              try {
-                for (let i = 0; i < loadingMessages.length; i++) {
-                  await new Promise((resolve) =>
-                    setTimeout(resolve, messageDelay)
-                  );
-                  setLoadingMessageIndex(i);
-                }
-
-                await form.handleSubmit();
-                await new Promise((resolve) => setTimeout(resolve, 500));
-              } catch (error) {
-                console.error("Form submission error:", error);
-              } finally {
-                setIsLocalSubmitting(false);
-              }
+              startLoadingScreen();
             } else {
               handleNext();
             }
