@@ -17,11 +17,7 @@ export default defineConfig({
       workbox: {
         maximumFileSizeToCacheInBytes: 25 * 1024 * 1024,
       },
-      includeAssets: [
-        "logo.svg",
-        "icon512_maskable.png",
-        "icon512_rounded.png",
-      ],
+      includeAssets: ["icon512_maskable.png", "icon512_rounded.png"],
       manifest: false,
     }),
     TanStackRouterVite({ target: "react", autoCodeSplitting: true }),
