@@ -18,7 +18,10 @@ export function useWelcomeDialog() {
   };
 
   useEffect(() => {
-    if (localStorage.getItem("hasSeenWelcome") === "false") {
+    if (
+      !localStorage.getItem("hasSeenWelcome") ||
+      localStorage.getItem("hasSeenWelcome") === "false"
+    ) {
       setOpen(true);
     }
   }, []);
