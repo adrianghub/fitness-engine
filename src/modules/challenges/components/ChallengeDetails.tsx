@@ -1,3 +1,4 @@
+import { LoadingScreen } from "@/components/LoadingScreen";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useLoadingMessages } from "@/hooks/useLoadingMessages";
 import { useChallengeDetails } from "@/modules/challenges/hooks/useChallengeDetails";
 import { UserChallenge } from "@/types/models";
 import {
@@ -28,6 +30,19 @@ export function ChallengeDetails() {
     error?: string;
   };
 
+  const loadingMessages = [
+    "Completing the challenge...",
+    "User scores are being updated on leaderboard...",
+  ];
+
+  const {
+    isLoading: isShowingLoadingScreen,
+    currentMessageIndex,
+    startLoading: startLoadingScreen,
+  } = useLoadingMessages({
+    messages: loadingMessages,
+  });
+
   const {
     challenge,
     isLoadingChallenge,
@@ -44,10 +59,27 @@ export function ChallengeDetails() {
     startChallenge,
   } = useChallengeDetails(id, preloadedChallenge);
 
-  // Handle back button click
   const handleBackClick = () => {
     navigate({ to: "/dashboard" });
   };
+
+  const customHandleConfirm = () => {
+    if (confirmationType === "complete" && challenge?.id) {
+      startLoadingScreen();
+      handleConfirm();
+    } else {
+      handleConfirm();
+    }
+  };
+
+  if (isShowingLoadingScreen) {
+    return (
+      <LoadingScreen
+        messages={loadingMessages}
+        currentMessageIndex={currentMessageIndex}
+      />
+    );
+  }
 
   if (isLoadingChallenge) {
     return (
@@ -202,7 +234,7 @@ export function ChallengeDetails() {
                 variant={
                   confirmationType === "complete" ? "default" : "destructive"
                 }
-                onClick={handleConfirm}
+                onClick={customHandleConfirm}
               >
                 Confirm
               </Button>
