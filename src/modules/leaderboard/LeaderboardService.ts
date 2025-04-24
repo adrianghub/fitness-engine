@@ -69,7 +69,7 @@ export class LeaderboardService {
             id: entry.entityId,
             name,
             points: entry.points,
-            rank: entry.rank || index + 1,
+            rank: index + 1,
             isUser:
               entry.entityType === "user" && entry.entityId === currentUserId,
           };
