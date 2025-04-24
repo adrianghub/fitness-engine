@@ -9,9 +9,11 @@ export function useAuth() {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isUserDataLoading, setIsUserDataLoading] = useState(true);
 
   const ensureUserDataExists = async (user: FirebaseUser) => {
     try {
+      setIsUserDataLoading(true);
       const userRef = doc(db, "users", user.uid);
       const userSnap = await getDoc(userRef);
 
@@ -32,6 +34,7 @@ export function useAuth() {
         );
 
         setUserData(updatedUserData);
+        setIsUserDataLoading(false);
         return updatedUserData;
       } else {
         const newUserData: User = {
@@ -47,14 +50,17 @@ export function useAuth() {
         const verifySnap = await getDoc(userRef);
         if (verifySnap.exists()) {
           setUserData(newUserData);
+          setIsUserDataLoading(false);
           return newUserData;
         } else {
           logger.error("Auth", "Failed to create user document!");
+          setIsUserDataLoading(false);
           return null;
         }
       }
     } catch (error) {
       logger.error("Auth", "Error ensuring user data exists:", error);
+      setIsUserDataLoading(false);
       return null;
     }
   };
@@ -67,6 +73,7 @@ export function useAuth() {
         await ensureUserDataExists(user);
       } else {
         setUserData(null);
+        setIsUserDataLoading(false);
       }
 
       setIsLoading(false);
@@ -88,7 +95,7 @@ export function useAuth() {
   return {
     currentUser,
     userData,
-    isLoading,
+    isLoading: isLoading || isUserDataLoading,
     isAuthenticated: !!currentUser,
     getIdToken,
   };
