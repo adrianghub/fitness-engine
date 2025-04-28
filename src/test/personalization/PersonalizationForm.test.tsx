@@ -113,8 +113,10 @@ vi.mock("@/modules/personalization/usePersonalizationForm", () => ({
 }));
 
 vi.mock("@tanstack/react-form", () => ({
-  useStore: (selector: (state: { isSubmitting: boolean }) => unknown) =>
-    selector({ isSubmitting: false }),
+  useStore: (
+    _store: unknown,
+    selector: (state: { isSubmitting: boolean }) => unknown
+  ) => selector({ isSubmitting: false }),
 }));
 
 vi.mock("motion/react", () => ({
