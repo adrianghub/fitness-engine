@@ -11,7 +11,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "generate:types": "typesync generate-ts --definition '../schema-definitions/**/*.yml' --target firebase-admin@13 --outFile src/types/models.ts"
+    "generate:types": "typesync generate-ts --definition '../schema-definitions/**/*.yml' --target firebase-admin@13 --outFile src/types/models.ts",
+    "test": "vitest"
   },
   "engines": {
     "node": "22"
