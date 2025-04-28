@@ -32,6 +32,9 @@ const firebaseConfig = {
   measurementId: "G-ESM0CCXZL9",
 };
 
+const isDevelopment = import.meta.env.DEV;
+const DB_NAME = "(default)";
+
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
@@ -49,11 +52,15 @@ setPersistence(auth, indexedDBLocalPersistence).catch((error) => {
 
 let db: Firestore;
 try {
-  db = initializeFirestore(app, {
-    localCache: persistentLocalCache({
-      tabManager: persistentMultipleTabManager(),
-    }),
-  });
+  db = initializeFirestore(
+    app,
+    {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    },
+    DB_NAME
+  );
   logger.info(
     "Firestore",
     "Initialized with persistent cache and multi-tab support"
@@ -68,7 +75,6 @@ export { db };
 export const functions = getFunctions(app, "europe-central2");
 
 // Connect to emulators in development mode
-const isDevelopment = import.meta.env.DEV;
 if (isDevelopment) {
   const EMULATOR_HOST = "127.0.0.1";
   const AUTH_PORT = 9099;
