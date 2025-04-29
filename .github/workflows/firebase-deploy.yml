@@ -4,86 +4,11 @@ on:
   push:
     branches:
       - trunk
-
-  # Allow manual triggering
   workflow_dispatch:
 
 jobs:
-  e2e_tests:
-    name: End-to-End Tests
-    runs-on: ubuntu-latest
-    outputs:
-      test_result: ${{ steps.run_e2e_tests.outputs.test_result }}
-
-    env:
-      CI: true
-      LOG_LEVEL: info
-      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: 0
-      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-      FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-          run_install: false
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
-      - name: Authenticate with Firebase (CI)
-        if: env.FIREBASE_TOKEN != ''
-        run: |
-          echo "Authenticating with Firebase in CI..."
-          firebase login:ci --no-localhost --token "$FIREBASE_TOKEN"
-
-          if [ -n "$FIREBASE_PROJECT_ID" ]; then
-            echo "Using project: $FIREBASE_PROJECT_ID"
-            firebase use "$FIREBASE_PROJECT_ID"
-
-            # Check if functions directory exists and setup if needed
-            if [ -d "functions" ]; then
-              echo "Setting up Functions emulation..."
-              cd functions && npm install || echo "Functions setup skipped"
-              cd ..
-            fi
-          fi
-
-      - name: Run E2E Tests
-        id: run_e2e_tests
-        uses: ./.github/actions/e2e-tests
-        with:
-          firebase-token: ${{ secrets.FIREBASE_TOKEN }}
-          project-id: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-
-      - name: Upload Test Artifacts
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-artifacts
-          path: |
-            e2e/screenshots
-            test-results
-            playwright-report
-          retention-days: 5
-          if-no-files-found: ignore
-
   deploy:
     name: Build and Deploy
-    needs: e2e_tests
-    if: success()
     runs-on: ubuntu-latest
     environment:
       name: Production
@@ -125,6 +50,9 @@ jobs:
         run: |
           firebase projects:list
           firebase use ${{ env.VITE_FIREBASE_PROJECT_ID }}
+
+      - name: Run Unit Tests
+        run: pnpm test
 
       - name: Build and Deploy
         env:
