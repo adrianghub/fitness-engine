@@ -32,3 +32,9 @@ firebase-data
 
 dev-dist
 .cursor
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

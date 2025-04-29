@@ -1,0 +1,85 @@
+name: 'Run E2E Tests'
+description: 'Sets up environment, runs E2E tests, and handles cleanup'
+
+outputs:
+  test_result:
+    description: 'Result of the E2E tests (success or failure)'
+    value: ${{ steps.e2e_tests.outcome }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Firebase CLI
+      shell: bash
+      run: npm install -g firebase-tools
+
+    - name: Prepare Test Environment
+      shell: bash
+      run: |
+        # Clean up screenshots from previous runs
+        pnpm run screenshots:cleanup -- --keep=3
+
+        # Kill any running processes on emulator ports (if any)
+        pkill -f "firebase" || true
+        pkill -f "java.*emulator" || true
+
+        # A short pause to ensure ports are released
+        sleep 2
+
+    - name: Reset and Start Emulators
+      id: start_emulators
+      shell: bash
+      run: |
+        # Use the pre-defined script to reset and start emulators
+        pnpm run emulators:reset
+
+        # Verify emulators are running by checking the UI
+        echo "Verifying emulator UI is ready..."
+        for i in {1..10}; do
+          if curl -s http://127.0.0.1:4000 > /dev/null || curl -s http://127.0.0.1:4001 > /dev/null; then
+            echo "✅ Emulator UI is ready"
+            break
+          fi
+          echo "Waiting for emulator UI... (attempt $i/10)"
+          sleep 5
+          if [ $i -eq 10 ]; then
+            echo "::warning::Emulator UI could not be reached, but continuing anyway"
+          fi
+        done
+
+    - name: Run Unit Tests
+      shell: bash
+      run: pnpm test
+
+    - name: Setup Playwright
+      shell: bash
+      run: pnpm exec playwright install chromium --with-deps
+
+    - name: Run E2E Tests
+      id: e2e_tests
+      shell: bash
+      run: pnpm run test:e2e:ci
+      timeout-minutes: 10
+
+    - name: Capture Test Screenshots (Artifacts)
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-screenshots
+        path: |
+          e2e/screenshots
+          test-results
+          playwright-report
+        retention-days: 5
+        if-no-files-found: ignore
+
+    - name: Cleanup After Tests
+      if: always()
+      shell: bash
+      run: |
+        # Use the pre-defined script to clean up screenshots, keeping only the most recent
+        pnpm run screenshots:cleanup -- --keep=3
+
+        # Ensure all emulator processes are stopped
+        pkill -f "firebase" || true
+        pkill -f "java.*emulator" || true
