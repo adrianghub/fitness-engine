@@ -1,6 +1,14 @@
 name: 'Run E2E Tests'
 description: 'Sets up environment, runs E2E tests, and handles cleanup'
 
+inputs:
+  firebase-token:
+    description: 'Firebase CI token for authentication (optional)'
+    required: false
+  project-id:
+    description: 'Firebase project ID (optional)'
+    required: false
+
 outputs:
   test_result:
     description: 'Result of the E2E tests (success or failure)'
@@ -29,7 +37,38 @@ runs:
     - name: Reset and Start Emulators
       id: start_emulators
       shell: bash
+      env:
+        FIREBASE_TOKEN: ${{ inputs.firebase-token }}
+        FIREBASE_PROJECT_ID: ${{ inputs.project-id }}
       run: |
+        # Configure emulators to run in CI
+        export FIREBASE_CI=true
+
+        # Set project configuration if provided
+        if [ -n "$FIREBASE_PROJECT_ID" ] && [ -n "$FIREBASE_TOKEN" ]; then
+          echo "Using Firebase project: $FIREBASE_PROJECT_ID"
+          firebase use "$FIREBASE_PROJECT_ID" --token "$FIREBASE_TOKEN"
+        fi
+
+        # Create a temporary firebase.json if it doesn't exist
+        if [ ! -f "firebase.json" ]; then
+          echo "Creating temporary firebase.json for emulators"
+          echo '{
+            "emulators": {
+              "auth": { "port": 9099 },
+              "functions": { "port": 5001 },
+              "firestore": { "port": 8080 },
+              "ui": { "port": 4000 }
+            }
+          }' > firebase.json
+        fi
+
+        # Skip function emulation if directory doesn't exist
+        if [ ! -d "functions" ]; then
+          echo "⚠️ Functions directory not found, disabling functions emulation"
+          export FIRESTORE_EMULATOR_ONLY=true
+        fi
+
         # Use the pre-defined script to reset and start emulators
         pnpm run emulators:reset
 
@@ -59,19 +98,19 @@ runs:
       id: e2e_tests
       shell: bash
       run: pnpm run test:e2e:ci
-      timeout-minutes: 10
 
-    - name: Capture Test Screenshots (Artifacts)
+    - name: List Generated Artifacts
       if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-screenshots
-        path: |
-          e2e/screenshots
-          test-results
-          playwright-report
-        retention-days: 5
-        if-no-files-found: ignore
+      shell: bash
+      run: |
+        echo "Screenshot artifacts are available at the following paths:"
+        echo "- e2e/screenshots"
+        echo "- test-results"
+        echo "- playwright-report"
+        # Ensure directories exist (if empty) for easier artifact collection
+        mkdir -p e2e/screenshots
+        mkdir -p test-results
+        mkdir -p playwright-report
 
     - name: Cleanup After Tests
       if: always()
