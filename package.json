@@ -7,7 +7,7 @@
     "dev": "vite",
     "dev:emulators": "firebase emulators:start --import=./firebase-data --export-on-exit=./firebase-data",
     "dev:all": "concurrently \"pnpm run dev\" \"pnpm run dev:emulators\" \"pnpm run dev:functions\"",
-    "dev:functions": "cd functions && npm run build -- --watch",
+    "dev:functions": "pnpm --filter functions run build:watch",
     "prebuild": "npm run generate:types",
     "build": "tsc -b && vite build",
     "deploy": "node scripts/deploy-firebase",
@@ -24,7 +24,7 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:codegen": "npx playwright codegen http://localhost:5173",
     "test:e2e:install": "npx playwright install chromium --with-deps",
-    "test:e2e:ci": "pnpm run emulators:reset && npx playwright test --retries=1",
+    "test:e2e:ci": "pnpm --filter functions build && pnpm run emulators:reset && npx playwright test --retries=1",
     "emulators:reset": "pnpm run screenshots:cleanup && node scripts/reset-emulators.js",
     "screenshots:cleanup": "node scripts/cleanup-emulators.js"
   },

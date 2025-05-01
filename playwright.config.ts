@@ -48,7 +48,7 @@ export default defineConfig({
 
   /* Run local dev server before starting the tests */
   webServer: {
-    command: "pnpm dev:all",
+    command: "pnpm run dev",
     url: "http://localhost:5173",
     reuseExistingServer: true,
     stdout: "pipe",
