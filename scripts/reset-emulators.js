@@ -190,9 +190,6 @@ async function main() {
     // Clean up firebase data directory
     cleanFirebaseData();
 
-    // Start emulators fresh
-    await startEmulators();
-
     logger.success('Emulator reset process completed successfully');
 
     // Exit with success

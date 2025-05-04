@@ -1,5 +1,13 @@
 name: 'Run E2E Tests'
-description: 'Sets up environment, runs E2E tests, and handles cleanup'
+description: 'Sets up environment, runs E2E tests against emulators for the specified project, and handles cleanup'
+
+inputs:
+  firebase_project_id:
+    description: 'Firebase Project ID for emulators and tests'
+    required: true
+  admin_secret_key:
+    description: 'Admin secret key for seeding endpoints'
+    required: true
 
 outputs:
   test_result:
@@ -13,11 +21,52 @@ runs:
       shell: bash
       run: pnpm test:e2e:install
 
-    - name: Run E2E Tests
+    - name: Build Cloud Functions
+      shell: bash
+      run: |
+        echo "Building Cloud Functions..."
+        pnpm --filter functions build
+
+    - name: Start Firebase Emulators
+      shell: bash
+      env:
+        VITE_FIREBASE_PROJECT_ID: ${{ inputs.firebase_project_id }}
+        ADMIN_SECRET_KEY: ${{ inputs.admin_secret_key }}
+      run: |
+        echo "Starting Firebase Emulators..."
+        pnpm dev:emulators &
+        echo "Waiting for emulators to become ready..."
+        timeout=60 # Maximum wait time in seconds
+        interval=5  # Check interval in seconds
+        elapsed=0
+        # Check the Functions emulator UI port (or another reliable endpoint)
+        functions_ui_url="http://127.0.0.1:4000"
+        while ! curl --output /dev/null --silent --head --fail "$functions_ui_url"; do
+          if [ $elapsed -ge $timeout ]; then
+            echo "Error: Emulators did not start within $timeout seconds."
+            # Attempt to kill the background process before exiting
+            pkill -f "firebase emulators:start" || true
+            exit 1
+          fi
+          echo "Emulators not ready yet, waiting $interval seconds..."
+          sleep $interval
+          elapsed=$((elapsed + interval))
+        done
+        echo "Emulators appear ready."
+
+    - name: Seed Emulators and Run E2E Tests
       id: e2e_tests
       shell: bash
-      run: pnpm run test:e2e:ci
+      env:
+        ADMIN_SECRET_KEY: ${{ inputs.admin_secret_key }}
+      run: |
+        echo "Seeding emulators..."
+        pnpm emulators:seed
+        echo "Running Playwright tests..."
+        echo "Using Firebase Project ID: ${{ inputs.firebase_project_id }}"
+        pnpm run test:e2e:ci
 
-    - name: Cleanup
+    - name: Cleanup Emulators
       shell: bash
-      run: pnpm emulators:reset && pnpm screenshots:cleanup -- --keep=3
+      if: always()
+      run: pnpm emulators:reset

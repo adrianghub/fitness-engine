@@ -133,6 +133,9 @@ devDependencies:
   concurrently:
     specifier: ^9.1.2
     version: 9.1.2
+  dotenv:
+    specifier: ^16.5.0
+    version: 16.5.0
   eslint:
     specifier: ^9.21.0
     version: 9.24.0
@@ -4624,6 +4627,11 @@ packages:
 
   /dom-accessibility-api@0.6.3:
     resolution: {integrity: sha512-7ZgogeTnjuHbo+ct10G9Ffp0mif17idi0IyWNVA/wcwcm7NPOD/WEHVP3n7n3MhXqxoIYm8d6MuZohYWIZ4T3w==}
+    dev: true
+
+  /dotenv@16.5.0:
+    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
+    engines: {node: '>=12'}
     dev: true
 
   /dunder-proto@1.0.1:

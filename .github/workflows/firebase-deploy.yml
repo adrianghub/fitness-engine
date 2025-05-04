@@ -54,6 +54,9 @@ jobs:
 
       - name: Run E2E Tests
         uses: ./.github/actions/e2e-tests
+        with:
+          firebase_project_id: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
+          admin_secret_key: ${{ secrets.ADMIN_SECRET_KEY }}
 
       - name: Build and Deploy
         env:

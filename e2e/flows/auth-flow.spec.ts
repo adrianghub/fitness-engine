@@ -58,7 +58,7 @@ test.describe("Authentication Flow", () => {
       // After login, we can be redirected to either dashboard or personalization
       // depending on whether the user's profile is complete
       await page.waitForURL(/\/(dashboard|personalization)/, {
-        timeout: 15000,
+        timeout: 30000,
       });
 
       // Take screenshot to see where we landed
@@ -98,7 +98,6 @@ test.describe("Authentication Flow", () => {
       .fill("Redirect Test");
     await popupPage.getByRole("button", { name: /sign in/i }).click();
 
-    // Should redirect to personalization page
-    await expect(page).toHaveURL("/personalization", { timeout: 15000 });
+    await expect(page).toHaveURL("/personalization", { timeout: 30000 });
   });
 });

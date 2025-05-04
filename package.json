@@ -13,7 +13,6 @@
     "deploy": "node scripts/deploy-firebase",
     "lint": "eslint .",
     "preview": "vite preview",
-    "seed:emulator": "vite-node src/scripts/seed-emulator/index.ts",
     "generate:types": "typesync generate-ts --definition 'schema-definitions/**/*.yml' --target firebase@11 --outFile src/types/models.ts",
     "generate:db-schema-graph": "typesync generate-graph --definition 'schema-definitions/**/*.yml' --outFile src/types/db-schema-graph.md",
     "test": "vitest run",
@@ -24,9 +23,11 @@
     "test:e2e:ui": "npx playwright test --ui",
     "test:e2e:codegen": "npx playwright codegen http://localhost:5173",
     "test:e2e:install": "npx playwright install chromium --with-deps",
-    "test:e2e:ci": "pnpm --filter functions build && pnpm run emulators:reset && npx playwright test --retries=1",
-    "emulators:reset": "pnpm run screenshots:cleanup && node scripts/reset-emulators.js",
-    "screenshots:cleanup": "node scripts/cleanup-emulators.js"
+    "test:e2e:ci": "npx playwright test --retries=1",
+    "emulators:reset": "node scripts/reset-emulators.js",
+    "emulators:seed": "node scripts/seed-emulators.js",
+    "screenshots:cleanup": "node scripts/cleanup-screenshots.js",
+    "emulators:teardown": "pnpm run screenshots:cleanup -- --keep=3 && pnpm emulators:reset"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.4",
@@ -73,6 +74,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/ui": "^3.1.2",
     "concurrently": "^9.1.2",
+    "dotenv": "^16.5.0",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
