@@ -64,4 +64,4 @@ runs:
         pnpm emulators:seed
         echo "Running Playwright tests..."
         echo "Using Firebase Project ID: ${{ inputs.firebase_project_id }}"
-        pnpm run test:e2e:ci
+        pnpm test:e2e:ci
