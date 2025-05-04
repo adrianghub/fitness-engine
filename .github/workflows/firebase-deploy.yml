@@ -58,6 +58,11 @@ jobs:
           firebase_project_id: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
           admin_secret_key: ${{ secrets.ADMIN_SECRET_KEY }}
 
+      # Add step to teardown emulators AFTER tests finish
+      - name: Teardown Emulators
+        if: always() # Ensure cleanup happens even if tests fail
+        run: pnpm emulators:teardown
+
       - name: Build and Deploy
         env:
           VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}

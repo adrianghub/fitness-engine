@@ -65,8 +65,3 @@ runs:
         echo "Running Playwright tests..."
         echo "Using Firebase Project ID: ${{ inputs.firebase_project_id }}"
         pnpm run test:e2e:ci
-
-    - name: Cleanup Emulators
-      shell: bash
-      if: always()
-      run: pnpm emulators:reset
