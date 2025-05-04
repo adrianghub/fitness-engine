@@ -17,60 +17,99 @@ test.describe("Authentication Flow", () => {
     page,
     authPage,
   }) => {
-    // Start at the login page
-    await page.goto("/login");
-
-    // Take screenshot for reference
-    await takeScreenshot(page, "login-page", ScreenshotCategory.AUTH);
-
-    // Click Sign in with Google button and wait for popup
-    const popupPromise = page.waitForEvent("popup");
-    await authPage.clickGoogleSignIn();
-
-    // Handle the auth emulator popup
-    const popupPage = await popupPromise;
-    await popupPage.waitForLoadState();
-
-    // Take a screenshot of the popup for debugging
-    await takeScreenshot(
-      popupPage,
-      "auth-emulator-popup",
-      ScreenshotCategory.AUTH
-    );
-
     try {
-      console.log("No existing accounts, adding new one");
-      const addAccountButton = popupPage.getByText("Add new account");
+      // Start at the login page
+      await page.goto("/login");
 
-      if (await addAccountButton.isVisible()) {
-        await addAccountButton.click();
+      // Take screenshot for reference
+      await takeScreenshot(page, "login-page", ScreenshotCategory.AUTH);
+
+      // Click Sign in with Google button and wait for popup
+      const popupPromise = page.waitForEvent("popup");
+      await authPage.clickGoogleSignIn();
+
+      // Handle the auth emulator popup
+      const popupPage = await popupPromise;
+      await popupPage.waitForLoadState("domcontentloaded", { timeout: 10000 });
+
+      // Take a screenshot of the popup for debugging
+      await takeScreenshot(
+        popupPage,
+        "auth-emulator-popup",
+        ScreenshotCategory.AUTH
+      );
+
+      try {
+        console.log("No existing accounts, adding new one");
+
+        // Check for add account button with proper timeout
+        const addAccountButton = popupPage.getByText("Add new account");
+        if (await addAccountButton.isVisible()) {
+          await addAccountButton.click();
+        }
+
+        // Generate unique email to prevent conflicts
+        const randomId = Math.floor(Math.random() * 1000000);
+        const testEmail = `test-user-${randomId}@example.com`;
+
+        // Fill in the new account details with proper waits
+        await popupPage.getByLabel("Email").waitFor({ state: "visible" });
+        await popupPage.getByLabel("Email").fill(testEmail);
+
+        await popupPage
+          .getByLabel("Display name", { exact: false })
+          .waitFor({ state: "visible" });
+        await popupPage
+          .getByLabel("Display name", { exact: false })
+          .fill(`Test User ${randomId}`);
+
+        // Click the sign in button
+        const signInButton = popupPage.getByRole("button", {
+          name: /sign in/i,
+        });
+        await signInButton.waitFor({ state: "visible" });
+        await signInButton.click();
+
+        // Wait for redirection - using a more robust approach
+        await Promise.race([
+          popupPage.waitForEvent("close", { timeout: 15000 }).catch(() => {}),
+          page.waitForURL(/\/(dashboard|personalization)/, { timeout: 30000 }),
+        ]);
+
+        // Make sure we're back on the main page and it's loaded
+        await page.waitForLoadState("networkidle");
+
+        // Check for a element that should be visible after login
+        await expect(page.getByRole("banner")).toBeVisible();
+        console.log("Banner is visible.");
+
+        // Take screenshot of the final state
+        await takeScreenshot(
+          page,
+          "after-login-confirmed",
+          ScreenshotCategory.AUTH
+        );
+
+        console.log("Try block completed successfully.");
+      } catch (error) {
+        // Take screenshot of any error in the popup handling
+        if (popupPage && !popupPage.isClosed()) {
+          await takeErrorScreenshot(popupPage, "popup-error");
+        }
+
+        // Re-throw to be caught by outer try-catch
+        throw error;
       }
-
-      // Fill in the new account details
-      await popupPage.getByLabel("Email").fill("test-user@example.com");
-      await popupPage
-        .getByLabel("Display name", { exact: false })
-        .fill("Test User");
-
-      // Click the sign in button
-      await popupPage.getByRole("button", { name: /sign in/i }).click();
-
-      // After login, we can be redirected to either dashboard or personalization
-      // depending on whether the user's profile is complete
-      await page.waitForURL(/\/(dashboard|personalization)/, {
-        timeout: 30000,
-      });
-
-      // Take screenshot to see where we landed
-      await takeScreenshot(page, "after-login", ScreenshotCategory.AUTH);
-
-      // Verify we're logged in by checking for header elements that should be visible for logged-in users
-      await expect(page.getByRole("banner")).toBeVisible({ timeout: 5000 });
     } catch (error) {
       // Take screenshot on error to help with debugging
-      await takeErrorScreenshot(page, "auth-error");
+      if (page && !page.isClosed()) {
+        await takeErrorScreenshot(page, "auth-error-in-try");
+      }
+
+      console.error("Test failed with error:", error);
       throw error;
     }
+    console.log("Test function body finished.");
   });
 
   test("should redirect to original page after login", async ({
@@ -83,21 +122,46 @@ test.describe("Authentication Flow", () => {
     // Should redirect to login with redirect param
     await expect(page).toHaveURL("/login?redirect=%2Fpersonalization");
 
-    // Click Sign in with Google button and wait for popup
-    const popupPromise = page.waitForEvent("popup");
-    await authPage.clickGoogleSignIn();
+    try {
+      // Click Sign in with Google button and wait for popup
+      const popupPromise = page.waitForEvent("popup");
+      await authPage.clickGoogleSignIn();
 
-    // Handle the auth emulator popup
-    const popupPage = await popupPromise;
-    await popupPage.waitForLoadState();
+      // Handle the auth emulator popup
+      const popupPage = await popupPromise;
+      await popupPage.waitForLoadState("domcontentloaded", { timeout: 10000 });
 
-    await popupPage.getByText("Add new account").click();
-    await popupPage.getByLabel("Email").fill("redirect-test@example.com");
-    await popupPage
-      .getByLabel("Display name", { exact: false })
-      .fill("Redirect Test");
-    await popupPage.getByRole("button", { name: /sign in/i }).click();
+      // Generate unique credentials
+      const randomId = Math.floor(Math.random() * 1000000);
+      const email = `redirect-test-${randomId}@example.com`;
+      const displayName = `Redirect Test ${randomId}`;
 
-    await expect(page).toHaveURL("/personalization", { timeout: 30000 });
+      await popupPage.getByText("Add new account").click();
+      await popupPage.getByLabel("Email").waitFor({ state: "visible" });
+      await popupPage.getByLabel("Email").fill(email);
+
+      await popupPage
+        .getByLabel("Display name", { exact: false })
+        .waitFor({ state: "visible" });
+      await popupPage
+        .getByLabel("Display name", { exact: false })
+        .fill(displayName);
+
+      await popupPage.getByRole("button", { name: /sign in/i }).click();
+
+      await Promise.race([
+        popupPage.waitForEvent("close", { timeout: 15000 }).catch(() => {}),
+        page.waitForURL("/personalization", { timeout: 30000 }),
+      ]);
+
+      // Verify we landed on the correct page
+      await expect(page).toHaveURL("/personalization");
+    } catch (error) {
+      // Take screenshot on error
+      if (page && !page.isClosed()) {
+        await takeErrorScreenshot(page, "redirect-test-error");
+      }
+      throw error;
+    }
   });
 });

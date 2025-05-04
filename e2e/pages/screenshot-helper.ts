@@ -1,4 +1,5 @@
 import { Page } from "@playwright/test";
+import fs from "fs";
 import path from "path";
 
 /**
@@ -19,12 +20,32 @@ export async function takeScreenshot(
   name: string,
   category: ScreenshotCategory = ScreenshotCategory.DEBUG
 ): Promise<void> {
-  const timestamp = new Date().toISOString().replace(/:/g, "-").split(".")[0];
-  const filename = `${name}-${timestamp}.png`;
-  const filepath = path.join("e2e/screenshots", category, filename);
+  try {
+    if (!page || page.isClosed()) {
+      console.warn(
+        `Cannot take screenshot for ${name}: page is closed or null`
+      );
+      return;
+    }
 
-  await page.screenshot({ path: filepath });
-  console.log(`Screenshot saved: ${filepath}`);
+    const timestamp = new Date().toISOString().replace(/:/g, "-").split(".")[0];
+    const filename = `${name}-${timestamp}.png`;
+    const dirPath = path.join("e2e/screenshots", category);
+    const filepath = path.join(dirPath, filename);
+
+    // Ensure directory exists
+    fs.mkdirSync(dirPath, { recursive: true });
+
+    // Use a timeout to prevent hanging
+    const screenshotPromise = page.screenshot({
+      path: filepath,
+      timeout: 5000,
+    });
+    await screenshotPromise;
+    console.log(`Screenshot saved: ${filepath}`);
+  } catch (error) {
+    console.warn(`Failed to take screenshot for ${name}: ${error.message}`);
+  }
 }
 
 /**
@@ -34,12 +55,30 @@ export async function takeErrorScreenshot(
   page: Page,
   testName: string
 ): Promise<void> {
-  const timestamp = new Date().toISOString().replace(/:/g, "-").split(".")[0];
-  const filename = `error-${testName}-${timestamp}.png`;
-  const filepath = path.join("e2e/screenshots/debug", filename);
+  try {
+    if (!page || page.isClosed()) {
+      console.warn(
+        `Cannot take error screenshot for ${testName}: page is closed or null`
+      );
+      return;
+    }
 
-  await page.screenshot({ path: filepath });
-  console.log(`Error screenshot saved: ${filepath}`);
+    const timestamp = new Date().toISOString().replace(/:/g, "-").split(".")[0];
+    const filename = `error-${testName}-${timestamp}.png`;
+    const dirPath = path.join("e2e/screenshots/debug");
+    const filepath = path.join(dirPath, filename);
+
+    // Ensure directory exists
+    fs.mkdirSync(dirPath, { recursive: true });
+
+    // Use a timeout to prevent hanging
+    await page.screenshot({ path: filepath, timeout: 5000 });
+    console.log(`Error screenshot saved: ${filepath}`);
+  } catch (error) {
+    console.warn(
+      `Failed to take error screenshot for ${testName}: ${error.message}`
+    );
+  }
 }
 
 /**
