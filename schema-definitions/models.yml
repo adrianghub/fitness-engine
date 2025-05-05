@@ -128,6 +128,10 @@ User:
         type: timestamp
         optional: true
         docs: When the user account was last updated
+      lastOpponentRegeneration:
+        type: timestamp
+        optional: true
+        docs: Timestamp of last opponent generation
 
 ChallengeTemplate:
   model: document
@@ -235,6 +239,12 @@ Opponent:
   type:
     type: object
     fields:
+      id:
+        type: string
+        docs: Document ID
+      userId:
+        type: string
+        docs: ID of the user this opponent belongs to
       name:
         type: string
         docs: Name of the opponent
@@ -245,12 +255,18 @@ Opponent:
         type: double
         optional: true
         docs: Current ranking position
-      lastUpdated:
-        type: timestamp
-        docs: When the opponent was last updated
       level:
         type: UserLevel
         docs: Opponent's fitness level
+      createdAt:
+        type: timestamp
+        docs: When the opponent record was created
+      updatedAt:
+        type: timestamp
+        docs: When the opponent record was last updated
+      lastUpdated:
+        type: timestamp
+        docs: When the opponent was last updated (review needed)
 
 Leaderboard:
   model: document
@@ -265,9 +281,18 @@ Leaderboard:
       entityId:
         type: string
         docs: Reference to user or opponent ID
+      userId:
+        type: string
+        docs: ID of the user this leaderboard entry relates to
+      level:
+        type: UserLevel
+        docs: Level associated with the entry
       points:
         type: double
         docs: Total points
+      rank:
+        type: double
+        optional: true
+        docs: Calculated rank for the user's leaderboard
       lastUpdated:
         type: timestamp
-        docs: When the leaderboard entry was last updated

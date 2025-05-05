@@ -1,5 +1,9 @@
 import type { ChallengeLevel, ChallengeTemplate } from "../types/models";
 
+export const CHALLENGE_CONFIG = {
+  retries: 3,
+};
+
 /**
  * Point values for different types of challenges at each level
  */

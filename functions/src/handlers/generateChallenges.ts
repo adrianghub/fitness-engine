@@ -4,24 +4,20 @@
  */
 
 import * as admin from "firebase-admin";
-import {
-  FieldPath,
-  Timestamp,
-  type DocumentReference,
-} from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
+import * as challengeTemplateRepo from "../repositories/ChallengeTemplateRepository";
+import * as userChallengeRepo from "../repositories/UserChallengeRepository";
 import type {
   ChallengeLevel,
   ChallengeTemplate,
   ChallengeType,
-  UserChallenge,
 } from "../types/models";
-import { CHALLENGE_POINTS, selectRegularChallenges } from "../utils/challenges";
-
-const COLLECTIONS = {
-  challengeTemplates: "challengeTemplates",
-  userChallenges: "userChallenges",
-};
+import {
+  CHALLENGE_CONFIG,
+  CHALLENGE_POINTS,
+  selectRegularChallenges,
+} from "../utils/challenges";
 
 /**
  * Generates regular challenges for a user based on their level and AI recommendations
@@ -47,40 +43,41 @@ export async function generateUserChallenges(
     const now = Timestamp.now();
 
     await db.runTransaction(async (transaction) => {
-      const existingChallengesQuery = db
-        .collection(COLLECTIONS.userChallenges)
-        .where("userId", "==", userId)
-        .where("type", "in", ["regular", "daily"]);
-      const existingChallengesSnapshot = await transaction.get(
-        existingChallengesQuery
-      );
+      const existingChallengesSnapshot =
+        await userChallengeRepo.findUserChallengesByCriteria(
+          userId,
+          {
+            types: ["regular", "daily"],
+          },
+          transaction
+        );
       logger.info(
-        `Read ${existingChallengesSnapshot.size} existing challenges to potentially delete.`
+        `Read ${existingChallengesSnapshot.size} existing regular/daily challenges to potentially delete (via repo).`
       );
 
-      const challengeTemplatesQuery = db
-        .collection(COLLECTIONS.challengeTemplates)
-        .where("level", "==", level);
-      const challengeTemplatesSnapshot = await transaction.get(
-        challengeTemplatesQuery
+      const challengeTemplates = await challengeTemplateRepo.findByLevel(
+        level,
+        transaction
       );
       logger.info(
-        `Read ${challengeTemplatesSnapshot.size} challenge templates for level ${level}.`
+        `Read ${challengeTemplates.length} challenge templates for level ${level} (from repo).`
       );
 
-      let validationSnapshot: admin.firestore.QuerySnapshot | null = null;
+      let validationResults: (ChallengeTemplate & { id: string })[] = [];
       if (recommendedChallengeIds && recommendedChallengeIds.length > 0) {
-        const validationQuery = db
-          .collection(COLLECTIONS.challengeTemplates)
-          .where(FieldPath.documentId(), "in", recommendedChallengeIds);
-        validationSnapshot = await transaction.get(validationQuery);
+        validationResults = await challengeTemplateRepo.findByIds(
+          recommendedChallengeIds,
+          transaction
+        );
         logger.info(
-          `Read ${validationSnapshot.size} recommended templates for validation.`
+          `Read ${validationResults.length} recommended templates for validation (from repo).`
         );
       }
 
-      if (challengeTemplatesSnapshot.empty) {
-        logger.error(`No challenge templates found for level: ${level}`);
+      if (challengeTemplates.length === 0) {
+        logger.error(
+          `No challenge templates found for level: ${level} (from repo)`
+        );
         // Decide if you want to throw an error or just return early
         return;
       }
@@ -89,25 +86,22 @@ export async function generateUserChallenges(
       if (
         recommendedChallengeIds &&
         recommendedChallengeIds.length > 0 &&
-        validationSnapshot
+        validationResults.length > 0
       ) {
-        if (validationSnapshot.size === recommendedChallengeIds.length) {
+        if (validationResults.length === recommendedChallengeIds.length) {
           useAIRecommendations = true;
           logger.info(
-            `Validated ${validationSnapshot.size} AI recommended challenges.`
+            `Validated ${validationResults.length} AI recommended challenges (from repo).`
           );
         } else {
           logger.warn(
-            `Some AI recommended challenges not found in templates. Expected: ${recommendedChallengeIds.length}, Found: ${validationSnapshot.size}. Falling back to standard selection.`
+            `Some AI recommended challenges not found in templates. Expected: ${recommendedChallengeIds.length}, Found: ${validationResults.length}. Falling back to standard selection.`
           );
           useAIRecommendations = false;
         }
       }
 
-      const regularTemplates = challengeTemplatesSnapshot.docs.map((doc) => ({
-        ...(doc.data() as ChallengeTemplate),
-        id: doc.id,
-      }));
+      const regularTemplates = challengeTemplates;
 
       const { dailyChallenge, regularChallenges } = selectRegularChallenges(
         regularTemplates,
@@ -115,52 +109,48 @@ export async function generateUserChallenges(
         level
       );
 
-      existingChallengesSnapshot.forEach((doc) => {
-        transaction.delete(doc.ref);
-      });
+      userChallengeRepo.deleteChallengesInSnapshot(
+        transaction,
+        existingChallengesSnapshot
+      );
+
       if (!existingChallengesSnapshot.empty) {
         logger.info(
-          `Marked ${existingChallengesSnapshot.size} existing challenges for deletion.`
+          `Marked ${existingChallengesSnapshot.size} existing challenges for deletion (via repo).`
         );
       }
 
       if (dailyChallenge) {
-        const dailyChallengeRef = db
-          .collection(COLLECTIONS.userChallenges)
-          .doc() as DocumentReference<UserChallenge>;
-        transaction.set(dailyChallengeRef, {
+        userChallengeRepo.createChallenge(transaction, {
           userId,
           challengeId: dailyChallenge.id,
           status: "not-started",
           assignedAt: now,
           points: CHALLENGE_POINTS[level].daily,
           type: "daily" as ChallengeType,
+          retriesLeft: 3,
         });
         logger.info(
-          `Marked daily challenge ${dailyChallenge.id} for creation.`
+          `Marked daily challenge ${dailyChallenge.id} for creation (via repo).`
         );
       } else {
         logger.warn(`No suitable daily challenge found for level ${level}.`);
       }
 
-      // 3. Add regular challenges
       for (const challenge of regularChallenges) {
-        const regularChallengeRef = db
-          .collection(COLLECTIONS.userChallenges)
-          .doc(); // Generate new ID
-        transaction.set(regularChallengeRef, {
+        userChallengeRepo.createChallenge(transaction, {
           userId,
-          challengeId: challenge.id, // Store template ID
+          challengeId: challenge.id,
           status: "not-started",
           assignedAt: now,
           points: CHALLENGE_POINTS[level].regular,
           type: "regular" as ChallengeType,
-          level,
+          retriesLeft: CHALLENGE_CONFIG.retries,
         });
       }
       if (regularChallenges.length > 0) {
         logger.info(
-          `Marked ${regularChallenges.length} regular challenges for creation.`
+          `Marked ${regularChallenges.length} regular challenges for creation (via repo).`
         );
       }
 

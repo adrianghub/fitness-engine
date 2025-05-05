@@ -47,24 +47,37 @@ export interface Leaderboard {
   entityType: EntityType;
   /** Reference to user or opponent ID */
   entityId: string;
+  /** ID of the user this leaderboard entry relates to */
+  userId: string;
+  /** Level associated with the entry */
+  level: UserLevel;
   /** Total points */
   points: number;
-  /** When the leaderboard entry was last updated */
+  /** Calculated rank for the user's leaderboard */
+  rank?: number;
   lastUpdated: firestore.Timestamp;
 }
 
 /** Represents a fictional opponent for competition */
 export interface Opponent {
+  /** Document ID */
+  id: string;
+  /** ID of the user this opponent belongs to */
+  userId: string;
   /** Name of the opponent */
   name: string;
   /** Current points of the opponent */
   currentPoints: number;
   /** Current ranking position */
   ranking?: number;
-  /** When the opponent was last updated */
-  lastUpdated: firestore.Timestamp;
   /** Opponent's fitness level */
   level: UserLevel;
+  /** When the opponent record was created */
+  createdAt: firestore.Timestamp;
+  /** When the opponent record was last updated */
+  updatedAt: firestore.Timestamp;
+  /** When the opponent was last updated (review needed) */
+  lastUpdated: firestore.Timestamp;
 }
 
 /** Represents a universal challenge that is always available */
@@ -103,6 +116,8 @@ export interface User {
   createdAt?: firestore.Timestamp;
   /** When the user account was last updated */
   updatedAt?: firestore.Timestamp;
+  /** Timestamp of last opponent generation */
+  lastOpponentRegeneration?: firestore.Timestamp;
 }
 
 /** Represents an assigned challenge to a user */

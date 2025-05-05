@@ -7,6 +7,8 @@ import * as admin from "firebase-admin";
 import { QuerySnapshot, Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import type { Leaderboard, User, UserLevel } from "../../src/types/models";
+import * as opponentRepo from "../repositories/OpponentRepository";
+import * as userRepo from "../repositories/UserRepository";
 import {
   calculateOpponentPoints,
   calculatePointChange,
@@ -82,10 +84,8 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
 
       // Update existing opponents' scores
       try {
-        const existingOpponentsSnapshot = await db
-          .collection("opponents")
-          .where("userId", "==", userId)
-          .get();
+        const existingOpponentsSnapshot =
+          await opponentRepo.findByUserId(userId);
 
         if (!existingOpponentsSnapshot.empty) {
           logger.info(
@@ -132,8 +132,8 @@ export async function updateOpponentsOnSchedule(): Promise<void> {
               // Update leaderboard with new scores
               await updateLeaderboardRanks(db, userId);
 
-              // Update the last regeneration timestamp
-              await db.collection("users").doc(userId).update({
+              const userRefForUpdate = userRepo.findRefById(userId);
+              await userRefForUpdate.update({
                 lastOpponentRegeneration: Timestamp.now(),
                 updatedAt: Timestamp.now(),
               });
@@ -184,8 +184,9 @@ export async function generateUserOpponents(
 
   try {
     await db.runTransaction(async (transaction) => {
-      const existingOpponentsSnapshot = await transaction.get(
-        db.collection("opponents").where("userId", "==", userId)
+      const existingOpponentsSnapshot = await opponentRepo.findByUserId(
+        userId,
+        transaction
       );
 
       const existingLeaderboardEntries = await transaction.get(
@@ -194,8 +195,6 @@ export async function generateUserOpponents(
           .where("entityType", "==", "opponent")
           .where("userId", "==", userId)
       );
-
-      const userRef = db.collection("users").doc(userId);
 
       const numOpponents = 100;
       const opponentsData = Array.from({ length: numOpponents }, () => {
@@ -222,17 +221,17 @@ export async function generateUserOpponents(
         updatedAt: now,
       }));
 
-      existingOpponentsSnapshot.forEach((doc) => {
-        transaction.delete(doc.ref);
-      });
+      opponentRepo.deleteOpponentsInSnapshot(
+        transaction,
+        existingOpponentsSnapshot
+      );
 
       existingLeaderboardEntries.forEach((doc) => {
         transaction.delete(doc.ref);
       });
 
       opponentsData.forEach((opponentData) => {
-        const opponentRef = db.collection("opponents").doc(opponentData.id);
-        transaction.set(opponentRef, opponentData);
+        opponentRepo.createOpponentWithId(transaction, opponentData);
       });
 
       leaderboardEntries.forEach((entry) => {
@@ -240,10 +239,7 @@ export async function generateUserOpponents(
         transaction.set(leaderboardRef, entry);
       });
 
-      transaction.update(userRef, {
-        lastOpponentRegeneration: now,
-        updatedAt: now,
-      });
+      userRepo.updateLastOpponentRegeneration(transaction, userId, now, now);
 
       logger.info(
         `Prepared ${opponentIds.length} opponents and leaderboard entries for user ${userId}`

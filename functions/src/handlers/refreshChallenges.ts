@@ -1,26 +1,18 @@
 import * as admin from "firebase-admin";
-import {
-  QuerySnapshot,
-  Timestamp,
-  type DocumentReference,
-} from "firebase-admin/firestore";
+import { Timestamp } from "firebase-admin/firestore";
 import * as logger from "firebase-functions/logger";
 import { ADJACENT_LEVELS } from "../data/adjacent-levels";
 import { assignUniversalChallenges } from "../handlers/manageUniversalChallenges";
+import * as challengeTemplateRepo from "../repositories/ChallengeTemplateRepository";
+import * as userChallengeRepo from "../repositories/UserChallengeRepository";
+import * as userRepo from "../repositories/UserRepository";
 import { generatePersonalizedChallenges } from "../services/ai";
-import type {
-  ChallengeTemplate,
-  ChallengeType,
-  User,
-  UserChallenge,
-} from "../types/models";
-import { CHALLENGE_POINTS, selectRegularChallenges } from "../utils/challenges";
-
-const COLLECTIONS = {
-  users: "users",
-  userChallenges: "userChallenges",
-  challengeTemplates: "challengeTemplates",
-};
+import type { ChallengeType, UserChallenge } from "../types/models";
+import {
+  CHALLENGE_CONFIG,
+  CHALLENGE_POINTS,
+  selectRegularChallenges,
+} from "../utils/challenges";
 
 /**
  * Refreshes user challenges daily and applies penalties for incomplete challenges
@@ -32,11 +24,7 @@ export async function refreshUserChallenges(): Promise<void> {
   const yesterday = new Timestamp(now.seconds - 86400, now.nanoseconds);
 
   try {
-    // Get all users with completed profiles
-    const usersSnapshot = (await db
-      .collection(COLLECTIONS.users)
-      .where("isProfileComplete", "==", true)
-      .get()) as QuerySnapshot<User>;
+    const usersSnapshot = await userRepo.findAllWithCompletedProfiles();
 
     if (usersSnapshot.empty) {
       logger.info("No users found with completed profiles");
@@ -53,37 +41,31 @@ export async function refreshUserChallenges(): Promise<void> {
         const recentChallengeIds: string[] = [];
 
         await db.runTransaction(async (transaction) => {
-          // Get incomplete challenges - apply penalties to ALL incomplete challenges
-          const incompleteChallengesSnapshot = await transaction.get(
-            db
-              .collection(COLLECTIONS.userChallenges)
-              .where("userId", "==", userId)
-              .where("status", "not-in", ["completed"])
-              .where("assignedAt", "<", now)
-          );
+          const incompleteChallengesSnapshot =
+            await userChallengeRepo.findIncompleteChallengesBefore(
+              userId,
+              now,
+              transaction
+            );
 
-          // Get all old challenges to be removed
-          const oldChallengesSnapshot = await transaction.get(
-            db
-              .collection(COLLECTIONS.userChallenges)
-              .where("userId", "==", userId)
-              .where("assignedAt", "<", now)
-          );
+          const oldChallengesSnapshot =
+            await userChallengeRepo.findChallengesAssignedBefore(
+              userId,
+              now,
+              transaction
+            );
 
-          // Get challenges from today - to avoid duplicates
-          const todaysChallengesSnapshot = await transaction.get(
-            db
-              .collection(COLLECTIONS.userChallenges)
-              .where("userId", "==", userId)
-              .where("type", "==", "regular")
-              .where("assignedAt", ">=", yesterday)
-          );
+          const todaysChallengesSnapshot =
+            await userChallengeRepo.findRegularChallengesSince(
+              userId,
+              yesterday,
+              transaction
+            );
 
           const allowedLevels = ADJACENT_LEVELS[userData.level];
-          const levelChallengesSnapshot = await transaction.get(
-            db
-              .collection(COLLECTIONS.challengeTemplates)
-              .where("level", "in", allowedLevels)
+          const levelChallenges = await challengeTemplateRepo.findByLevels(
+            allowedLevels,
+            transaction
           );
 
           let penaltyPoints = 0;
@@ -99,17 +81,12 @@ export async function refreshUserChallenges(): Promise<void> {
             recentChallengeIds.push(challenge.challengeId);
           });
 
-          const availableRegularChallenges = levelChallengesSnapshot.docs
-            .map((doc) => ({
-              ...doc.data(),
-              id: doc.id,
-            }))
-            .filter(
-              (challenge) => !recentChallengeIds.includes(challenge.id)
-            ) as (ChallengeTemplate & { id: string })[];
+          const availableRegularChallenges = levelChallenges.filter(
+            (challenge) => !recentChallengeIds.includes(challenge.id)
+          );
 
           logger.info(
-            `Found ${availableRegularChallenges.length} available challenges across levels: ${allowedLevels.join(", ")}`
+            `Found ${availableRegularChallenges.length} available challenges across levels: ${allowedLevels.join(", ")} (from repo)`
           );
 
           // Generate personalized challenges
@@ -134,9 +111,8 @@ export async function refreshUserChallenges(): Promise<void> {
             const finalPenalty = Math.min(penaltyPoints, currentPoints);
 
             if (finalPenalty > 0) {
-              transaction.update(userDoc.ref, {
-                points: Math.max(0, currentPoints - finalPenalty),
-              });
+              const newPoints = Math.max(0, currentPoints - finalPenalty);
+              userRepo.updatePoints(transaction, userId, newPoints, now);
 
               const leaderboardRef = db.collection("leaderboard").doc(userId);
               transaction.set(
@@ -157,39 +133,36 @@ export async function refreshUserChallenges(): Promise<void> {
             }
           }
 
-          oldChallengesSnapshot.forEach((doc) => {
-            transaction.delete(doc.ref);
-          });
+          userChallengeRepo.deleteChallengesInSnapshot(
+            transaction,
+            oldChallengesSnapshot
+          );
 
-          logger.info(`Removed ${oldChallengesSnapshot.size} old challenges`);
+          logger.info(
+            `Removed ${oldChallengesSnapshot.size} old challenges (via repo)`
+          );
 
           if (dailyChallenge) {
-            const challengeRef = db
-              .collection(COLLECTIONS.userChallenges)
-              .doc() as DocumentReference<UserChallenge>;
-            transaction.set(challengeRef, {
+            userChallengeRepo.createChallenge(transaction, {
               userId,
               challengeId: dailyChallenge.id,
               status: "not-started",
               assignedAt: now,
               points: CHALLENGE_POINTS[userData.level].daily,
               type: "daily" as ChallengeType,
-              retriesLeft: 3,
+              retriesLeft: CHALLENGE_CONFIG.retries,
             });
           }
 
           for (const challenge of regularChallenges) {
-            const challengeRef = db
-              .collection(COLLECTIONS.userChallenges)
-              .doc() as DocumentReference<UserChallenge>;
-            transaction.set(challengeRef, {
+            userChallengeRepo.createChallenge(transaction, {
               userId,
               challengeId: challenge.id,
               status: "not-started",
               assignedAt: now,
               points: CHALLENGE_POINTS[userData.level].regular,
               type: "regular" as ChallengeType,
-              retriesLeft: 3,
+              retriesLeft: CHALLENGE_CONFIG.retries,
             });
           }
 

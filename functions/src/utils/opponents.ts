@@ -31,16 +31,13 @@ export function generateRandomUsername(): string {
     USERNAME_PREFIXES[Math.floor(Math.random() * USERNAME_PREFIXES.length)];
 
   const patterns = [
-    () =>
-      `${prefix}_${firstName}_${lastName}_${Math.floor(Math.random() * 1000)}`,
-    () => `${firstName}_${lastName}_${Math.floor(Math.random() * 1000)}`,
-    () => `${prefix}_${firstName}_${Math.floor(Math.random() * 1000)}`,
-    () => `${firstName}_${lastName}_${Math.floor(Math.random() * 1000)}`,
-    () => `${prefix}_${firstName}_${Math.floor(Math.random() * 1000)}`,
+    () => `${firstName}_${lastName}_${Math.floor(Math.random() * 100)}`,
+    () => `${firstName}_${lastName}_${Math.floor(Math.random() * 100)}`,
+    () => `${prefix}_${firstName}_${Math.floor(Math.random() * 100)}`,
+    () => `${prefix}_${lastName}_${Math.floor(Math.random() * 100)}`,
   ];
 
-  const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
-  return selectedPattern();
+  return patterns[Math.floor(Math.random() * patterns.length)]();
 }
 
 /**
