@@ -1,5 +1,7 @@
 # FitnessEngine
 
+[![FitnessEngine Loom Video Thumbnail](https://cdn.loom.com/sessions/thumbnails/9f8e0366fe9742c098a5fb9afba4cd4d-df915e5e26305924-full-play.gif)](https://www.loom.com/share/9f8e0366fe9742c098a5fb9afba4cd4d)
+
 ## Table of Contents
 - [Project Description](#project-description)
 - [Tech Stack](#tech-stack)
