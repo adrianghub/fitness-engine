@@ -49,7 +49,7 @@ export function UncompletedChallengesList() {
                 footerContent={
                   hasRetriesLeft ? (
                     <div className='space-y-2 w-full'>
-                      <div className='text-xs text-muted-foreground text-right'>
+                      <div className='text-xs text-foreground text-right'>
                         {retriesText}
                       </div>
                       <Button

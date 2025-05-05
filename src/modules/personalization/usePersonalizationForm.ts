@@ -4,6 +4,7 @@ import type { Equipment, FitnessGoal } from "@/types/models";
 import { useAuth } from "@/useAuth";
 import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function usePersonalizationForm() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export function usePersonalizationForm() {
       try {
         await completeUserProfile(value);
         navigate({ to: "/dashboard" });
+        toast.success("Profile completed successfully");
       } catch (error: unknown) {
         logger.error(
           "Personalization",

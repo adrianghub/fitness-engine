@@ -42,6 +42,14 @@ export function EquipmentStep({
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => toggleEquipment(equipment.value)}
+                    role='button'
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        toggleEquipment(equipment.value);
+                      }
+                    }}
                     className={`cursor-pointer rounded-xl p-6 flex flex-col items-center justify-center gap-4 transition-all ${
                       isSelected
                         ? "bg-gradient-to-br from-foreground-muted to-foreground text-background shadow-lg"

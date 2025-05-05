@@ -19,10 +19,14 @@ export function FormValidator({
     form.store,
     (state) => state.values.goalsDescription
   );
+  const fieldMeta = useStore(form.store, (state) => state.fieldMeta);
 
   useEffect(() => {
     const currentFields = STEP_FIELDS[currentStep];
-    if (!currentFields) return;
+    if (!currentFields) {
+      setIsNextDisabled(true);
+      return;
+    }
 
     const hasErrors = currentFields.some((fieldName) => {
       if (fieldName === "displayName") {
@@ -37,7 +41,8 @@ export function FormValidator({
       if (fieldName === "goalsDescription") {
         return !goalsDescription || !String(goalsDescription).trim();
       }
-      return false;
+      const errors = fieldMeta[fieldName]?.errors;
+      return Array.isArray(errors) && errors.length > 0;
     });
 
     setIsNextDisabled(hasErrors);
@@ -47,6 +52,7 @@ export function FormValidator({
     level,
     equipment,
     goalsDescription,
+    fieldMeta,
     setIsNextDisabled,
   ]);
 

@@ -8,27 +8,21 @@ import {
 } from "@/services/cloud-functions";
 import type { UserChallenge } from "@/types/models";
 import { useAuth } from "@/useAuth";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "sonner";
+import { useChallengeInvalidation } from "./useChallengeInvalidation";
 
 export function useChallengeActions() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { currentUser } = useAuth();
   const userId = currentUser?.uid || "";
+  const { invalidateAllChallengeQueries } = useChallengeInvalidation();
 
   const userChallengeService = new FirestoreService<UserChallenge>(
     COLLECTIONS.USER_CHALLENGES
   );
-
-  const invalidateAllChallengeQueries = () => {
-    queryClient.invalidateQueries({ queryKey: ["challenges"] });
-    queryClient.invalidateQueries({ queryKey: ["challenge"] });
-    queryClient.invalidateQueries({ queryKey: [COLLECTIONS.USER_CHALLENGES] });
-    queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
-  };
 
   const updateActiveChallengeStatus = async (
     isActive: boolean,

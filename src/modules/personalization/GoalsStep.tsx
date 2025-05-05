@@ -59,6 +59,14 @@ export function GoalsStep({
                     key={goal}
                     className='p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors'
                     onClick={() => field.handleChange(goal)}
+                    role='button'
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        field.handleChange(goal);
+                      }
+                    }}
                     data-testid={`suggested-goal-${goal.toLowerCase().replace(/\s+/g, "-")}`}
                   >
                     <motion.div

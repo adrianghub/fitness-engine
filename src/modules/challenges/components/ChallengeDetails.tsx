@@ -131,7 +131,7 @@ export function ChallengeDetails() {
       if (hasRetriesLeft) {
         return (
           <div className='space-y-2 w-full'>
-            <div className='text-xs text-gray-500 text-right'>
+            <div className='text-xs text-foreground text-right'>
               Attempts left: {retriesCount}/3
             </div>
             <Button

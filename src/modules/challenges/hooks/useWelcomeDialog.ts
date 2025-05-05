@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useChallengeInvalidation } from "./useChallengeInvalidation";
 
 const TOTAL_STEPS = 2;
 
@@ -8,6 +9,7 @@ const TOTAL_STEPS = 2;
 export function useWelcomeDialog() {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  const { invalidateAllChallengeQueries } = useChallengeInvalidation();
 
   const handleNext = () => {
     if (step === TOTAL_STEPS - 1) {
@@ -29,6 +31,10 @@ export function useWelcomeDialog() {
   const completeWelcome = () => {
     localStorage.setItem("hasSeenWelcome", "true");
     setOpen(false);
+
+    console.log("Welcome completed, invalidating challenge queries...");
+
+    invalidateAllChallengeQueries();
   };
 
   return {

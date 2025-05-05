@@ -45,11 +45,10 @@ export function PersonalizationForm() {
     intervalTime: 1500,
     onComplete: async () => {
       try {
+        await new Promise((resolve) => setTimeout(resolve, 0));
         await form.handleSubmit();
-        await new Promise((resolve) => setTimeout(resolve, 500));
       } catch (error) {
         console.error("Form submission error:", error);
-      } finally {
         setIsLocalSubmitting(false);
         resetLoadingScreen();
       }
