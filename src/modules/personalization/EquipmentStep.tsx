@@ -16,7 +16,7 @@ export function EquipmentStep({
   };
 
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4' data-testid='equipment-step'>
       <form.Field
         name='equipment'
         validators={{
@@ -29,7 +29,10 @@ export function EquipmentStep({
         {(field) => (
           <div className='space-y-4'>
             <Label>Select Your Available Equipment</Label>
-            <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
+            <div
+              className='grid grid-cols-2 md:grid-cols-3 gap-4'
+              data-testid='equipment-grid'
+            >
               {AVAILABLE_EQUIPMENT.map((equipment) => {
                 const Icon = equipment.icon;
                 const isSelected = field.state.value.includes(equipment.value);
@@ -44,6 +47,7 @@ export function EquipmentStep({
                         ? "bg-gradient-to-br from-foreground-muted to-foreground text-background shadow-lg"
                         : "bg-background border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                     }`}
+                    data-testid={`equipment-option-${equipment.value}`}
                   >
                     <Icon
                       className={`h-8 w-8 ${isSelected ? "text-background" : "text-foreground"}`}
@@ -56,7 +60,10 @@ export function EquipmentStep({
               })}
             </div>
             {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-              <p className='text-sm text-destructive mt-1'>
+              <p
+                className='text-sm text-destructive mt-1'
+                data-testid='equipment-error'
+              >
                 {field.state.meta.errors.join(", ")}
               </p>
             )}

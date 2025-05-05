@@ -1,10 +1,10 @@
 import { expect, test } from "../fixtures/auth-fixture";
-import { loginWithGoogleAccount } from "../pages/auth-helper";
+import { loginWithGoogleAccount } from "../helpers/auth-helper";
 import {
   ScreenshotCategory,
   takeErrorScreenshot,
   takeScreenshot,
-} from "../pages/screenshot-helper";
+} from "../helpers/screenshot-helper";
 
 test.describe("Personalization Flow", () => {
   // Simple test to verify we get redirected to login when not authenticated
@@ -29,36 +29,36 @@ test.describe("Personalization Flow", () => {
       // Navigate directly to personalization page
       await page.goto("/personalization");
 
-      // Take screenshot to debug
+      // Take screenshot to debug, waiting for the step description
       await takeScreenshot(
         page,
         "personalization-start",
-        ScreenshotCategory.PERSONALIZATION
+        ScreenshotCategory.PERSONALIZATION,
+        page.getByTestId("personalization-form-step-description")
       );
 
       // Complete Step 1: Display Name
+      // Use testId to verify step description
       await expect(
-        page.getByText("Personalize Your Fitness Journey")
-      ).toBeVisible({ timeout: 15000 });
-      await expect(page.getByText("Step 1 of 4")).toBeVisible();
+        page.getByTestId("personalization-form-step-description")
+      ).toHaveText("Step 1 of 4", { timeout: 15000 });
 
       // The display name might be pre-filled from auth
-      const displayNameInput = page.getByLabel("Display Name");
+      const displayNameInput = page.getByTestId("display-name-input");
       await displayNameInput.waitFor({ state: "visible", timeout: 10000 });
 
       const currentValue = await displayNameInput.inputValue();
-
       if (!currentValue) {
         await personalizationPage.fillDisplayName("Test User");
       }
 
-      await page.getByRole("button", { name: "Next" }).click();
-      await page.waitForTimeout(1000); // Wait for transition
+      // Use the new POM method
+      await personalizationPage.clickNext();
 
       // Complete Step 2: Fitness Level
-      await expect(page.getByText("Step 2 of 4")).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(
+        page.getByTestId("personalization-form-step-description")
+      ).toHaveText("Step 2 of 4", { timeout: 10000 });
       await takeScreenshot(
         page,
         "personalization-step2",
@@ -67,13 +67,14 @@ test.describe("Personalization Flow", () => {
 
       // Use the page object method to select fitness level
       await personalizationPage.selectFitnessLevel("beginner");
-      await page.getByRole("button", { name: "Next" }).click();
-      await page.waitForTimeout(1000); // Wait for transition
+
+      // Use the new POM method
+      await personalizationPage.clickNext();
 
       // Complete Step 3: Equipment
-      await expect(page.getByText("Step 3 of 4")).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(
+        page.getByTestId("personalization-form-step-description")
+      ).toHaveText("Step 3 of 4", { timeout: 10000 });
       await takeScreenshot(
         page,
         "personalization-step3",
@@ -85,44 +86,38 @@ test.describe("Personalization Flow", () => {
         "dumbbells",
         "resistance-bands",
       ]);
-      await page.getByRole("button", { name: "Next" }).click();
-      await page.waitForTimeout(1000); // Wait for transition
+
+      // Use the new POM method
+      await personalizationPage.clickNext();
 
       // Step 4: Goals - Interact with the UI elements before checking if button is enabled
-      await expect(page.getByText("Step 4 of 4")).toBeVisible({
-        timeout: 10000,
-      });
+      await expect(
+        page.getByTestId("personalization-form-step-description")
+      ).toHaveText("Step 4 of 4", { timeout: 10000 });
       await takeScreenshot(
         page,
         "personalization-step4",
         ScreenshotCategory.PERSONALIZATION
       );
 
-      // Verify UI elements on the Goals step
-      await expect(
-        page.getByText("Tell us about your fitness goals")
-      ).toBeVisible();
+      // Verify UI elements on the Goals step using testIds
+      await expect(page.getByTestId("goals-step")).toBeVisible();
+      await expect(page.getByTestId("goals-textarea")).toBeVisible();
+      await expect(page.getByTestId("suggested-goals-section")).toBeVisible();
 
-      // Option 1: Click on a suggested goal
-      // First verify that the suggested goals section is visible
-      await expect(page.getByText("Suggested Goals")).toBeVisible();
+      // Use the new POM method to click a suggested goal
+      await personalizationPage.selectSuggestedGoal(
+        "Improve overall fitness level"
+      );
 
-      // Click on one of the suggested goals
-      await page.getByText("Improve overall fitness level").click();
+      // Wait a moment for the form to update (already included in POM method)
+      // await page.waitForTimeout(500);
 
-      // Alternative option: Fill the textarea directly (uncomment if needed)
-      // const goalsTextarea = page.getByPlaceholder("Describe what you want to achieve...");
-      // await goalsTextarea.fill("I want to build more muscle and improve my cardio endurance");
-
-      // Wait a moment for the form to update
-      await page.waitForTimeout(500);
-
-      // Verify the final button is visible and enabled
-      const finalButton = page.getByRole("button", {
-        name: "Start Your Journey",
-      });
+      // Verify the final button is visible and enabled using its testId
+      const finalButton = page.getByTestId("personalization-submit-button");
       await expect(finalButton).toBeVisible();
       await expect(finalButton).toBeEnabled();
+      await expect(finalButton).toHaveText("Start Your Journey");
 
       // Take a screenshot showing the completed form
       await takeScreenshot(
@@ -132,7 +127,9 @@ test.describe("Personalization Flow", () => {
       );
 
       // Intentionally stopping here without completing the flow
-      console.log("Successfully validated all personalization steps");
+      console.log(
+        "Successfully validated all personalization steps using testIds"
+      );
     } catch (error) {
       // Take screenshot on error to help with debugging
       await takeErrorScreenshot(page, "personalization-flow-error");

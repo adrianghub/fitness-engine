@@ -3,7 +3,7 @@ import {
   ScreenshotCategory,
   takeErrorScreenshot,
   takeScreenshot,
-} from "../pages/screenshot-helper";
+} from "../helpers/screenshot-helper";
 
 test.describe("Authentication Flow", () => {
   test("should redirect to login when accessing protected route", async ({
@@ -13,20 +13,20 @@ test.describe("Authentication Flow", () => {
     await expect(page).toHaveURL("/login?redirect=%2Fpersonalization");
   });
 
-  test("should successfully authenticate with Google", async ({
-    page,
-    authPage,
-  }) => {
+  test("should successfully authenticate with Google", async ({ page }) => {
     try {
       // Start at the login page
       await page.goto("/login");
 
+      await expect(page.getByTestId("login-form-card")).toBeVisible();
+      await expect(page.getByTestId("google-signin-button")).toBeVisible();
+
       // Take screenshot for reference
       await takeScreenshot(page, "login-page", ScreenshotCategory.AUTH);
 
-      // Click Sign in with Google button and wait for popup
+      // Click Sign in with Google button using testId and wait for popup
       const popupPromise = page.waitForEvent("popup");
-      await authPage.clickGoogleSignIn();
+      await page.getByTestId("google-signin-button").click();
 
       // Handle the auth emulator popup
       const popupPage = await popupPromise;
@@ -76,19 +76,9 @@ test.describe("Authentication Flow", () => {
           page.waitForURL(/\/(dashboard|personalization)/, { timeout: 30000 }),
         ]);
 
-        // Make sure we're back on the main page and it's loaded
-        await page.waitForLoadState("networkidle");
-
         // Check for a element that should be visible after login
         await expect(page.getByRole("banner")).toBeVisible();
         console.log("Banner is visible.");
-
-        // Take screenshot of the final state
-        await takeScreenshot(
-          page,
-          "after-login-confirmed",
-          ScreenshotCategory.AUTH
-        );
 
         console.log("Try block completed successfully.");
       } catch (error) {
@@ -112,20 +102,21 @@ test.describe("Authentication Flow", () => {
     console.log("Test function body finished.");
   });
 
-  test("should redirect to original page after login", async ({
-    page,
-    authPage,
-  }) => {
+  test("should redirect to original page after login", async ({ page }) => {
     // Try to access protected page
     await page.goto("/personalization");
 
     // Should redirect to login with redirect param
     await expect(page).toHaveURL("/login?redirect=%2Fpersonalization");
 
+    // Verify login form elements are visible
+    await expect(page.getByTestId("login-form-card")).toBeVisible();
+    await expect(page.getByTestId("google-signin-button")).toBeVisible();
+
     try {
-      // Click Sign in with Google button and wait for popup
+      // Click Sign in with Google button using testId and wait for popup
       const popupPromise = page.waitForEvent("popup");
-      await authPage.clickGoogleSignIn();
+      await page.getByTestId("google-signin-button").click();
 
       // Handle the auth emulator popup
       const popupPage = await popupPromise;

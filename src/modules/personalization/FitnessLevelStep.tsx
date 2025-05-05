@@ -11,7 +11,7 @@ export function FitnessLevelStep({
   form: ReturnType<typeof usePersonalizationForm>;
 }) {
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4' data-testid='fitness-level-step'>
       <form.Field
         name='level'
         validators={{
@@ -26,6 +26,7 @@ export function FitnessLevelStep({
               onValueChange={(value) => field.handleChange(value as UserLevel)}
               defaultValue={field.state.value}
               className='grid gap-4'
+              data-testid='fitness-level-radio-group'
             >
               {Object.entries(exercisesByLevel).map(
                 ([
@@ -38,6 +39,7 @@ export function FitnessLevelStep({
                     whileTap={{ scale: 0.98 }}
                     onClick={() => field.handleChange(level as UserLevel)}
                     className='w-full cursor-pointer'
+                    data-testid={`fitness-level-option-${level}`}
                   >
                     <div
                       className={`p-6 rounded-lg border-2 transition-all ${
@@ -74,7 +76,10 @@ export function FitnessLevelStep({
               )}
             </RadioGroup>
             {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-              <p className='text-sm text-destructive mt-1'>
+              <p
+                className='text-sm text-destructive mt-1'
+                data-testid='fitness-level-error'
+              >
                 {field.state.meta.errors.join(", ")}
               </p>
             )}

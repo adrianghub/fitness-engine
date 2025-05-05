@@ -11,7 +11,7 @@ export function GoalsStep({
   form: ReturnType<typeof usePersonalizationForm>;
 }) {
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6' data-testid='goals-step'>
       <form.Field
         name='goalsDescription'
         validators={{
@@ -35,16 +35,20 @@ export function GoalsStep({
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={field.handleBlur}
                 className='min-h-[120px] mt-2'
+                data-testid='goals-textarea'
               />
               {field.state.meta.errors &&
                 field.state.meta.errors.length > 0 && (
-                  <p className='text-sm text-destructive mt-1'>
+                  <p
+                    className='text-sm text-destructive mt-1'
+                    data-testid='goals-error'
+                  >
                     {field.state.meta.errors.join(", ")}
                   </p>
                 )}
             </div>
 
-            <div className='space-y-2'>
+            <div className='space-y-2' data-testid='suggested-goals-section'>
               <h3 className='text-lg font-medium flex items-center gap-2'>
                 <Target className='h-5 w-5 text-blue-500' />
                 Suggested Goals
@@ -55,6 +59,7 @@ export function GoalsStep({
                     key={goal}
                     className='p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors'
                     onClick={() => field.handleChange(goal)}
+                    data-testid={`suggested-goal-${goal.toLowerCase().replace(/\s+/g, "-")}`}
                   >
                     <motion.div
                       key={goal}

@@ -76,17 +76,33 @@ export function PersonalizationForm() {
   }
 
   return (
-    <Card className='w-full max-w-3xl mx-auto p-0'>
-      <CardHeader className='bg-gradient-to-br from-primary to-secondary p-4 rounded-t-lg'>
-        <CardTitle className='flex items-center gap-2 text-2xl'>
+    <Card
+      className='w-full max-w-3xl mx-auto p-0'
+      data-testid='personalization-form-card'
+    >
+      <CardHeader
+        className='bg-gradient-to-br from-primary to-secondary p-4 rounded-t-lg'
+        data-testid='personalization-form-header'
+      >
+        <CardTitle
+          className='flex items-center gap-2 text-2xl'
+          data-testid='personalization-form-title'
+        >
           <span className='text-background'>
             Personalize Your Fitness Journey
           </span>
         </CardTitle>
-        <CardDescription className='text-md text-background'>
+        <CardDescription
+          className='text-md text-background'
+          data-testid='personalization-form-step-description'
+        >
           Step {currentStep} of {TOTAL_STEPS}
         </CardDescription>
-        <Progress value={progress} className='w-full' />
+        <Progress
+          value={progress}
+          className='w-full'
+          data-testid='personalization-form-progress'
+        />
       </CardHeader>
 
       <CardContent className='p-6'>
@@ -103,6 +119,7 @@ export function PersonalizationForm() {
             }
           }}
           className='space-y-6'
+          data-testid='personalization-form'
         >
           <FormValidator
             form={form}
@@ -116,6 +133,7 @@ export function PersonalizationForm() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
+            data-testid={`personalization-step-${currentStep}-container`}
           >
             {currentStep === 1 && <DisplayNameStep form={form} />}
             {currentStep === 2 && <FitnessLevelStep form={form} />}
@@ -130,6 +148,7 @@ export function PersonalizationForm() {
                 variant='outline'
                 onClick={handleBack}
                 className='flex-1'
+                data-testid='personalization-back-button'
               >
                 Back
               </Button>
@@ -139,6 +158,7 @@ export function PersonalizationForm() {
               type='submit'
               className='flex-1'
               disabled={isLocalSubmitting || isSubmitting || isNextDisabled}
+              data-testid='personalization-submit-button'
             >
               {isLocalSubmitting || isSubmitting
                 ? "Saving..."

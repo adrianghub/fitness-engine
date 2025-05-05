@@ -8,7 +8,7 @@ export function DisplayNameStep({
   form: ReturnType<typeof usePersonalizationForm>;
 }) {
   return (
-    <div className='space-y-4'>
+    <div className='space-y-4' data-testid='display-name-step'>
       <form.Field
         name='displayName'
         validators={{
@@ -27,9 +27,13 @@ export function DisplayNameStep({
               onChange={(e) => field.handleChange(e.target.value)}
               onBlur={field.handleBlur}
               className='text-lg p-4'
+              data-testid='display-name-input'
             />
             {field.state.meta.errors && field.state.meta.errors.length > 0 && (
-              <p className='text-sm text-destructive mt-1'>
+              <p
+                className='text-sm text-destructive mt-1'
+                data-testid='display-name-error'
+              >
                 {field.state.meta.errors.join(", ")}
               </p>
             )}

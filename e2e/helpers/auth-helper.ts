@@ -1,5 +1,5 @@
 import { Page } from "@playwright/test";
-import { AuthPage } from "./auth-page";
+import { AuthPage } from "../pages/auth-page";
 import { takeErrorScreenshot } from "./screenshot-helper";
 
 /**
